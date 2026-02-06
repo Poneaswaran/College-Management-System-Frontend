@@ -10,7 +10,7 @@ export function AppRouter() {
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/register" element={<Register />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Navigate to="/auth/login" replace />} />
             <Route path="*" element={<NotFound />} />
         </Routes>
     );
