@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ApolloProvider } from '@apollo/client/react';
 import { store } from '../store';
 import { client } from '../lib/graphql';
+import { ThemeProvider } from '../theme';
 
 interface ProvidersProps {
     children: ReactNode;
@@ -11,12 +12,14 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
     return (
-        <Provider store={store}>
-            <ApolloProvider client={client}>
-                <BrowserRouter>
-                    {children}
-                </BrowserRouter>
-            </ApolloProvider>
-        </Provider>
+        <ThemeProvider>
+            <Provider store={store}>
+                <ApolloProvider client={client}>
+                    <BrowserRouter>
+                        {children}
+                    </BrowserRouter>
+                </ApolloProvider>
+            </Provider>
+        </ThemeProvider>
     );
 }
