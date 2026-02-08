@@ -8,12 +8,12 @@ export const useAuth = () => {
     const user = useSelector(selectCurrentUser);
     const isAuthenticated = useSelector(selectIsAuthenticated);
 
-    const login = async (credentials: any): Promise<boolean> => {
+    const login = async (credentials: any): Promise<any> => {
         dispatch(loginStart());
         try {
             const response = await loginApi(credentials);
             dispatch(loginSuccess(response.data));
-            return true; // Success - API returned valid response
+            return response.data.user; // Return user object
         } catch (error: any) {
             dispatch(loginFailure(error.response?.data?.message || 'Login failed'));
             throw error; // Re-throw so the component can handle it

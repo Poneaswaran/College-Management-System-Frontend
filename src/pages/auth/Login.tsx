@@ -93,9 +93,11 @@ export default function Login() {
         setError(null);
 
         try {
-            const success = await login(formData);
-            // Only navigate to dashboard if API returns successfully
-            if (success) {
+            const user = await login(formData);
+
+            if (user?.role?.code === 'STUDENT') {
+                navigate('/student/dashboard');
+            } else {
                 navigate('/dashboard');
             }
         } catch (err: any) {

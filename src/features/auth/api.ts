@@ -27,19 +27,19 @@ const LOGIN_MUTATION = gql`
 `;
 
 export const login = async (credentials: any) => {
-    const { data } = await client.mutate({
-        mutation: LOGIN_MUTATION,
-        variables: {
-            username: credentials.username,
-            password: credentials.password,
-        },
-    });
+  const { data } = await client.mutate<any>({
+    mutation: LOGIN_MUTATION,
+    variables: {
+      username: credentials.username,
+      password: credentials.password,
+    },
+  });
 
-    return {
-        data: {
-            user: data.login.user,
-            token: data.login.accessToken,
-        }
-    };
+  return {
+    data: {
+      user: data.login.user,
+      token: data.login.accessToken,
+    }
+  };
 };
 export const register = (data: any) => api.post<{ user: User, token: string }>('/auth/register', data);
