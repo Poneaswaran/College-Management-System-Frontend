@@ -20,7 +20,7 @@ export const GET_ACTIVE_SESSIONS = gql`
 // Mark attendance with image
 export const MARK_ATTENDANCE = gql`
   mutation MarkAttendance(
-    $sessionId: Int!
+    $sessionId: ID!
     $imageData: String!
     $latitude: Float
     $longitude: Float
@@ -35,9 +35,9 @@ export const MARK_ATTENDANCE = gql`
         id
         status
         markedAt
-        isLate
       }
       message
+      success
     }
   }
 `;
