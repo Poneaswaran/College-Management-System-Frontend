@@ -73,7 +73,10 @@ export default function MarkAttendance() {
                 }
             );
         } else {
-            setLocationError('Geolocation is not supported by this browser.');
+            // Using setTimeout to avoid synchronous setState in effect
+            setTimeout(() => {
+                setLocationError('Geolocation is not supported by this browser.');
+            }, 0);
         }
     }, []);
 

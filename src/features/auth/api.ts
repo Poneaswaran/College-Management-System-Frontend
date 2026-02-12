@@ -26,14 +26,32 @@ const LOGIN_MUTATION = gql`
   }
 `;
 
-export const login = async (credentials: any) => {
-  const { data } = await client.mutate<any>({
+interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+interface LoginResponse {
+  login: {
+    accessToken: string;
+    refreshToken: string;
+    message: string;
+    user: User;
+  };
+}
+
+export const login = async (credentials: LoginCredentials) => {
+  const { data } = await client.mutate<LoginResponse>({
     mutation: LOGIN_MUTATION,
     variables: {
       username: credentials.username,
       password: credentials.password,
     },
   });
+
+  if (!data) {
+    throw new Error('No data returned from login mutation');
+  }
 
   return {
     data: {
@@ -42,4 +60,11 @@ export const login = async (credentials: any) => {
     }
   };
 };
-export const register = (data: any) => api.post<{ user: User, token: string }>('/auth/register', data);
+interface RegisterData {
+  email: string;
+  password: string;
+  registerNumber: string;
+  [key: string]: string;
+}
+
+export const register = (data: RegisterData) => api.post<{ user: User, token: string }>('/auth/register', data);

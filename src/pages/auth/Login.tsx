@@ -100,8 +100,11 @@ export default function Login() {
             } else {
                 navigate('/dashboard');
             }
-        } catch (err: any) {
-            setError(err.response?.data?.message || err.message || 'Failed to login. Please check your credentials.');
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error && 'response' in err
+                ? (err as { response?: { data?: { message?: string } }; message?: string }).response?.data?.message || (err as Error).message || 'Failed to login. Please check your credentials.'
+                : 'Failed to login. Please check your credentials.';
+            setError(errorMessage);
         } finally {
             setIsLoading(false);
         }
