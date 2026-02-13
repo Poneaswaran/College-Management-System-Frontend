@@ -60,6 +60,38 @@ export const login = async (credentials: LoginCredentials) => {
     }
   };
 };
+
+const LOGOUT_MUTATION = gql`
+  mutation Logout($accessToken: String!) {
+    logout(accessToken: $accessToken) {
+      success
+      message
+    }
+  }
+`;
+
+interface LogoutResponse {
+  logout: {
+    success: boolean;
+    message: string;
+  };
+}
+
+export const logout = async (accessToken: string) => {
+  const { data } = await client.mutate<LogoutResponse>({
+    mutation: LOGOUT_MUTATION,
+    variables: {
+      accessToken,
+    },
+  });
+
+  if (!data) {
+    throw new Error('No data returned from logout mutation');
+  }
+
+  return data.logout;
+};
+
 interface RegisterData {
   email: string;
   password: string;

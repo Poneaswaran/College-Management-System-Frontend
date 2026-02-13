@@ -39,38 +39,38 @@ const UniversityLogo = () => (
         {/* Shield Background */}
         <defs>
             <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="var(--color-primary)" />
-                <stop offset="100%" stopColor="var(--color-primary-dark)" />
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
+                <stop offset="100%" stopColor="#e0e7ff" stopOpacity="0.9" />
             </linearGradient>
             <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="var(--color-accent-light)" />
-                <stop offset="50%" stopColor="var(--color-accent-hover)" />
-                <stop offset="100%" stopColor="var(--color-accent-dark)" />
+                <stop offset="0%" stopColor="#fef3c7" />
+                <stop offset="50%" stopColor="#fbbf24" />
+                <stop offset="100%" stopColor="#f59e0b" />
             </linearGradient>
         </defs>
 
         {/* Outer Gold Border */}
         <path d="M60 5 L110 25 L110 70 Q110 110 60 135 Q10 110 10 70 L10 25 Z" fill="url(#goldGradient)" />
 
-        {/* Inner Blue Shield */}
+        {/* Inner White Shield */}
         <path d="M60 12 L102 30 L102 68 Q102 104 60 126 Q18 104 18 68 L18 30 Z" fill="url(#shieldGradient)" />
 
         {/* Book Icon */}
         <g transform="translate(35, 50)">
             {/* Left page */}
-            <path d="M25 0 Q12 5 0 10 L0 45 Q12 40 25 35 Z" fill="#fef3c7" stroke="#d97706" strokeWidth="1" />
+            <path d="M25 0 Q12 5 0 10 L0 45 Q12 40 25 35 Z" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
             {/* Right page */}
-            <path d="M25 0 Q38 5 50 10 L50 45 Q38 40 25 35 Z" fill="#fef3c7" stroke="#d97706" strokeWidth="1" />
+            <path d="M25 0 Q38 5 50 10 L50 45 Q38 40 25 35 Z" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1" />
             {/* Book spine */}
-            <line x1="25" y1="0" x2="25" y2="35" stroke="#d97706" strokeWidth="2" />
+            <line x1="25" y1="0" x2="25" y2="35" stroke="#2563eb" strokeWidth="2" />
             {/* Page lines left */}
-            <line x1="8" y1="18" x2="20" y2="14" stroke="#93c5fd" strokeWidth="1.5" />
-            <line x1="8" y1="24" x2="20" y2="20" stroke="#93c5fd" strokeWidth="1.5" />
-            <line x1="8" y1="30" x2="20" y2="26" stroke="#93c5fd" strokeWidth="1.5" />
+            <line x1="8" y1="18" x2="20" y2="14" stroke="#2563eb" strokeWidth="1.5" />
+            <line x1="8" y1="24" x2="20" y2="20" stroke="#2563eb" strokeWidth="1.5" />
+            <line x1="8" y1="30" x2="20" y2="26" stroke="#2563eb" strokeWidth="1.5" />
             {/* Page lines right */}
-            <line x1="30" y1="14" x2="42" y2="18" stroke="#93c5fd" strokeWidth="1.5" />
-            <line x1="30" y1="20" x2="42" y2="24" stroke="#93c5fd" strokeWidth="1.5" />
-            <line x1="30" y1="26" x2="42" y2="30" stroke="#93c5fd" strokeWidth="1.5" />
+            <line x1="30" y1="14" x2="42" y2="18" stroke="#2563eb" strokeWidth="1.5" />
+            <line x1="30" y1="20" x2="42" y2="24" stroke="#2563eb" strokeWidth="1.5" />
+            <line x1="30" y1="26" x2="42" y2="30" stroke="#2563eb" strokeWidth="1.5" />
         </g>
     </svg>
 );
@@ -97,6 +97,10 @@ export default function Login() {
 
             if (user?.role?.code === 'STUDENT') {
                 navigate('/student/dashboard');
+            } else if (user?.role?.code === 'FACULTY') {
+                navigate('/faculty/dashboard');
+            } else if (user?.role?.code === 'HOD') {
+                navigate('/hod/dashboard');
             } else {
                 navigate('/dashboard');
             }
@@ -170,7 +174,7 @@ export default function Login() {
                                 Student/Staff ID
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <UserIcon />
                                 </div>
                                 <input
@@ -181,7 +185,7 @@ export default function Login() {
                                     onChange={handleChange}
                                     required
                                     disabled={isLoading}
-                                    className="input pl-10"
+                                    className="w-full px-4 py-3 pl-12 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-foreground)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all duration-200 outline-none"
                                 />
                             </div>
                         </div>
@@ -192,7 +196,7 @@ export default function Login() {
                                 Password
                             </label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <LockIcon />
                                 </div>
                                 <input
@@ -203,9 +207,9 @@ export default function Login() {
                                     onChange={handleChange}
                                     required
                                     disabled={isLoading}
-                                    className="input pl-10 pr-12"
+                                    className="w-full px-4 py-3 pl-12 pr-12 border border-[var(--color-border)] rounded-lg bg-[var(--color-background)] text-[var(--color-foreground)] focus:ring-2 focus:ring-[var(--color-primary)] focus:border-[var(--color-primary)] transition-all duration-200 outline-none"
                                 />
-                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
                                     <EyeIcon onClick={() => setShowPassword(!showPassword)} showPassword={showPassword} />
                                 </div>
                             </div>

@@ -111,6 +111,32 @@ const { data } = await client.mutate<LoginResponse>({
 
 Check for null data: `if (!data) throw new Error('No data returned')`
 
+## Media & Asset Handling
+
+**CRITICAL**: Always use the centralized `getMediaUrl()` utility for backend media paths.
+
+Backend returns relative paths (e.g., `/media/student_profiles/photo.jpg`), which must be combined with `SERVER_URL`.
+
+```typescript
+// ✅ Correct - Use getMediaUrl utility
+import { getMediaUrl } from '../../lib/constants';
+
+const profilePhotoUrl = getMediaUrl(profile.profilePhotoUrl);
+// Returns: 'http://192.168.2.232:8000/media/student_profiles/photo.jpg'
+
+<img src={profilePhotoUrl} alt="Profile" />
+
+// ❌ Wrong - Direct usage of backend path
+<img src={profile.profilePhotoUrl} alt="Profile" />
+```
+
+**Key points:**
+- Import from `src/lib/constants.ts`
+- Handles null/undefined paths automatically
+- Works with already-complete URLs (http/https)
+- Removes duplicate slashes
+- Configure backend URL in `src/config/constant.ts`
+
 ## React Patterns
 
 1. **Lazy loading pages**: Always use `lazy()` + `Suspense` for route components

@@ -4,6 +4,7 @@ import { API_URL } from '../config/constant';
 
 const httpLink = createHttpLink({
     uri: API_URL,
+    includeExtensions: false,
 });
 
 const authLink = setContext((_, { headers }) => {

@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { loginStart, loginSuccess, loginFailure } from './slice';
-import { login as loginApi } from './api';
+import { loginStart, loginSuccess, loginFailure, logout as logoutAction } from './slice';
+import { login as loginApi, logout as logoutApi } from './api';
 import { selectCurrentUser, selectIsAuthenticated } from '../../store/auth.store';
 import type { User } from './types';
 
@@ -29,5 +29,22 @@ export const useAuth = () => {
         }
     };
 
-    return { user, isAuthenticated, login };
+    const logout = async () => {
+        try {
+            const token = localStorage.getItem('token') || '';
+            
+            if (token) {
+                // Call logout mutation
+                await logoutApi(token);
+            }
+        } catch (error: unknown) {
+            console.error('Logout error:', error);
+            // Continue with logout even if API call fails
+        } finally {
+            // Clear local state regardless of API call result
+            dispatch(logoutAction());
+        }
+    };
+
+    return { user, isAuthenticated, login, logout };
 };

@@ -2,9 +2,10 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react()],
-  base: '/College-Management-System-Frontend/',
+  // Use base path only for production builds (GitHub Pages)
+  base: command === 'build' ? '/College-Management-System-Frontend/' : '/',
   server: {
     host: true,
     port: 3000,
@@ -49,4 +50,4 @@ export default defineConfig({
     // Enable source maps for production debugging (optional)
     sourcemap: false,
   },
-})
+}))
