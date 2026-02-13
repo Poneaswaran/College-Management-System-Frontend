@@ -33,40 +33,54 @@ export interface Grade {
 
 export interface Submission {
   id: number;
-  studentName: string;
-  studentRegisterNumber: string;
   submittedAt: string;
-  isLate: boolean;
   status: SubmissionStatus;
   submissionText?: string;
-  hasAttachment: boolean;
-  attachmentUrl?: string;
+  submissionFile?: string;
+  assignment?: {
+    id: number;
+    title: string;
+    maxMarks: number;
+  };
   grade?: Grade;
+  // Legacy fields for backward compatibility
+  studentName?: string;
+  studentRegisterNumber?: string;
+  isLate?: boolean;
+  hasAttachment?: boolean;
+  attachmentUrl?: string;
+  assignmentTitle?: string;
 }
 
 export interface Assignment {
   id: number;
   title: string;
   description: string;
-  subjectName: string;
+  subject: {
+    id: number;
+    name: string;
+    code: string;
+  };
   subjectId?: number;
-  sectionName: string;
   sectionId?: number;
   semesterId?: number;
-  facultyName: string;
   dueDate: string;
   maxMarks: number;
-  weightage: number;
+  weightage?: number;
   assignmentType: AssignmentType;
   status: AssignmentStatus;
   isOverdue: boolean;
-  canSubmit: boolean;
-  allowLateSubmission: boolean;
+  canSubmit?: boolean;
+  allowLateSubmission?: boolean;
   lateSubmissionDeadline?: string;
   attachmentUrl?: string;
   createdAt?: string;
   timeRemaining?: string;
   statistics?: AssignmentStatistics;
+  // Legacy fields for backward compatibility
+  subjectName?: string;
+  sectionName?: string;
+  facultyName?: string;
 }
 
 export interface PendingGrading {
@@ -83,7 +97,10 @@ export interface StudentAssignmentStatistics {
   totalSubmitted: number;
   pendingSubmission: number;
   submissionPercentage: number;
+  gradedCount: number;
+  pendingGrading: number;
   overdueCount: number;
+  averageMarks: number;
   averagePercentage: number;
 }
 

@@ -57,6 +57,7 @@ import {
   fetchSubjects,
   fetchSections,
   fetchSemesters,
+  fetchStudentStatistics,
 } from './api';
 import type {
   CreateAssignmentInput,
@@ -562,6 +563,23 @@ export const usePendingSubmissions = () => {
  * Hook for assignment statistics
  */
 export const useAssignmentStatistics = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const statistics = useSelector(selectStatistics);
-  return { statistics };
+
+  const loadStatistics = useCallback(
+    async (semesterId?: number) => {
+      try {
+        const data = await fetchStudentStatistics(semesterId);
+        dispatch(setStatistics(data));
+        return data;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load statistics';
+        dispatch(setError(errorMessage));
+        throw err;
+      }
+    },
+    [dispatch]
+  );
+
+  return { statistics, loadStatistics };
 };

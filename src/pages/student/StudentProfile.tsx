@@ -15,7 +15,7 @@ import {
     Camera,
     Loader
 } from 'lucide-react';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { selectCurrentUser } from '../../store/auth.store';
 import { GET_STUDENT_PROFILE } from '../../features/students/graphql/profile';
 import { getMediaUrl } from '../../lib/constants';
@@ -52,23 +52,21 @@ export default function StudentProfile() {
 
     if (loading) {
         return (
-            <div className="flex h-screen bg-[var(--color-background)]">
-                <Sidebar />
-                <div className="flex-1 ml-64 flex items-center justify-center">
+            <PageLayout>
+                <div className="flex items-center justify-center h-screen">
                     <div className="text-center">
                         <Loader className="animate-spin h-12 w-12 mx-auto mb-4 text-[var(--color-primary)]" />
                         <p className="text-[var(--color-foreground-secondary)]">Loading profile...</p>
                     </div>
                 </div>
-            </div>
+            </PageLayout>
         );
     }
 
     if (error) {
         return (
-            <div className="flex h-screen bg-[var(--color-background)]">
-                <Sidebar />
-                <div className="flex-1 ml-64 flex items-center justify-center">
+            <PageLayout>
+                <div className="flex items-center justify-center h-screen">
                     <div className="text-center">
                         <p className="text-[var(--color-error)] mb-4">Error loading profile: {error.message}</p>
                         <button 
@@ -79,43 +77,40 @@ export default function StudentProfile() {
                         </button>
                     </div>
                 </div>
-            </div>
+            </PageLayout>
         );
     }
 
     if (!profile) {
         return (
-            <div className="flex h-screen bg-[var(--color-background)]">
-                <Sidebar />
-                <div className="flex-1 ml-64 flex items-center justify-center">
+            <PageLayout>
+                <div className="flex items-center justify-center h-screen">
                     <p className="text-[var(--color-foreground-secondary)]">No profile data available</p>
                 </div>
-            </div>
+            </PageLayout>
         );
     }
 
     return (
-        <div className="flex min-h-screen bg-[var(--color-background)]">
-            <Sidebar />
-            <div className="flex-1 ml-64">
-                <div className="p-8">
-                    {/* Header */}
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-[var(--color-foreground)] mb-2">My Profile</h1>
-                        <p className="text-[var(--color-foreground-secondary)]">View and manage your personal information</p>
+        <PageLayout>
+            <div className="p-8">
+                {/* Header */}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-[var(--color-foreground)] mb-2">My Profile</h1>
+                    <p className="text-[var(--color-foreground-secondary)]">View and manage your personal information</p>
+                </div>
+
+                {/* Profile Completion Status */}
+                {!profile.profileCompleted && (
+                    <div className="mb-6 p-4 bg-[var(--color-warning-light)] border border-[var(--color-warning)] rounded-lg">
+                        <p className="text-[var(--color-warning-dark)] font-medium">
+                            ⚠️ Your profile is incomplete. Please complete all required fields.
+                        </p>
                     </div>
+                )}
 
-                    {/* Profile Completion Status */}
-                    {!profile.profileCompleted && (
-                        <div className="mb-6 p-4 bg-[var(--color-warning-light)] border border-[var(--color-warning)] rounded-lg">
-                            <p className="text-[var(--color-warning-dark)] font-medium">
-                                ⚠️ Your profile is incomplete. Please complete all required fields.
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Profile Card */}
-                    <div className="bg-[var(--color-card)] rounded-xl shadow-lg border border-[var(--color-border)] overflow-hidden mb-6">
+                {/* Profile Card */}
+                <div className="bg-[var(--color-card)] rounded-xl shadow-lg border border-[var(--color-border)] overflow-hidden mb-6">
                         {/* Header with gradient */}
                         <div className="h-32 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]"></div>
                         
@@ -222,22 +217,21 @@ export default function StudentProfile() {
                             </div>
                         </div>
 
-                        {/* Identity Information */}
-                        <div className="bg-[var(--color-card)] rounded-xl shadow-md border border-[var(--color-border)] p-6">
-                            <h3 className="text-xl font-semibold text-[var(--color-foreground)] mb-4 flex items-center gap-2">
-                                <Shield size={22} className="text-[var(--color-primary)]" />
-                                Identity Information
-                            </h3>
-                            <div className="space-y-4">
-                                <InfoRow icon={<FileText size={18} />} label="Aadhar Number" value={profile.aadharNumber} />
-                                <InfoRow icon={<FileText size={18} />} label="ID Proof Type" value={profile.idProofType} />
-                                <InfoRow icon={<FileText size={18} />} label="ID Proof Number" value={profile.idProofNumber} />
-                            </div>
+                    {/* Identity Information */}
+                    <div className="bg-[var(--color-card)] rounded-xl shadow-md border border-[var(--color-border)] p-6">
+                        <h3 className="text-xl font-semibold text-[var(--color-foreground)] mb-4 flex items-center gap-2">
+                            <Shield size={22} className="text-[var(--color-primary)]" />
+                            Identity Information
+                        </h3>
+                        <div className="space-y-4">
+                            <InfoRow icon={<FileText size={18} />} label="Aadhar Number" value={profile.aadharNumber} />
+                            <InfoRow icon={<FileText size={18} />} label="ID Proof Type" value={profile.idProofType} />
+                            <InfoRow icon={<FileText size={18} />} label="ID Proof Number" value={profile.idProofNumber} />
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </PageLayout>
     );
 }
 

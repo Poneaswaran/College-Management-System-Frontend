@@ -39,6 +39,13 @@ export const SubmissionCard: React.FC<SubmissionCardProps> = ({
     return 'text-red-600 dark:text-red-400';
   };
 
+  // Handle both nested assignment and legacy assignmentTitle
+  const assignmentTitle = submission.assignment?.title || (submission as never)['assignmentTitle'] || '';
+  
+  // Handle both submissionFile and legacy attachmentUrl
+  const fileUrl = submission.submissionFile || submission.attachmentUrl;
+  const hasFile = !!fileUrl || submission.hasAttachment;
+
   return (
     <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg p-4 hover:shadow-md transition-shadow">
       {/* Header */}
@@ -54,9 +61,9 @@ export const SubmissionCard: React.FC<SubmissionCardProps> = ({
               </p>
             </>
           )}
-          {variant === 'student' && 'assignmentTitle' in submission && (
+          {variant === 'student' && assignmentTitle && (
             <h3 className="text-lg font-semibold text-[var(--color-foreground)] mb-1">
-              {(submission as never)['assignmentTitle']}
+              {assignmentTitle}
             </h3>
           )}
         </div>
@@ -77,7 +84,7 @@ export const SubmissionCard: React.FC<SubmissionCardProps> = ({
           <span className="font-medium text-[var(--color-foreground)]">{formattedDate}</span>
         </div>
 
-        {submission.hasAttachment && (
+        {hasFile && (
           <div className="flex items-center gap-1 text-sm text-[var(--color-muted-foreground)]">
             <svg
               className="w-4 h-4"
@@ -93,9 +100,9 @@ export const SubmissionCard: React.FC<SubmissionCardProps> = ({
               />
             </svg>
             <span>File attached</span>
-            {submission.attachmentUrl && (
+            {fileUrl && (
               <a
-                href={getMediaUrl(submission.attachmentUrl) || '#'}
+                href={getMediaUrl(fileUrl) || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[var(--color-primary)] hover:underline ml-1"

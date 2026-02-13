@@ -5,6 +5,7 @@ import { ApolloProvider } from '@apollo/client/react';
 import { store } from '../store';
 import { client } from '../lib/graphql';
 import { ThemeProvider } from '../theme';
+import { SidebarProvider } from '../contexts/SidebarContext';
 
 interface ProvidersProps {
     children: ReactNode;
@@ -15,9 +16,11 @@ export function Providers({ children }: ProvidersProps) {
         <ThemeProvider>
             <Provider store={store}>
                 <ApolloProvider client={client}>
-                    <HashRouter>
-                        {children}
-                    </HashRouter>
+                    <SidebarProvider>
+                        <HashRouter>
+                            {children}
+                        </HashRouter>
+                    </SidebarProvider>
                 </ApolloProvider>
             </Provider>
         </ThemeProvider>

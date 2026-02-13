@@ -37,20 +37,26 @@ export const STUDENT_DASHBOARD_QUERY = gql`
     myAssignments {
       id
       title
-      subjectName
+      description
+      assignmentType
       dueDate
       maxMarks
-      isOverdue
-      canSubmit
-      timeRemaining
       status
+      isOverdue
+      subject {
+        id
+        name
+        code
+      }
     }
     
     overdueAssignments {
       id
       title
-      subjectName
       dueDate
+      subject {
+        name
+      }
     }
     
     studentAssignmentStatistics {
@@ -58,14 +64,17 @@ export const STUDENT_DASHBOARD_QUERY = gql`
       totalSubmitted
       pendingSubmission
       submissionPercentage
+      gradedCount
+      pendingGrading
       overdueCount
+      averageMarks
       averagePercentage
     }
   }
 `;
 
 export const GET_FACULTY_ASSIGNMENTS_QUERY = gql`
-  query GetFacultyAssignments($subjectId: Int, $status: String) {
+  query GetFacultyAssignments($subjectId: ID, $status: String) {
     assignments(subjectId: $subjectId, status: $status) {
       id
       title
@@ -89,29 +98,32 @@ export const GET_STUDENT_ASSIGNMENTS_QUERY = gql`
       id
       title
       description
-      subjectName
-      sectionName
-      facultyName
+      assignmentType
       dueDate
       maxMarks
-      weightage
+      status
       isOverdue
-      canSubmit
-      timeRemaining
+      subject {
+        id
+        name
+        code
+      }
     }
     
     pendingAssignments {
       id
       title
-      subjectName
       dueDate
       maxMarks
+      subject {
+        name
+      }
     }
   }
 `;
 
 export const GET_ASSIGNMENT_DETAILS_QUERY = gql`
-  query GetAssignmentDetails($id: Int!) {
+  query GetAssignmentDetails($id: ID!) {
     assignment(id: $id) {
       id
       title
@@ -167,18 +179,19 @@ export const GET_MY_SUBMISSIONS_QUERY = gql`
   query GetMySubmissions {
     mySubmissions {
       id
-      assignmentTitle
       submittedAt
-      isLate
       status
       submissionText
-      hasAttachment
-      attachmentUrl
+      submissionFile
+      assignment {
+        id
+        title
+        maxMarks
+      }
       grade {
         marksObtained
-        percentage
-        gradeLetter
         feedback
+        percentage
         gradedAt
       }
     }
@@ -189,23 +202,14 @@ export const GET_SUBMISSION_DETAILS_QUERY = gql`
   query GetSubmissionDetails($id: Int!) {
     submission(id: $id) {
       id
-      studentName
-      studentRegisterNumber
-      assignmentTitle
       submittedAt
-      isLate
       status
       submissionText
-      hasAttachment
-      attachmentUrl
+      submissionFile
       grade {
-        id
         marksObtained
-        percentage
-        gradeLetter
         feedback
-        gradedAt
-        gradedBy
+        percentage
       }
     }
   }
@@ -213,7 +217,7 @@ export const GET_SUBMISSION_DETAILS_QUERY = gql`
 
 export const HOD_DASHBOARD_QUERY = gql`
   query HODDashboard {
-    assignments(sectionId: null) {
+    assignments {
       id
       title
       subjectName
@@ -258,7 +262,7 @@ export const UPDATE_ASSIGNMENT_MUTATION = gql`
 `;
 
 export const PUBLISH_ASSIGNMENT_MUTATION = gql`
-  mutation PublishAssignment($id: Int!) {
+  mutation PublishAssignment($id: ID!) {
     publishAssignment(id: $id) {
       id
       status
@@ -267,7 +271,7 @@ export const PUBLISH_ASSIGNMENT_MUTATION = gql`
 `;
 
 export const CLOSE_ASSIGNMENT_MUTATION = gql`
-  mutation CloseAssignment($id: Int!) {
+  mutation CloseAssignment($id: ID!) {
     closeAssignment(id: $id) {
       id
       status
@@ -276,7 +280,7 @@ export const CLOSE_ASSIGNMENT_MUTATION = gql`
 `;
 
 export const DELETE_ASSIGNMENT_MUTATION = gql`
-  mutation DeleteAssignment($id: Int!) {
+  mutation DeleteAssignment($id: ID!) {
     deleteAssignment(id: $id) {
       success
       message
@@ -336,7 +340,7 @@ export const GET_SUBJECTS_QUERY = gql`
 `;
 
 export const GET_SECTIONS_QUERY = gql`
-  query GetSections($subjectId: Int) {
+  query GetSections($subjectId: ID) {
     sections(subjectId: $subjectId) {
       id
       name
@@ -351,6 +355,22 @@ export const GET_SEMESTERS_QUERY = gql`
       id
       name
       year
+    }
+  }
+`;
+
+export const GET_STUDENT_STATISTICS_QUERY = gql`
+  query GetStudentStatistics($semesterId: Int) {
+    studentAssignmentStatistics(semesterId: $semesterId) {
+      totalAssignments
+      totalSubmitted
+      pendingSubmission
+      submissionPercentage
+      gradedCount
+      pendingGrading
+      overdueCount
+      averageMarks
+      averagePercentage
     }
   }
 `;

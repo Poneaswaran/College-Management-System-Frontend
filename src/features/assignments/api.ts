@@ -24,6 +24,7 @@ import type {
   Subject,
   Section,
   Semester,
+  StudentAssignmentStatistics,
 } from './types';
 import {
   FACULTY_DASHBOARD_QUERY,
@@ -45,6 +46,7 @@ import {
   GET_SUBJECTS_QUERY,
   GET_SECTIONS_QUERY,
   GET_SEMESTERS_QUERY,
+  GET_STUDENT_STATISTICS_QUERY,
 } from './graphql/queries';
 
 /**
@@ -405,4 +407,25 @@ export const fetchSemesters = async (): Promise<Semester[]> => {
   }
 
   return data.semesters;
+};
+
+/**
+ * Get student statistics (optional semester filter)
+ */
+export const fetchStudentStatistics = async (
+  semesterId?: number
+): Promise<StudentAssignmentStatistics> => {
+  const { data } = await client.query<{
+    studentAssignmentStatistics: StudentAssignmentStatistics;
+  }>({
+    query: GET_STUDENT_STATISTICS_QUERY,
+    variables: { semesterId },
+    fetchPolicy: 'network-only',
+  });
+
+  if (!data?.studentAssignmentStatistics) {
+    throw new Error('Failed to fetch statistics');
+  }
+
+  return data.studentAssignmentStatistics;
 };

@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Sidebar from '../../components/layout/Sidebar';
 import { useAssignments, useAssignmentDropdowns, useFileUpload } from '../../features/assignments/hooks';
 import type { CreateAssignmentInput, AssignmentType, Subject, Section, Semester } from '../../features/assignments/types';
 
@@ -222,8 +223,10 @@ export const CreateAssignment: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)] py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="flex min-h-screen bg-[var(--color-background)]">
+      <Sidebar />
+      <div className="flex-1 ml-64 py-8 px-4">
+        <div className="max-w-4xl mx-auto">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-[var(--color-foreground)] mb-2">
             Create New Assignment
@@ -534,6 +537,7 @@ export const CreateAssignment: React.FC = () => {
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

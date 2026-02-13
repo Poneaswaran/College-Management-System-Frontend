@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Sidebar from '../../components/layout/Sidebar';
 import { useAssignments } from '../../features/assignments/hooks';
 import { AssignmentCard } from '../../features/assignments/components/AssignmentCard';
 import type { Assignment, AssignmentStatus } from '../../features/assignments/types';
@@ -32,8 +33,10 @@ export const FacultyAssignments: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)] py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+    <div className="flex min-h-screen bg-[var(--color-background)]">
+      <Sidebar />
+      <div className="flex-1 ml-64 py-8 px-4">
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -94,6 +97,7 @@ export const FacultyAssignments: React.FC = () => {
             ))}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

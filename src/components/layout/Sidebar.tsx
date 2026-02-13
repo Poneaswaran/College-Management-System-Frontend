@@ -19,11 +19,14 @@ import {
     FolderCheck,
     ChevronDown,
     ChevronRight,
+    Menu,
+    X,
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '../../store/auth.store';
 import { useAuth } from '../../features/auth/hooks';
+import { useSidebar } from '../../contexts/SidebarContext';
 import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -167,6 +170,7 @@ export default function Sidebar() {
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
     const { logout } = useAuth();
+    const { isCollapsed, setIsCollapsed } = useSidebar();
     const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
 
     const handleLogout = async () => {
@@ -183,23 +187,36 @@ export default function Sidebar() {
     }
 
     const toggleDropdown = (label: string) => {
-        setOpenDropdowns(prev => ({
-            ...prev,
-            [label]: !prev[label]
-        }));
+        if (!isCollapsed) {
+            setOpenDropdowns(prev => ({
+                ...prev,
+                [label]: !prev[label]
+            }));
+        }
     };
 
     return (
-        <aside className="w-64 h-screen bg-white border-r border-[var(--color-border)] flex flex-col fixed left-0 top-0 overflow-y-auto z-50">
+        <aside className={`${isCollapsed ? 'w-20' : 'w-64'} h-screen bg-white dark:bg-[var(--color-card)] border-r border-[var(--color-border)] flex flex-col fixed left-0 top-0 overflow-y-auto z-50 transition-all duration-300`}>
             {/* Logo Section */}
-            <div className="p-6 border-b border-[var(--color-border)] flex items-center gap-3">
-                <div className="w-8 h-8 bg-[var(--color-primary)] rounded-lg flex items-center justify-center text-white">
-                    <BookOpen size={20} />
+            <div className="p-6 border-b border-[var(--color-border)] flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-[var(--color-primary)] rounded-lg flex items-center justify-center text-white">
+                        <BookOpen size={20} />
+                    </div>
+                    {!isCollapsed && (
+                        <div className="flex flex-col">
+                            <span className="font-bold text-sm leading-tight text-[var(--color-foreground)]">UNIVERSITY OF</span>
+                            <span className="font-bold text-sm leading-tight text-[var(--color-foreground)]">KNOWLEDGE</span>
+                        </div>
+                    )}
                 </div>
-                <div className="flex flex-col">
-                    <span className="font-bold text-sm leading-tight text-[var(--color-foreground)]">UNIVERSITY OF</span>
-                    <span className="font-bold text-sm leading-tight text-[var(--color-foreground)]">KNOWLEDGE</span>
-                </div>
+                <button
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    className="p-1 hover:bg-[var(--color-background-secondary)] rounded transition-colors"
+                    title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                >
+                    {isCollapsed ? <Menu size={20} /> : <X size={20} />}
+                </button>
             </div>
 
             {/* Navigation Section */}
@@ -221,14 +238,15 @@ export default function Sidebar() {
                                             ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
                                             : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
                                     }`}
+                                    title={isCollapsed ? item.label : ''}
                                 >
                                     <div className="flex items-center gap-3">
                                         <Icon size={20} />
-                                        {item.label}
+                                        {!isCollapsed && item.label}
                                     </div>
-                                    {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                                    {!isCollapsed && (isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
                                 </button>
-                                {isOpen && item.children && (
+                                {isOpen && item.children && !isCollapsed && (
                                     <div className="ml-4 mt-1 space-y-1">
                                         {item.children.map((child) => {
                                             const isActive = location.pathname === child.path;
@@ -266,9 +284,10 @@ export default function Sidebar() {
                                         ? 'bg-[var(--color-primary)] text-white'
                                         : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
                                 }`}
+                                title={isCollapsed ? item.label : ''}
                             >
                                 <Icon size={20} />
-                                {item.label}
+                                {!isCollapsed && item.label}
                             </Link>
                         );
                     }
@@ -282,9 +301,10 @@ export default function Sidebar() {
                 <button 
                     onClick={handleLogout}
                     className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-error)] rounded-lg transition-colors"
+                    title={isCollapsed ? 'Logout' : ''}
                 >
                     <LogOut size={20} />
-                    Logout
+                    {!isCollapsed && 'Logout'}
                 </button>
             </div>
         </aside>

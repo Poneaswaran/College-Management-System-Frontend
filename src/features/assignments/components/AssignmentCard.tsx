@@ -37,6 +37,11 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({
     return assignment.status;
   };
 
+  // Handle both nested subject and legacy subjectName
+  const subjectName = assignment.subject?.name || assignment.subjectName || '';
+  const sectionName = assignment.sectionName || '';
+  const facultyName = assignment.facultyName || '';
+
   return (
     <div
       className={`bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg p-4 hover:shadow-md transition-shadow ${
@@ -50,17 +55,17 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({
             {assignment.title}
           </h3>
           <div className="flex items-center gap-2 text-sm text-[var(--color-muted-foreground)]">
-            <span>{assignment.subjectName}</span>
-            {variant === 'faculty' && (
+            <span>{subjectName}</span>
+            {variant === 'faculty' && sectionName && (
               <>
                 <span>•</span>
-                <span>{assignment.sectionName}</span>
+                <span>{sectionName}</span>
               </>
             )}
-            {variant === 'student' && assignment.facultyName && (
+            {variant === 'student' && facultyName && (
               <>
                 <span>•</span>
-                <span>{assignment.facultyName}</span>
+                <span>{facultyName}</span>
               </>
             )}
           </div>

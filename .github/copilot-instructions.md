@@ -39,6 +39,41 @@ Build will **fail on lint errors** by design. The build uses rolldown-vite (Vite
 
 Theme structure: `themeConfig.brand`, `.ui`, `.status`, `.typography`, `.gradients`
 
+## Layout & Sidebar Requirements
+
+**CRITICAL**: All pages MUST include the Sidebar component from `src/components/layout/Sidebar.tsx`, except:
+- **Login/Register pages** - Authentication pages without sidebar
+
+Standard page structure:
+```tsx
+import Sidebar from '../../components/layout/Sidebar';
+
+export default function PageName() {
+  return (
+    <div className="flex min-h-screen bg-[var(--color-background)]">
+      <Sidebar />
+      <div className="flex-1 ml-64">
+        {/* Page content */}
+      </div>
+    </div>
+  );
+}
+```
+
+## Dark Mode System
+
+The application supports dark mode using Tailwind CSS and CSS variables:
+
+1. **Dark mode toggle**: Managed by ThemeProvider in `src/theme.tsx`
+2. **Persistence**: Theme preference saved to localStorage
+3. **CSS variables**: All colors in `src/theme.constants.ts` have dark mode variants
+4. **Tailwind dark mode**: Uses `class` strategy (add `dark` class to `<html>`)
+
+When creating components:
+- Use theme CSS variables (automatically switch with dark mode)
+- Test components in both light and dark modes
+- Never hardcode colors - always use `var(--color-*)`
+
 ## Feature Module Pattern
 
 Features follow a strict modular structure (see `src/features/`):
