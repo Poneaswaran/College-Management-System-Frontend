@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar';
 import { MARK_ATTENDANCE, GET_ACTIVE_SESSIONS } from '../../features/students/graphql/attendance';
+import { convertToWebP, getBase64Size } from '../../lib/imageCompression';
 
 interface LocationCoords {
     latitude: number;
@@ -45,6 +46,7 @@ export default function MarkAttendance() {
     const [userLocation, setUserLocation] = useState<LocationCoords | null>(null);
     const [locationError, setLocationError] = useState<string | null>(null);
     const [cameraError, setCameraError] = useState<string | null>(null);
+    const [isCompressing, setIsCompressing] = useState<boolean>(false);
 
     const [markAttendance, { loading }] = useMutation<MarkAttendanceResponse>(MARK_ATTENDANCE, {
         onCompleted: (data: MarkAttendanceResponse) => {
@@ -87,10 +89,38 @@ export default function MarkAttendance() {
         }
     }, [session, navigate]);
 
-    const captureImage = useCallback(() => {
+    const captureImage = useCallback(async () => {
         if (webcamRef.current) {
-            const imageSrc = webcamRef.current.getScreenshot();
-            setCapturedImage(imageSrc);
+            try {
+                setIsCompressing(true);
+                
+                // Capture image from webcam
+                const imageSrc = webcamRef.current.getScreenshot();
+                
+                if (!imageSrc) {
+                    alert('Failed to capture image. Please try again.');
+                    return;
+                }
+
+                // Convert to WebP and compress
+                const compressedWebP = await convertToWebP(imageSrc, {
+                    quality: 0.8, // 80% quality for good balance
+                    maxWidth: 1280, // Max width for attendance photo
+                    maxHeight: 720 // Max height for attendance photo
+                });
+
+                // Log compression stats (for debugging)
+                const originalSize = getBase64Size(imageSrc);
+                const compressedSize = getBase64Size(compressedWebP);
+                console.log(`Image compressed: ${originalSize}KB → ${compressedSize}KB (${Math.round((1 - compressedSize / originalSize) * 100)}% reduction)`);
+
+                setCapturedImage(compressedWebP);
+            } catch (error) {
+                console.error('Error compressing image:', error);
+                alert('Failed to process image. Please try again.');
+            } finally {
+                setIsCompressing(false);
+            }
         }
     }, [webcamRef]);
 
@@ -224,10 +254,20 @@ export default function MarkAttendance() {
                                 <div className="p-6">
                                     <button
                                         onClick={captureImage}
-                                        className="w-full py-4 bg-[var(--color-primary)] text-white rounded-xl font-semibold hover:bg-[var(--color-primary-hover)] transition-colors flex items-center justify-center gap-2"
+                                        disabled={isCompressing}
+                                        className="w-full py-4 bg-[var(--color-primary)] text-white rounded-xl font-semibold hover:bg-[var(--color-primary-hover)] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        <Camera size={24} />
-                                        Capture Photo
+                                        {isCompressing ? (
+                                            <>
+                                                <RefreshCw size={24} className="animate-spin" />
+                                                Processing...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Camera size={24} />
+                                                Capture Photo
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                             </div>
