@@ -7,6 +7,20 @@ export interface GraphQLErrorDetails {
     isForbidden: boolean;
 }
 
+interface GraphQLError {
+    message: string;
+    extensions?: { code?: string };
+}
+
+interface ApolloErrorLike {
+    graphQLErrors?: GraphQLError[];
+    networkError?: {
+        statusCode?: number;
+        message?: string;
+    };
+    message?: string;
+}
+
 /**
  * Parse Apollo GraphQL errors into a user-friendly format
  */
@@ -19,11 +33,25 @@ export const parseGraphQLError = (error: unknown): GraphQLErrorDetails => {
         isForbidden: false,
     };
 
+    // Type guard to check if error has Apollo-like structure
+    const isApolloError = (err: unknown): err is ApolloErrorLike => {
+        return typeof err === 'object' && err !== null && 
+               ('graphQLErrors' in err || 'networkError' in err);
+    };
+
+    if (!isApolloError(error)) {
+        // Handle generic errors
+        if (error instanceof Error) {
+            errorDetails.message = error.message || errorDetails.message;
+        }
+        return errorDetails;
+    }
+
     // Handle Apollo errors
-    if ('graphQLErrors' in error && error.graphQLErrors?.length > 0) {
+    if (error.graphQLErrors && error.graphQLErrors.length > 0) {
         const gqlError = error.graphQLErrors[0];
         errorDetails.message = gqlError.message;
-        errorDetails.code = gqlError.extensions?.code as string;
+        errorDetails.code = gqlError.extensions?.code;
 
         // Check for authentication errors
         if (
@@ -48,9 +76,9 @@ export const parseGraphQLError = (error: unknown): GraphQLErrorDetails => {
     }
 
     // Handle network errors
-    if ('networkError' in error && error.networkError) {
+    if (error.networkError) {
         errorDetails.isNetworkError = true;
-        const networkError = error.networkError as { statusCode?: number; message?: string };
+        const networkError = error.networkError;
         errorDetails.statusCode = networkError.statusCode;
 
         if (networkError.statusCode === 401) {
@@ -68,11 +96,6 @@ export const parseGraphQLError = (error: unknown): GraphQLErrorDetails => {
         } else {
             errorDetails.message = networkError.message || 'Network error occurred. Please try again.';
         }
-    }
-
-    // Fallback for generic errors
-    if (!('graphQLErrors' in error) && !('networkError' in error)) {
-        errorDetails.message = error.message || errorDetails.message;
     }
 
     return errorDetails;

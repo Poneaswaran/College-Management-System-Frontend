@@ -1,6 +1,7 @@
 import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import { onError } from '@apollo/client/link/error';
+import { onError, ErrorLink } from '@apollo/client/link/error';
+import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { API_URL } from '../config/constant';
 
 const httpLink = createHttpLink({
@@ -19,16 +20,16 @@ const authLink = setContext((_, { headers }) => {
 });
 
 // Error handling link
-const errorLink = onError((errorResponse) => {
-    const { graphQLErrors, networkError } = errorResponse;
-    if (graphQLErrors) {
-        graphQLErrors.forEach(({ message, locations, path, extensions }: { message: string; locations?: unknown; path?: unknown; extensions?: { code?: string } }) => {
+const errorLink = onError(({ error }: ErrorLink.ErrorHandlerOptions) => {
+    // Handle GraphQL errors
+    if (CombinedGraphQLErrors.is(error)) {
+        error.errors.forEach((err) => {
             console.error(
-                `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+                `[GraphQL error]: Message: ${err.message}, Location: ${err.locations}, Path: ${err.path}`
             );
 
             // Handle authentication errors
-            if (extensions?.code === 'UNAUTHENTICATED' || message.includes('Unauthorized')) {
+            if (err.extensions?.code === 'UNAUTHENTICATED' || err.message.includes('Unauthorized')) {
                 console.warn('Authentication error detected, clearing token');
                 localStorage.removeItem('token');
                 // Redirect to login if not already there
@@ -38,18 +39,17 @@ const errorLink = onError((errorResponse) => {
             }
 
             // Handle forbidden errors
-            if (extensions?.code === 'FORBIDDEN') {
+            if (err.extensions?.code === 'FORBIDDEN') {
                 console.warn('Permission denied');
             }
         });
-    }
-
-    if (networkError) {
-        console.error(`[Network error]: ${networkError.message}`);
+    } else {
+        // Handle network errors
+        console.error(`[Network error]: ${error}`);
         
         // Handle network errors (e.g., server down)
-        if ('statusCode' in networkError) {
-            const statusCode = (networkError as { statusCode?: number }).statusCode;
+        if (error && typeof error === 'object' && 'statusCode' in error) {
+            const statusCode = (error as { statusCode?: number }).statusCode;
             if (statusCode === 401) {
                 localStorage.removeItem('token');
                 if (!window.location.href.includes('/auth/login')) {
