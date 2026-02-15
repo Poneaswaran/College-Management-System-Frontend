@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { themeConfig, darkThemeOverrides } from './theme.constants';
+import { themeConfig, darkThemeOverrides, lightThemeOverrides } from './theme.constants';
 
 // ============================================
 // THEME CONTEXT
@@ -23,7 +23,7 @@ interface ThemeProviderProps {
     defaultMode?: ThemeMode;
 }
 
-export function ThemeProvider({ children, defaultMode = 'light' }: ThemeProviderProps) {
+export function ThemeProvider({ children, defaultMode = 'dark' }: ThemeProviderProps) {
     const [mode, setMode] = useState<ThemeMode>(() => {
         if (typeof window !== 'undefined') {
             return (localStorage.getItem('theme-mode') as ThemeMode) || defaultMode;
@@ -45,7 +45,7 @@ export function ThemeProvider({ children, defaultMode = 'light' }: ThemeProvider
 
             // Update CSS variables
             const root = document.documentElement;
-            const uiColors = dark ? darkThemeOverrides.ui : themeConfig.ui;
+            const uiColors = dark ? darkThemeOverrides.ui : lightThemeOverrides.ui;
 
             root.style.setProperty('--color-background', uiColors.background);
             root.style.setProperty('--color-background-secondary', uiColors.backgroundSecondary);

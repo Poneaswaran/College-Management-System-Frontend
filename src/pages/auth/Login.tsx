@@ -53,7 +53,7 @@ export default function Login() {
     };
 
     return (
-        <div className="light min-h-screen w-full flex flex-col relative overflow-hidden">
+        <div className="min-h-screen w-full flex flex-col relative overflow-hidden">
             {/* Background Image */}
             <div 
                 className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -61,7 +61,7 @@ export default function Login() {
             />
             
             {/* Dark overlay for better contrast */}
-            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-black/50" />
             
             {/* Decorative gradient overlays */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -79,10 +79,10 @@ export default function Login() {
                         <Zap className="w-7 h-7 text-white" strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h1 className="text-xl md:text-2xl font-black text-white leading-none tracking-tight drop-shadow-lg">
+                        <h1 className="text-xl md:text-2xl font-black text-white leading-none tracking-tight" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.8)' }}>
                             {theme.university.name.split(' ')[0]}
                         </h1>
-                        <p className="text-xs font-mono text-cyan-300 tracking-wider drop-shadow-lg">EDUCATION</p>
+                        <p className="text-xs font-mono text-cyan-300 tracking-wider" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>EDUCATION</p>
                     </div>
                 </div>
             </header>
@@ -92,10 +92,10 @@ export default function Login() {
                 <div className="w-full max-w-md">
                     {/* Title Section */}
                     <div className="mb-8 text-center md:text-left animate-slide-up">
-                        <h2 className="text-4xl md:text-5xl font-black text-white mb-3 leading-tight tracking-tight drop-shadow-lg">
+                        <h2 className="text-4xl md:text-5xl font-black text-white mb-3 leading-tight tracking-tight" style={{ textShadow: '3px 3px 10px rgba(0,0,0,0.9)' }}>
                             Welcome<br />Back
                         </h2>
-                        <p className="text-lg text-white drop-shadow-lg">
+                        <p className="text-lg text-white" style={{ textShadow: '2px 2px 6px rgba(0,0,0,0.8)' }}>
                             Sign in to access your dashboard
                         </p>
                     </div>
@@ -210,16 +210,16 @@ export default function Login() {
                     {/* Quick Stats / Features */}
                     <div className="mt-8 grid grid-cols-3 gap-4 animate-slide-up delay-200">
                         <div className="text-center">
-                            <div className="text-2xl font-black text-cyan-300 drop-shadow-lg">10K+</div>
-                            <div className="text-xs font-mono text-white uppercase drop-shadow-lg">Students</div>
+                            <div className="text-2xl font-black text-cyan-300" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.9)' }}>10K+</div>
+                            <div className="text-xs font-mono text-white uppercase" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>Students</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-2xl font-black text-pink-300 drop-shadow-lg">500+</div>
-                            <div className="text-xs font-mono text-white uppercase drop-shadow-lg">Faculty</div>
+                            <div className="text-2xl font-black text-pink-300" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.9)' }}>500+</div>
+                            <div className="text-xs font-mono text-white uppercase" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>Faculty</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-2xl font-black text-amber-300 drop-shadow-lg">50+</div>
-                            <div className="text-xs font-mono text-white uppercase drop-shadow-lg">Programs</div>
+                            <div className="text-2xl font-black text-amber-300" style={{ textShadow: '2px 2px 8px rgba(0,0,0,0.9)' }}>50+</div>
+                            <div className="text-xs font-mono text-white uppercase" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>Programs</div>
                         </div>
                     </div>
                 </div>
@@ -227,7 +227,7 @@ export default function Login() {
 
             {/* Footer */}
             <footer className="relative z-10 py-6 text-center">
-                <p className="text-sm font-mono text-white drop-shadow-lg">
+                <p className="text-sm font-mono text-white" style={{ textShadow: '1px 1px 4px rgba(0,0,0,0.8)' }}>
                     © {new Date().getFullYear()} {theme.university.name}
                 </p>
             </footer>

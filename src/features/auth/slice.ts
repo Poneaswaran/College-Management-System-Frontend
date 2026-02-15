@@ -2,11 +2,14 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { AuthState, User } from './types';
 
+// Don't restore user from localStorage - let AuthInitializer fetch fresh data
+const storedToken = localStorage.getItem('token');
+
 const initialState: AuthState = {
     user: null,
-    token: localStorage.getItem('token'),
-    isAuthenticated: !!localStorage.getItem('token'),
-    isLoading: false,
+    token: storedToken,
+    isAuthenticated: false,
+    isLoading: !!storedToken,
     error: null,
 };
 

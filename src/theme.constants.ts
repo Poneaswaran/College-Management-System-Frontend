@@ -178,19 +178,40 @@ export const themeConfig = {
 // ============================================
 export const darkThemeOverrides = {
     ui: {
-        background: '#0f172a',
-        backgroundSecondary: '#1e293b',
-        backgroundTertiary: '#334155',
+        background: '#0a0a0a',           // Deep charcoal
+        backgroundSecondary: '#141414',  // Slightly lighter charcoal
+        backgroundTertiary: '#1a1a1a',   // Card background
 
-        foreground: '#f8fafc',
-        foregroundSecondary: '#cbd5e1',
-        foregroundMuted: '#64748b',
+        foreground: '#ffffff',           // Pure white text
+        foregroundSecondary: '#a1a1aa',  // Zinc-400
+        foregroundMuted: '#71717a',      // Zinc-500
 
-        border: '#334155',
-        borderHover: '#475569',
+        border: '#27272a',               // Zinc-800
+        borderHover: '#3f3f46',          // Zinc-700
 
-        card: '#1e293b',
-        cardHover: '#334155',
+        card: '#1a1a1a',                 // Dark card
+        cardHover: '#202020',            // Lighter on hover
+    },
+} as const;
+
+// ============================================
+// LIGHT THEME OVERRIDE
+// ============================================
+export const lightThemeOverrides = {
+    ui: {
+        background: '#ffffff',           // Pure white
+        backgroundSecondary: '#fafafa',  // Light gray
+        backgroundTertiary: '#f4f4f5',   // Zinc-100
+
+        foreground: '#0a0a0a',           // Deep black text
+        foregroundSecondary: '#52525b',  // Zinc-600
+        foregroundMuted: '#71717a',      // Zinc-500
+
+        border: '#e4e4e7',               // Zinc-200
+        borderHover: '#d4d4d8',          // Zinc-300
+
+        card: '#ffffff',                 // White card
+        cardHover: '#fafafa',            // Light gray on hover
     },
 } as const;
 
