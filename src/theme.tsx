@@ -110,7 +110,7 @@ export function ThemeProvider({ children, defaultMode = 'light' }: ThemeProvider
 
         // Typography
         root.style.setProperty('--font-sans', typography.fontFamily.sans);
-        root.style.setProperty('--font-serif', typography.fontFamily.serif);
+        root.style.setProperty('--font-display', typography.fontFamily.display);
         root.style.setProperty('--font-mono', typography.fontFamily.mono);
 
         // Shadows

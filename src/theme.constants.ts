@@ -1,78 +1,79 @@
 // ============================================
-// THEME CONFIGURATION
+// THEME CONFIGURATION - Neo-Academic Brutalism
 // ============================================
-// Modify these values to change the entire app's appearance
+// Bold, high-contrast design for modern education
 
 export const themeConfig = {
     // ========== BRAND COLORS ==========
     brand: {
-        primary: '#2563eb',        // Main brand color (blue)
-        primaryHover: '#1d4ed8',   // Primary hover state
-        primaryLight: '#3b82f6',   // Lighter primary
-        primaryDark: '#1e40af',    // Darker primary
+        primary: '#06b6d4',        // Electric Cyan - Main brand
+        primaryHover: '#0891b2',   // Cyan hover
+        primaryLight: '#22d3ee',   // Bright cyan
+        primaryDark: '#0e7490',    // Deep cyan
 
-        secondary: '#7c3aed',      // Secondary brand color (purple)
-        secondaryHover: '#6d28d9',
-        secondaryLight: '#8b5cf6',
-        secondaryDark: '#5b21b6',
+        secondary: '#ec4899',      // Hot Pink - Secondary accent
+        secondaryHover: '#db2777',
+        secondaryLight: '#f472b6',
+        secondaryDark: '#be185d',
 
-        accent: '#f59e0b',         // Accent color (amber)
-        accentHover: '#d97706',
-        accentLight: '#fbbf24',
-        accentDark: '#b45309',
+        accent: '#fbbf24',         // Amber - Warm accent
+        accentHover: '#f59e0b',
+        accentLight: '#fcd34d',
+        accentDark: '#d97706',
     },
 
     // ========== UI COLORS ==========
     ui: {
-        background: '#ffffff',
-        backgroundSecondary: '#f8fafc',
-        backgroundTertiary: '#f1f5f9',
+        background: '#0a0a0a',         // Deep charcoal
+        backgroundSecondary: '#141414', // Slightly lighter charcoal
+        backgroundTertiary: '#1a1a1a',  // Card background
 
-        foreground: '#0f172a',
-        foregroundSecondary: '#475569',
-        foregroundMuted: '#94a3b8',
+        foreground: '#ffffff',          // Pure white text
+        foregroundSecondary: '#a1a1aa', // Zinc-400
+        foregroundMuted: '#71717a',     // Zinc-500
 
-        border: '#e2e8f0',
-        borderHover: '#cbd5e1',
+        border: '#27272a',              // Zinc-800
+        borderHover: '#3f3f46',         // Zinc-700
 
-        card: '#ffffff',
-        cardHover: '#f8fafc',
+        card: '#1a1a1a',                // Dark card
+        cardHover: '#202020',           // Lighter on hover
     },
 
     // ========== STATUS COLORS ==========
     status: {
-        success: '#22c55e',
-        successLight: '#dcfce7',
-        successDark: '#15803d',
+        success: '#10b981',             // Emerald-500
+        successLight: '#34d399',        // Emerald-400
+        successDark: '#059669',         // Emerald-600
 
-        warning: '#f59e0b',
-        warningLight: '#fef3c7',
-        warningDark: '#b45309',
+        warning: '#fbbf24',             // Amber-400
+        warningLight: '#fcd34d',        // Amber-300
+        warningDark: '#f59e0b',         // Amber-500
 
-        error: '#ef4444',
-        errorLight: '#fee2e2',
-        errorDark: '#b91c1c',
+        error: '#ef4444',               // Red-500
+        errorLight: '#f87171',          // Red-400
+        errorDark: '#dc2626',           // Red-600
 
-        info: '#3b82f6',
-        infoLight: '#dbeafe',
-        infoDark: '#1d4ed8',
+        info: '#06b6d4',                // Cyan-500
+        infoLight: '#22d3ee',           // Cyan-400
+        infoDark: '#0891b2',            // Cyan-600
     },
 
     // ========== GRADIENTS ==========
     gradients: {
-        primary: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-        secondary: 'linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)',
-        accent: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-        hero: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        dark: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+        primary: 'linear-gradient(135deg, #06b6d4 0%, #ec4899 100%)',     // Cyan to Pink
+        secondary: 'linear-gradient(135deg, #ec4899 0%, #a855f7 100%)',   // Pink to Purple
+        accent: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',      // Warm amber
+        hero: 'linear-gradient(135deg, #06b6d4 0%, #a855f7 100%)',        // Cyan to Purple
+        dark: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)',        // Deep charcoal
+        neon: 'linear-gradient(135deg, #22d3ee 0%, #f472b6 100%)',        // Bright neon
     },
 
     // ========== TYPOGRAPHY ==========
     typography: {
         fontFamily: {
-            sans: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-            serif: "'Georgia', 'Times New Roman', serif",
-            mono: "'Fira Code', 'Consolas', monospace",
+            sans: "'DM Sans', system-ui, -apple-system, sans-serif",
+            display: "'DM Sans', system-ui, -apple-system, sans-serif",
+            mono: "'Space Mono', 'Courier New', monospace",
         },
         fontSize: {
             xs: '0.75rem',      // 12px
@@ -81,18 +82,20 @@ export const themeConfig = {
             lg: '1.125rem',     // 18px
             xl: '1.25rem',      // 20px
             '2xl': '1.5rem',    // 24px
-            '3xl': '1.875rem',  // 30px
-            '4xl': '2.25rem',   // 36px
+            '3xl': '2rem',      // 32px
+            '4xl': '2.5rem',    // 40px
             '5xl': '3rem',      // 48px
+            '6xl': '3.75rem',   // 60px
         },
         fontWeight: {
             normal: '400',
             medium: '500',
             semibold: '600',
             bold: '700',
+            black: '900',
         },
         lineHeight: {
-            tight: '1.25',
+            tight: '1.15',
             normal: '1.5',
             relaxed: '1.75',
         },
