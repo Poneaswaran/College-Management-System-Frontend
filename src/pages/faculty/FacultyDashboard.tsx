@@ -47,7 +47,7 @@ export default function FacultyDashboard() {
                 {/* Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     {/* Total Students Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary-light)] transition-colors group">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary-light)] transition-colors group">
                         <div className="flex justify-between items-start mb-4">
                             <h3 className="font-semibold text-[var(--color-foreground)]">Total Students</h3>
                             <div className="p-2 bg-[var(--color-background-secondary)] rounded-lg text-[var(--color-primary)]">
@@ -59,7 +59,7 @@ export default function FacultyDashboard() {
                     </div>
 
                     {/* Active Courses Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary-light)] transition-colors group">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary-light)] transition-colors group">
                         <div className="flex justify-between items-start mb-4">
                             <h3 className="font-semibold text-[var(--color-foreground)]">Active Courses</h3>
                             <div className="p-2 bg-[var(--color-background-secondary)] rounded-lg text-[var(--color-primary)]">
@@ -71,7 +71,7 @@ export default function FacultyDashboard() {
                     </div>
 
                     {/* Pending Assignments Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary-light)] transition-colors group">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary-light)] transition-colors group">
                         <div className="flex justify-between items-start mb-4">
                             <h3 className="font-semibold text-[var(--color-foreground)]">Pending Reviews</h3>
                             <div className="p-2 bg-[var(--color-background-secondary)] rounded-lg text-[var(--color-primary)]">
@@ -86,7 +86,7 @@ export default function FacultyDashboard() {
                 {/* Second Row Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     {/* Today's Classes */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <h3 className="font-semibold text-[var(--color-foreground)]">Today's Classes</h3>
@@ -119,7 +119,7 @@ export default function FacultyDashboard() {
                     </div>
 
                     {/* Attendance Overview */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <h3 className="font-semibold text-[var(--color-foreground)]">Attendance Overview</h3>
@@ -160,7 +160,7 @@ export default function FacultyDashboard() {
                 </div>
 
                 {/* Recent Activity */}
-                <div className="bg-white rounded-xl shadow-sm border border-[var(--color-border)] p-6">
+                <div className="bg-[var(--color-card)] rounded-xl shadow-sm border border-[var(--color-border)] p-6">
                     <h3 className="text-lg font-bold text-[var(--color-foreground)] mb-6">Recent Activity</h3>
                     <div className="space-y-6">
                         <div className="flex gap-4">

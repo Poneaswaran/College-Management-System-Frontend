@@ -55,3 +55,42 @@ export interface StudentProfile {
     section: Section;
     user: User;
 }
+
+export interface UpdateStudentProfileInput {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    dateOfBirth?: string;
+    gender?: 'MALE' | 'FEMALE' | 'OTHER';
+    address?: string;
+    guardianName?: string;
+    guardianRelationship?: string;
+    guardianPhone?: string;
+    guardianEmail?: string;
+}
+
+export interface UpdateStudentProfileWithPhotoInput {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    dateOfBirth?: string;
+    gender?: 'MALE' | 'FEMALE' | 'OTHER';
+    address?: string;
+    guardianName?: string;
+    guardianRelationship?: string;
+    guardianPhone?: string;
+    guardianEmail?: string;
+}
+
+export interface UpdateProfileResponse {
+    profile: StudentProfile;
+    message: string;
+}
+
+export interface UpdateStudentProfileMutationResponse {
+    updateStudentProfile: UpdateProfileResponse;
+}
+
+export interface UpdateStudentProfileWithPhotoMutationResponse {
+    updateStudentProfileWithPhoto: UpdateProfileResponse;
+}

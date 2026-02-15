@@ -96,10 +96,10 @@ export default function StudentAttendance() {
 
                 {/* Active Sessions Alert */}
                 {activeSessions.length > 0 && (
-                    <div className="mb-8 bg-red-50 border border-red-200 rounded-xl p-6">
+                    <div className="mb-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                            <h2 className="text-xl font-bold text-red-700">Active Classes - Mark Attendance Now!</h2>
+                            <h2 className="text-xl font-bold text-red-700 dark:text-red-400">Active Classes - Mark Attendance Now!</h2>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {activeSessions.map(session => (
@@ -115,10 +115,10 @@ export default function StudentAttendance() {
 
                 {/* Stats Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-blue-100 rounded-lg">
-                                <TrendingUp className="text-blue-600" size={24} />
+                            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                <TrendingUp className="text-blue-600 dark:text-blue-400" size={24} />
                             </div>
                             <div>
                                 <p className="text-sm text-[var(--color-foreground-muted)]">Overall Attendance</p>
@@ -127,10 +127,10 @@ export default function StudentAttendance() {
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-green-100 rounded-lg">
-                                <CheckCircle className="text-green-600" size={24} />
+                            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                <CheckCircle className="text-green-600 dark:text-green-400" size={24} />
                             </div>
                             <div>
                                 <p className="text-sm text-[var(--color-foreground-muted)]">Classes Present</p>
@@ -141,10 +141,10 @@ export default function StudentAttendance() {
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-red-100 rounded-lg">
-                                <XCircle className="text-red-600" size={24} />
+                            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                                <XCircle className="text-red-600 dark:text-red-400" size={24} />
                             </div>
                             <div>
                                 <p className="text-sm text-[var(--color-foreground-muted)]">Classes Absent</p>
@@ -155,10 +155,10 @@ export default function StudentAttendance() {
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-purple-100 rounded-lg">
-                                <BookOpen className="text-purple-600" size={24} />
+                            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                                <BookOpen className="text-purple-600 dark:text-purple-400" size={24} />
                             </div>
                             <div>
                                 <p className="text-sm text-[var(--color-foreground-muted)]">Total Subjects</p>
@@ -169,7 +169,7 @@ export default function StudentAttendance() {
                 </div>
 
                 {/* Subject-wise Attendance */}
-                <div className="bg-white rounded-xl shadow-sm border border-[var(--color-border)] p-6 mb-8">
+                <div className="bg-[var(--color-card)] rounded-xl shadow-sm border border-[var(--color-border)] p-6 mb-8">
                     <div className="flex justify-between items-center mb-6">
                         <h2 className="text-xl font-bold text-[var(--color-foreground)]">Subject-wise Attendance</h2>
                         <button
@@ -203,7 +203,7 @@ export default function StudentAttendance() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <button
                         onClick={() => navigate('/student/attendance-history')}
-                        className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-colors text-left group"
+                        className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-colors text-left group"
                     >
                         <Calendar size={32} className="text-[var(--color-primary)] mb-4" />
                         <h3 className="text-lg font-semibold text-[var(--color-foreground)] group-hover:text-[var(--color-primary)]">
@@ -216,7 +216,7 @@ export default function StudentAttendance() {
 
                     <button
                         onClick={() => refetchSessions()}
-                        className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-colors text-left group"
+                        className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-colors text-left group"
                     >
                         <RefreshCw size={32} className="text-[var(--color-primary)] mb-4" />
                         <h3 className="text-lg font-semibold text-[var(--color-foreground)] group-hover:text-[var(--color-primary)]">
@@ -238,10 +238,12 @@ function ActiveSessionCard({ session, onMarkAttendance }: { session: ActiveSessi
     const canMark = session.canMarkAttendance;
 
     return (
-        <div className={`bg-white p-5 rounded-xl border-2 ${isUrgent ? 'border-red-400' : 'border-orange-300'} shadow-md`}>
+        <div className={`bg-[var(--color-card)] p-5 rounded-xl border-2 ${
+            isUrgent ? 'border-red-400 dark:border-red-600' : 'border-orange-300 dark:border-orange-600'
+        } shadow-md`}>
             <div className="flex justify-between items-start mb-3">
                 <h3 className="font-bold text-[var(--color-foreground)]">{session.subjectName}</h3>
-                <span className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">
+                <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-full font-medium">
                     {session.periodTime}
                 </span>
             </div>
@@ -253,7 +255,7 @@ function ActiveSessionCard({ session, onMarkAttendance }: { session: ActiveSessi
                 Faculty: {session.facultyName}
             </p>
 
-            <div className={`flex items-center gap-2 mb-4 ${isUrgent ? 'text-red-600' : 'text-orange-600'}`}>
+            <div className={`flex items-center gap-2 mb-4 ${isUrgent ? 'text-red-600 dark:text-red-400' : 'text-orange-600 dark:text-orange-400'}`}>
                 <Clock size={16} />
                 <span className="text-sm font-semibold">{session.timeRemaining} minutes remaining</span>
             </div>

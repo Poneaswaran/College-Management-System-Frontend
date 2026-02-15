@@ -5,6 +5,7 @@ export const STUDENT_DASHBOARD_QUERY = gql`
     studentDashboard(registerNumber: $registerNumber) {
       studentName
       registerNumber
+      profilePhotoUrl
       
       assignmentsDueThisWeek {
         id

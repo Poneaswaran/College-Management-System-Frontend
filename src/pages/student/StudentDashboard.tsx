@@ -6,6 +6,7 @@ import {
     ChevronDown,
     Sun,
     Moon,
+    User,
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
@@ -13,6 +14,7 @@ import Sidebar from '../../components/layout/Sidebar';
 import { useTheme } from '../../theme';
 import { client } from '../../lib/graphql';
 import { getErrorMessage } from '../../lib/errorHandling';
+import { getMediaUrl } from '../../lib/constants';
 import { STUDENT_DASHBOARD_QUERY } from '../../features/students/graphql/dashboard';
 import type { StudentDashboardResponse } from '../../features/students/types/dashboard';
 import type { RootState } from '../../store';
@@ -67,6 +69,7 @@ export default function StudentDashboard() {
     };
 
     const dashboardData = data?.studentDashboard;
+    const profilePhotoUrl = getMediaUrl(dashboardData?.profilePhotoUrl);
 
     return (
         <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
@@ -94,8 +97,16 @@ export default function StudentDashboard() {
                             <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--color-error)] rounded-full border-2 border-[var(--color-background)]"></span>
                         </button>
                         <div className="flex items-center gap-2 cursor-pointer hover:bg-[var(--color-background-tertiary)] px-3 py-1.5 rounded-lg transition-colors">
-                            <div className="w-8 h-8 rounded-full bg-[var(--color-primary-light)] text-white flex items-center justify-center font-bold">
-                                {dashboardData?.studentName?.charAt(0) || 'S'}
+                            <div className="w-8 h-8 rounded-full bg-[var(--color-primary-light)] text-white flex items-center justify-center font-bold overflow-hidden">
+                                {profilePhotoUrl ? (
+                                    <img 
+                                        src={profilePhotoUrl} 
+                                        alt={dashboardData?.studentName || 'Student'} 
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    dashboardData?.studentName?.charAt(0) || <User size={20} />
+                                )}
                             </div>
                             <span className="text-sm font-medium text-[var(--color-foreground)]">
                                 {dashboardData?.studentName || 'Student'}

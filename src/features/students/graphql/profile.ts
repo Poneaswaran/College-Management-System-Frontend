@@ -45,3 +45,71 @@ export const GET_STUDENT_PROFILE = gql`
     }
   }
 `;
+
+export const UPDATE_STUDENT_PROFILE = gql`
+  mutation UpdateStudentProfile($registerNumber: String!, $data: UpdateStudentProfileInput!) {
+    updateStudentProfile(registerNumber: $registerNumber, data: $data) {
+      profile {
+        id
+        registerNumber
+        fullName
+        lastName
+        phone
+        dateOfBirth
+        gender
+        address
+        guardianName
+        guardianRelationship
+        guardianPhone
+        guardianEmail
+        profilePhotoUrl
+        profileCompleted
+      }
+      message
+    }
+  }
+`;
+
+export const UPDATE_STUDENT_PROFILE_WITH_PHOTO = gql`
+  mutation UpdateStudentProfileWithPhoto(
+    $registerNumber: String!
+    $data: UpdateStudentProfileWithPhotoInput!
+    $profilePictureBase64: String
+  ) {
+    updateStudentProfileWithPhoto(
+      registerNumber: $registerNumber
+      data: $data
+      profilePictureBase64: $profilePictureBase64
+    ) {
+      profile {
+        id
+        registerNumber
+        fullName
+        lastName
+        phone
+        dateOfBirth
+        gender
+        address
+        guardianName
+        guardianRelationship
+        guardianPhone
+        guardianEmail
+        profilePhotoUrl
+        profileCompleted
+        user {
+          email
+          registerNumber
+        }
+        course {
+          code
+          name
+        }
+        section {
+          name
+          year
+        }
+      }
+      message
+    }
+  }
+`;

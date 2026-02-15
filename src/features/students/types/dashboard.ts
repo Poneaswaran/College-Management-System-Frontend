@@ -39,6 +39,7 @@ export interface ClassSchedule {
 export interface StudentDashboardData {
   studentName: string;
   registerNumber: string;
+  profilePhotoUrl?: string;
   assignmentsDueThisWeek: Assignment[];
   totalPendingAssignments: number;
   totalOverdueAssignments: number;
