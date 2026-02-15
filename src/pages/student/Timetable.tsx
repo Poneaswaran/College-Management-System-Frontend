@@ -33,7 +33,9 @@ export default function Timetable() {
                     variables: { registerNumber },
                     fetchPolicy: 'network-only',
                 });
-                setData(result.data);
+                if (result.data) {
+                    setData(result.data);
+                }
             } catch (err) {
                 console.error('Timetable fetch error:', err);
                 const errorMessage = getErrorMessage(err);

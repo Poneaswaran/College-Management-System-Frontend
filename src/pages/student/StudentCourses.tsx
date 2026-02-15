@@ -1,120 +1,52 @@
 import { BookOpen, Clock, User, TrendingUp, FileText, Calendar } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import Sidebar from '../../components/layout/Sidebar';
-
-interface Course {
-    id: string;
-    code: string;
-    name: string;
-    instructor: string;
-    credits: number;
-    semester: string;
-    progress: number;
-    grade: string;
-    attendance: number;
-    assignments: {
-        total: number;
-        completed: number;
-    };
-    schedule: string[];
-    description: string;
-    type: 'Theory' | 'Lab' | 'Practical';
-}
-
-const mockCourses: Course[] = [
-    {
-        id: '1',
-        code: 'CS301',
-        name: 'Data Structures and Algorithms',
-        instructor: 'Dr. Sarah Johnson',
-        credits: 4,
-        semester: 'Semester 5',
-        progress: 75,
-        grade: 'A',
-        attendance: 92,
-        assignments: { total: 8, completed: 6 },
-        schedule: ['Monday 9:00 AM', 'Thursday 9:00 AM'],
-        description: 'Advanced data structures including trees, graphs, and their applications in algorithm design.',
-        type: 'Theory',
-    },
-    {
-        id: '2',
-        code: 'CS302',
-        name: 'Database Management Systems',
-        instructor: 'Prof. Michael Chen',
-        credits: 4,
-        semester: 'Semester 5',
-        progress: 68,
-        grade: 'A-',
-        attendance: 88,
-        assignments: { total: 6, completed: 4 },
-        schedule: ['Monday 10:00 AM', 'Thursday 10:00 AM'],
-        description: 'Relational database design, SQL, normalization, and database administration.',
-        type: 'Theory',
-    },
-    {
-        id: '3',
-        code: 'CS303',
-        name: 'Web Development',
-        instructor: 'Dr. Emily Davis',
-        credits: 3,
-        semester: 'Semester 5',
-        progress: 82,
-        grade: 'A',
-        attendance: 95,
-        assignments: { total: 10, completed: 8 },
-        schedule: ['Monday 11:30 AM', 'Friday 11:30 AM'],
-        description: 'Modern web development with HTML5, CSS3, JavaScript, and popular frameworks.',
-        type: 'Lab',
-    },
-    {
-        id: '4',
-        code: 'CS304',
-        name: 'Operating Systems',
-        instructor: 'Prof. Robert Wilson',
-        credits: 4,
-        semester: 'Semester 5',
-        progress: 60,
-        grade: 'B+',
-        attendance: 85,
-        assignments: { total: 7, completed: 4 },
-        schedule: ['Monday 2:00 PM', 'Friday 10:00 AM'],
-        description: 'Process management, memory management, file systems, and concurrent programming.',
-        type: 'Theory',
-    },
-    {
-        id: '5',
-        code: 'CS305',
-        name: 'Computer Networks',
-        instructor: 'Dr. Lisa Anderson',
-        credits: 3,
-        semester: 'Semester 5',
-        progress: 70,
-        grade: 'B+',
-        attendance: 90,
-        assignments: { total: 5, completed: 3 },
-        schedule: ['Tuesday 9:00 AM', 'Friday 9:00 AM'],
-        description: 'Network protocols, TCP/IP, routing algorithms, and network security fundamentals.',
-        type: 'Theory',
-    },
-    {
-        id: '6',
-        code: 'CS306',
-        name: 'Software Engineering',
-        instructor: 'Prof. David Martinez',
-        credits: 3,
-        semester: 'Semester 5',
-        progress: 78,
-        grade: 'A-',
-        attendance: 93,
-        assignments: { total: 6, completed: 5 },
-        schedule: ['Tuesday 11:30 AM'],
-        description: 'Software development lifecycle, design patterns, testing, and project management.',
-        type: 'Theory',
-    },
-];
+import { client } from '../../lib/graphql';
+import { getErrorMessage } from '../../lib/errorHandling';
+import { COURSES_PAGE_QUERY } from '../../features/students/graphql/courses';
+import type { CoursesPageResponse, Course } from '../../features/students/types/courses';
+import type { RootState } from '../../store';
 
 export default function StudentCourses() {
+    const user = useSelector((state: RootState) => state.auth.user);
+    const [data, setData] = useState<CoursesPageResponse | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<Error | null>(null);
+
+    useEffect(() => {
+        const fetchCourses = async () => {
+            const registerNumber = user?.username || user?.registerNumber;
+            
+            if (!registerNumber) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                setLoading(true);
+                setError(null);
+                const result = await client.query<CoursesPageResponse>({
+                    query: COURSES_PAGE_QUERY,
+                    variables: { registerNumber },
+                    fetchPolicy: 'network-only',
+                });
+                if (result.data) {
+                    setData(result.data);
+                }
+            } catch (err) {
+                console.error('Courses fetch error:', err);
+                const errorMessage = getErrorMessage(err);
+                setError(new Error(errorMessage));
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCourses();
+    }, [user?.username, user?.registerNumber]);
     const getGradeColor = (grade: string) => {
+        if (!grade) return 'text-gray-600 bg-gray-500/10';
         if (grade.startsWith('A')) return 'text-green-600 bg-green-500/10';
         if (grade.startsWith('B')) return 'text-blue-600 bg-blue-500/10';
         if (grade.startsWith('C')) return 'text-yellow-600 bg-yellow-500/10';
@@ -122,31 +54,52 @@ export default function StudentCourses() {
     };
 
     const getTypeColor = (type: string) => {
-        switch (type) {
-            case 'Theory':
-                return 'bg-blue-500/10 text-blue-600 border-blue-500/30';
-            case 'Lab':
-                return 'bg-green-500/10 text-green-600 border-green-500/30';
-            case 'Practical':
-                return 'bg-purple-500/10 text-purple-600 border-purple-500/30';
-            default:
-                return 'bg-gray-500/10 text-gray-600 border-gray-500/30';
+        const typeLower = type.toLowerCase();
+        if (typeLower.includes('theory')) {
+            return 'bg-blue-500/10 text-blue-600 border-blue-500/30';
+        } else if (typeLower.includes('lab')) {
+            return 'bg-green-500/10 text-green-600 border-green-500/30';
+        } else if (typeLower.includes('practical')) {
+            return 'bg-purple-500/10 text-purple-600 border-purple-500/30';
         }
+        return 'bg-gray-500/10 text-gray-600 border-gray-500/30';
     };
 
-    const totalCredits = mockCourses.reduce((sum, course) => sum + course.credits, 0);
-    const averageProgress = Math.round(
-        mockCourses.reduce((sum, course) => sum + course.progress, 0) / mockCourses.length
-    );
-    const averageAttendance = Math.round(
-        mockCourses.reduce((sum, course) => sum + course.attendance, 0) / mockCourses.length
-    );
+    const formatSchedule = (course: Course) => {
+        return course.classSchedule.map(
+            schedule => `${schedule.dayName} ${schedule.startTime}`
+        );
+    };
 
     return (
         <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
             <Sidebar />
 
             <main className="flex-1 ml-64 p-8">
+                {/* Header */}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-[var(--color-foreground)] mb-2">My Courses</h1>
+                    <p className="text-[var(--color-muted-foreground)]">View and manage your enrolled courses</p>
+                </div>
+
+                {/* Loading State */}
+                {loading && (
+                    <div className="flex items-center justify-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)]"></div>
+                    </div>
+                )}
+
+                {/* Error State */}
+                {error && (
+                    <div className="bg-[var(--color-error-light)] border border-[var(--color-error)] text-[var(--color-error)] px-4 py-3 rounded-lg mb-8">
+                        <p className="font-medium">Error loading courses</p>
+                        <p className="text-sm mt-1">{error.message}</p>
+                    </div>
+                )}
+
+                {/* Content */}
+                {!loading && !error && data && (
+                <>
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-[var(--color-foreground)] mb-2">
@@ -169,7 +122,7 @@ export default function StudentCourses() {
                             </h3>
                         </div>
                         <p className="text-3xl font-bold text-[var(--color-foreground)]">
-                            {mockCourses.length}
+                            {data.courseOverview.totalCourses}
                         </p>
                     </div>
 
@@ -183,7 +136,7 @@ export default function StudentCourses() {
                             </h3>
                         </div>
                         <p className="text-3xl font-bold text-[var(--color-foreground)]">
-                            {totalCredits}
+                            {data.courseOverview.totalCredits}
                         </p>
                     </div>
 
@@ -197,7 +150,7 @@ export default function StudentCourses() {
                             </h3>
                         </div>
                         <p className="text-3xl font-bold text-[var(--color-foreground)]">
-                            {averageProgress}%
+                            {Math.round(data.courseOverview.avgProgress)}%
                         </p>
                     </div>
 
@@ -211,123 +164,119 @@ export default function StudentCourses() {
                             </h3>
                         </div>
                         <p className="text-3xl font-bold text-[var(--color-foreground)]">
-                            {averageAttendance}%
+                            {Math.round(data.courseOverview.avgAttendance)}%
                         </p>
                     </div>
                 </div>
 
                 {/* Courses Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {mockCourses.map((course) => (
+                    {data.myCourses.map((course: Course) => (
                         <div
                             key={course.id}
-                            className="bg-[var(--color-card)] rounded-xl border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all hover:shadow-lg cursor-pointer"
+                            className="bg-[var(--color-card)] rounded-xl border border-[var(--color-border)] p-6 hover:shadow-lg transition-all"
                         >
                             {/* Course Header */}
-                            <div className="p-6 border-b border-[var(--color-border)]">
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="flex-1">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <h3 className="text-xl font-bold text-[var(--color-foreground)]">
-                                                {course.name}
-                                            </h3>
-                                        </div>
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="flex items-start gap-3">
+                                    <div className="p-3 bg-[var(--color-primary)]/10 rounded-lg">
+                                        <BookOpen size={24} className="text-[var(--color-primary)]" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-[var(--color-foreground)] mb-1">
+                                            {course.subjectName}
+                                        </h3>
                                         <p className="text-sm text-[var(--color-foreground-secondary)] mb-1">
-                                            {course.code} • {course.credits} Credits
+                                            {course.subjectCode} • {course.credits} Credits
                                         </p>
                                     </div>
-                                    <span
-                                        className={`px-3 py-1 rounded-full text-xs font-medium border ${getTypeColor(
-                                            course.type
-                                        )}`}
-                                    >
-                                        {course.type}
+                                </div>
+                                <span
+                                    className={`px-3 py-1 rounded-full text-xs font-medium border ${getTypeColor(
+                                        course.subjectType
+                                    )}`}
+                                >
+                                    {course.subjectType}
+                                </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm text-[var(--color-foreground-secondary)] mb-4">
+                                <User size={16} />
+                                <span>{course.facultyName}</span>
+                            </div>
+
+                            {/* Progress Bar */}
+                            <div className="mb-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm text-[var(--color-foreground-secondary)]">
+                                        Course Progress
+                                    </span>
+                                    <span className="text-sm font-medium text-[var(--color-foreground)]">
+                                        {Math.round(course.courseProgress)}%
                                     </span>
                                 </div>
-
-                                <div className="flex items-center gap-2 text-sm text-[var(--color-foreground-secondary)]">
-                                    <User size={16} />
-                                    <span>{course.instructor}</span>
+                                <div className="w-full bg-[var(--color-background-tertiary)] rounded-full h-2">
+                                    <div
+                                        className="bg-[var(--color-primary)] h-2 rounded-full transition-all"
+                                        style={{ width: `${course.courseProgress}%` }}
+                                    ></div>
                                 </div>
                             </div>
 
-                            {/* Course Body */}
-                            <div className="p-6">
-                                <p className="text-sm text-[var(--color-foreground-secondary)] mb-4">
-                                    {course.description}
-                                </p>
-
-                                {/* Progress Bar */}
-                                <div className="mb-4">
-                                    <div className="flex justify-between text-sm mb-2">
-                                        <span className="text-[var(--color-foreground-secondary)]">
-                                            Course Progress
-                                        </span>
-                                        <span className="font-semibold text-[var(--color-foreground)]">
-                                            {course.progress}%
-                                        </span>
-                                    </div>
-                                    <div className="w-full bg-[var(--color-background-tertiary)] rounded-full h-2">
-                                        <div
-                                            className="bg-[var(--color-primary)] h-2 rounded-full transition-all"
-                                            style={{ width: `${course.progress}%` }}
-                                        ></div>
-                                    </div>
+                            {/* Stats Grid */}
+                            <div className="grid grid-cols-3 gap-4 mb-4">
+                                <div className="text-center p-3 bg-[var(--color-background-secondary)] rounded-lg">
+                                    <p className="text-xs text-[var(--color-foreground-muted)] mb-1">
+                                        Grade
+                                    </p>
+                                    <p
+                                        className={`text-lg font-bold px-2 py-1 rounded ${getGradeColor(
+                                            course.grade
+                                        )}`}
+                                    >
+                                        {course.grade || 'N/A'}
+                                    </p>
                                 </div>
+                                <div className="text-center p-3 bg-[var(--color-background-secondary)] rounded-lg">
+                                    <p className="text-xs text-[var(--color-foreground-muted)] mb-1">
+                                        Attendance
+                                    </p>
+                                    <p className="text-lg font-bold text-[var(--color-foreground)]">
+                                        {Math.round(course.attendancePercentage)}%
+                                    </p>
+                                </div>
+                                <div className="text-center p-3 bg-[var(--color-background-secondary)] rounded-lg">
+                                    <p className="text-xs text-[var(--color-foreground-muted)] mb-1">
+                                        Assignments
+                                    </p>
+                                    <p className="text-lg font-bold text-[var(--color-foreground)]">
+                                        {course.completedAssignments}/{course.totalAssignments}
+                                    </p>
+                                </div>
+                            </div>
 
-                                {/* Stats Grid */}
-                                <div className="grid grid-cols-3 gap-4 mb-4">
-                                    <div className="text-center p-3 bg-[var(--color-background-secondary)] rounded-lg">
-                                        <p className="text-xs text-[var(--color-foreground-muted)] mb-1">
-                                            Grade
-                                        </p>
-                                        <p
-                                            className={`text-lg font-bold px-2 py-1 rounded ${getGradeColor(
-                                                course.grade
-                                            )}`}
+                            {/* Schedule */}
+                            <div className="pt-4 border-t border-[var(--color-border)]">
+                                <div className="flex items-center gap-2 text-sm text-[var(--color-foreground-secondary)] mb-2">
+                                    <Clock size={16} />
+                                    <span className="font-medium">Class Schedule:</span>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {formatSchedule(course).map((slot, index) => (
+                                        <span
+                                            key={index}
+                                            className="px-3 py-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-full text-xs font-medium"
                                         >
-                                            {course.grade}
-                                        </p>
-                                    </div>
-                                    <div className="text-center p-3 bg-[var(--color-background-secondary)] rounded-lg">
-                                        <p className="text-xs text-[var(--color-foreground-muted)] mb-1">
-                                            Attendance
-                                        </p>
-                                        <p className="text-lg font-bold text-[var(--color-foreground)]">
-                                            {course.attendance}%
-                                        </p>
-                                    </div>
-                                    <div className="text-center p-3 bg-[var(--color-background-secondary)] rounded-lg">
-                                        <p className="text-xs text-[var(--color-foreground-muted)] mb-1">
-                                            Assignments
-                                        </p>
-                                        <p className="text-lg font-bold text-[var(--color-foreground)]">
-                                            {course.assignments.completed}/{course.assignments.total}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Schedule */}
-                                <div className="pt-4 border-t border-[var(--color-border)]">
-                                    <div className="flex items-center gap-2 text-sm text-[var(--color-foreground-secondary)] mb-2">
-                                        <Clock size={16} />
-                                        <span className="font-medium">Class Schedule:</span>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {course.schedule.map((slot, index) => (
-                                            <span
-                                                key={index}
-                                                className="px-3 py-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-full text-xs font-medium"
-                                            >
-                                                {slot}
-                                            </span>
-                                        ))}
-                                    </div>
+                                            {slot}
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
                         </div>
                     ))}
                 </div>
+                </>
+                )}
             </main>
         </div>
     );

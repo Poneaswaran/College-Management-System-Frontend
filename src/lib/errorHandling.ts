@@ -1,5 +1,3 @@
-import type { ApolloError } from '@apollo/client';
-
 export interface GraphQLErrorDetails {
     message: string;
     code?: string;
@@ -12,7 +10,7 @@ export interface GraphQLErrorDetails {
 /**
  * Parse Apollo GraphQL errors into a user-friendly format
  */
-export const parseGraphQLError = (error: ApolloError | Error): GraphQLErrorDetails => {
+export const parseGraphQLError = (error: unknown): GraphQLErrorDetails => {
     // Default error structure
     const errorDetails: GraphQLErrorDetails = {
         message: 'An unexpected error occurred',
@@ -90,7 +88,7 @@ export const getErrorMessage = (error: unknown): string => {
 
     if (error instanceof Error) {
         if ('graphQLErrors' in error || 'networkError' in error) {
-            const details = parseGraphQLError(error as ApolloError);
+            const details = parseGraphQLError(error);
             return details.message;
         }
         return error.message;
@@ -102,9 +100,9 @@ export const getErrorMessage = (error: unknown): string => {
 /**
  * Check if an error requires user logout
  */
-export const shouldLogout = (error: ApolloError | Error): boolean => {
-    if ('graphQLErrors' in error || 'networkError' in error) {
-        const details = parseGraphQLError(error as ApolloError);
+export const shouldLogout = (error: unknown): boolean => {
+    if (error && typeof error === 'object' && ('graphQLErrors' in error || 'networkError' in error)) {
+        const details = parseGraphQLError(error);
         return details.isAuthError;
     }
     return false;

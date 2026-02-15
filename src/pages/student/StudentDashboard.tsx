@@ -43,7 +43,9 @@ export default function StudentDashboard() {
                 fetchPolicy: 'network-only',
             });
             console.log('Dashboard data received:', result.data);
-            setData(result.data);
+            if (result.data) {
+                setData(result.data);
+            }
         } catch (err) {
             console.error('Dashboard fetch error:', err);
             const errorMessage = getErrorMessage(err);

@@ -14,6 +14,7 @@ const AttendanceHistory = lazy(() => import('../pages/student/AttendanceHistory'
 const StudentProfile = lazy(() => import('../pages/student/StudentProfile'));
 const Timetable = lazy(() => import('../pages/student/Timetable'));
 const StudentCourses = lazy(() => import('../pages/student/StudentCourses'));
+const Grades = lazy(() => import('../pages/student/Grades'));
 const FacultyDashboard = lazy(() => import('../pages/faculty/FacultyDashboard'));
 const HODDashboard = lazy(() => import('../pages/hod/HODDashboard'));
 
@@ -57,6 +58,7 @@ export function AppRouter() {
                     <Route path="/student/profile" element={<StudentProfile />} />
                     <Route path="/student/timetable" element={<Timetable />} />
                     <Route path="/student/courses" element={<StudentCourses />} />
+                    <Route path="/student/grades" element={<Grades />} />
                     <Route path="/student/assignments" element={<StudentAssignments />} />
                     <Route path="/student/submissions" element={<MySubmissions />} />
                     <Route path="/faculty/dashboard" element={<FacultyDashboard />} />
