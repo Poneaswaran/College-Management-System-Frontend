@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import Sidebar from '../../components/layout/Sidebar';
 import { useTheme } from '../../theme';
 import { client } from '../../lib/graphql';
+import { getErrorMessage } from '../../lib/errorHandling';
 import { STUDENT_DASHBOARD_QUERY } from '../../features/students/graphql/dashboard';
 import type { StudentDashboardResponse } from '../../features/students/types/dashboard';
 import type { RootState } from '../../store';
@@ -45,7 +46,8 @@ export default function StudentDashboard() {
             setData(result.data);
         } catch (err) {
             console.error('Dashboard fetch error:', err);
-            setError(err instanceof Error ? err : new Error('Failed to fetch dashboard'));
+            const errorMessage = getErrorMessage(err);
+            setError(new Error(errorMessage));
         } finally {
             setLoading(false);
         }

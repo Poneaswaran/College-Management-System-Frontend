@@ -51,6 +51,7 @@ const studentSidebarItems: MenuItem[] = [
     { icon: BookOpen, label: 'Courses', path: '/student/courses' },
     { icon: GraduationCap, label: 'Grades', path: '/student/grades' },
     { icon: Calendar, label: 'Schedule', path: '/student/schedule' },
+    { icon: Calendar, label: 'Timetable', path: '/student/timetable' },
     { icon: FileText, label: 'Assignments', path: '/student/assignments' },
     { icon: ClipboardCheck, label: 'Attendance', path: '/student/attendance' },
     { icon: User, label: 'Profile', path: '/student/profile' },

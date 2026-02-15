@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { client } from '../../lib/graphql';
+import { getErrorMessage, shouldLogout } from '../../lib/errorHandling';
 import { ME_QUERY } from '../../features/auth/graphql/queries';
 import { loginSuccess, logout } from '../../features/auth/slice';
 import type { MeResponse } from '../../features/auth/types';
@@ -35,8 +36,13 @@ export function AuthInitializer() {
                 }
             } catch (error) {
                 console.error('Failed to fetch current user:', error);
-                // Token is invalid, clear auth state
-                dispatch(logout());
+                const errorMessage = getErrorMessage(error);
+                console.error('Error details:', errorMessage);
+                
+                // Only logout if it's an authentication error
+                if (error instanceof Error && shouldLogout(error)) {
+                    dispatch(logout());
+                }
             }
         };
 
