@@ -74,7 +74,7 @@ export const STUDENT_DASHBOARD_QUERY = gql`
 `;
 
 export const GET_FACULTY_ASSIGNMENTS_QUERY = gql`
-  query GetFacultyAssignments($subjectId: ID, $status: String) {
+  query GetFacultyAssignments($subjectId: Int, $status: String) {
     assignments(subjectId: $subjectId, status: $status) {
       id
       title
@@ -84,6 +84,9 @@ export const GET_FACULTY_ASSIGNMENTS_QUERY = gql`
       status
       isOverdue
       totalSubmissions
+      hasAttachment
+      attachmentUrl
+      attachmentFilename
       statistics {
         submissionPercentage
         pendingGrading
@@ -101,6 +104,9 @@ export const GET_STUDENT_ASSIGNMENTS_QUERY = gql`
       assignmentType
       dueDate
       maxMarks
+      hasAttachment
+      attachmentUrl
+      attachmentFilename
       status
       isOverdue
       subject {
@@ -140,7 +146,9 @@ export const GET_ASSIGNMENT_DETAILS_QUERY = gql`
       allowLateSubmission
       lateSubmissionDeadline
       assignmentType
+      hasAttachment
       attachmentUrl
+      attachmentFilename
       statistics {
         totalStudents
         totalSubmissions
@@ -243,6 +251,9 @@ export const CREATE_ASSIGNMENT_MUTATION = gql`
       sectionName
       dueDate
       maxMarks
+      hasAttachment
+      attachmentUrl
+      attachmentFilename
     }
   }
 `;
@@ -257,13 +268,16 @@ export const UPDATE_ASSIGNMENT_MUTATION = gql`
       maxMarks
       weightage
       status
+      hasAttachment
+      attachmentUrl
+      attachmentFilename
     }
   }
 `;
 
 export const PUBLISH_ASSIGNMENT_MUTATION = gql`
-  mutation PublishAssignment($id: ID!) {
-    publishAssignment(id: $id) {
+  mutation PublishAssignment($assignmentId: Int!) {
+    publishAssignment(assignmentId: $assignmentId) {
       id
       status
     }
@@ -340,7 +354,7 @@ export const GET_SUBJECTS_QUERY = gql`
 `;
 
 export const GET_SECTIONS_QUERY = gql`
-  query GetSections($subjectId: ID) {
+  query GetSections($subjectId: Int) {
     sections(subjectId: $subjectId) {
       id
       name

@@ -4,7 +4,8 @@
  */
 
 import { client } from '../../lib/graphql';
-import { SERVER_URL } from '../../config/constant';
+import { ensureInt } from '../../utils/graphql-helpers';
+
 import type {
   Assignment,
   Submission,
@@ -20,7 +21,7 @@ import type {
   SubmitAssignmentResponse,
   GradeAssignmentResponse,
   ReturnSubmissionResponse,
-  FileUploadResponse,
+
   Subject,
   Section,
   Semester,
@@ -90,7 +91,10 @@ export const fetchFacultyAssignments = async (
 ): Promise<Assignment[]> => {
   const { data } = await client.query<{ assignments: Assignment[] }>({
     query: GET_FACULTY_ASSIGNMENTS_QUERY,
-    variables: { subjectId, status },
+    variables: {
+      subjectId: ensureInt(subjectId),
+      status
+    },
     fetchPolicy: 'network-only',
   });
 
@@ -131,7 +135,7 @@ export const fetchAssignmentDetails = async (
 ): Promise<AssignmentDetailData> => {
   const { data } = await client.query<AssignmentDetailData>({
     query: GET_ASSIGNMENT_DETAILS_QUERY,
-    variables: { id },
+    variables: { id: ensureInt(id) },
     fetchPolicy: 'network-only',
   });
 
@@ -164,7 +168,7 @@ export const fetchMySubmissions = async (): Promise<Submission[]> => {
 export const fetchSubmissionDetails = async (id: number): Promise<Submission> => {
   const { data } = await client.query<{ submission: Submission }>({
     query: GET_SUBMISSION_DETAILS_QUERY,
-    variables: { id },
+    variables: { id: ensureInt(id) },
     fetchPolicy: 'network-only',
   });
 
@@ -233,7 +237,7 @@ export const updateAssignment = async (
 export const publishAssignment = async (id: number): Promise<Assignment> => {
   const { data } = await client.mutate<{ publishAssignment: Assignment }>({
     mutation: PUBLISH_ASSIGNMENT_MUTATION,
-    variables: { id },
+    variables: { assignmentId: ensureInt(id) },
   });
 
   if (!data?.publishAssignment) {
@@ -249,7 +253,7 @@ export const publishAssignment = async (id: number): Promise<Assignment> => {
 export const closeAssignment = async (id: number): Promise<Assignment> => {
   const { data } = await client.mutate<{ closeAssignment: Assignment }>({
     mutation: CLOSE_ASSIGNMENT_MUTATION,
-    variables: { id },
+    variables: { id: ensureInt(id) },
   });
 
   if (!data?.closeAssignment) {
@@ -269,7 +273,7 @@ export const deleteAssignment = async (
     deleteAssignment: { success: boolean; message: string };
   }>({
     mutation: DELETE_ASSIGNMENT_MUTATION,
-    variables: { id },
+    variables: { id: ensureInt(id) },
   });
 
   if (!data?.deleteAssignment) {
@@ -333,32 +337,7 @@ export const returnSubmission = async (
   return data.returnSubmission;
 };
 
-/**
- * Upload file (multipart form-data)
- * Used for assignment attachments and submission files
- */
-export const uploadFile = async (file: File): Promise<FileUploadResponse> => {
-  const formData = new FormData();
-  formData.append('file', file);
 
-  const token = localStorage.getItem('token');
-
-  const response = await fetch(`${SERVER_URL}/api/upload/`, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Upload failed' }));
-    throw new Error(error.message || 'Failed to upload file');
-  }
-
-  const data: FileUploadResponse = await response.json();
-  return data;
-};
 
 /**
  * Get subjects (for dropdown)
@@ -382,7 +361,7 @@ export const fetchSubjects = async (): Promise<Subject[]> => {
 export const fetchSections = async (subjectId?: number): Promise<Section[]> => {
   const { data } = await client.query<{ sections: Section[] }>({
     query: GET_SECTIONS_QUERY,
-    variables: { subjectId },
+    variables: { subjectId: ensureInt(subjectId) },
     fetchPolicy: 'network-only',
   });
 
@@ -419,7 +398,7 @@ export const fetchStudentStatistics = async (
     studentAssignmentStatistics: StudentAssignmentStatistics;
   }>({
     query: GET_STUDENT_STATISTICS_QUERY,
-    variables: { semesterId },
+    variables: { semesterId: ensureInt(semesterId) },
     fetchPolicy: 'network-only',
   });
 

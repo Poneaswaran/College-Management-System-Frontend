@@ -118,6 +118,8 @@ export interface CreateAssignmentInput {
   allowLateSubmission: boolean;
   lateSubmissionDeadline?: string;
   attachmentUrl?: string;
+  attachmentData?: string;
+  attachmentFilename?: string;
 }
 
 export interface UpdateAssignmentInput {
@@ -129,6 +131,8 @@ export interface UpdateAssignmentInput {
   weightage?: number;
   allowLateSubmission?: boolean;
   lateSubmissionDeadline?: string;
+  attachmentData?: string;
+  attachmentFilename?: string;
 }
 
 export interface SubmitAssignmentInput {

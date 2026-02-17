@@ -53,7 +53,7 @@ import {
   submitAssignment as submitAssignmentApi,
   gradeSubmission as gradeSubmissionApi,
   returnSubmission as returnSubmissionApi,
-  uploadFile as uploadFileApi,
+
   fetchSubjects,
   fetchSections,
   fetchSemesters,
@@ -432,7 +432,7 @@ export const useGrading = () => {
       try {
         dispatch(setLoading(true));
         const result = await gradeSubmissionApi(input);
-        
+
         // Update submission in state with grade
         const gradedSubmission = {
           id: input.submissionId,
@@ -440,7 +440,7 @@ export const useGrading = () => {
         };
         dispatch(updateSubmissionAction(gradedSubmission as never));
         dispatch(removePendingGrading(input.submissionId));
-        
+
         return result;
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Failed to grade submission';
@@ -480,30 +480,7 @@ export const useGrading = () => {
   };
 };
 
-/**
- * Hook for file upload
- */
-export const useFileUpload = () => {
-  const dispatch = useDispatch<AppDispatch>();
 
-  const uploadFile = useCallback(
-    async (file: File) => {
-      try {
-        dispatch(setLoading(true));
-        const result = await uploadFileApi(file);
-        dispatch(setLoading(false));
-        return result;
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to upload file';
-        dispatch(setError(errorMessage));
-        throw err;
-      }
-    },
-    [dispatch]
-  );
-
-  return { uploadFile };
-};
 
 /**
  * Hook for dropdowns data
