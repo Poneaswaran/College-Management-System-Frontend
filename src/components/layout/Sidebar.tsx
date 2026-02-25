@@ -54,6 +54,7 @@ const studentSidebarItems: MenuItem[] = [
     { icon: Calendar, label: 'Timetable', path: '/student/timetable' },
     { icon: FileText, label: 'Assignments', path: '/student/assignments' },
     { icon: ClipboardCheck, label: 'Attendance', path: '/student/attendance' },
+    { icon: FileCheck, label: 'Exams & Results', path: '/student/exams' },
     { icon: User, label: 'Profile', path: '/student/profile' },
 ];
 
@@ -117,6 +118,7 @@ const hodSidebarItems: SidebarItem[] = [
         label: 'Examination Management',
         isDropdown: true,
         children: [
+            { icon: LayoutDashboard, label: 'Exam Dashboard', path: '/hod/exams' },
             { icon: Calendar, label: 'Exam Schedule Approval', path: '/hod/exam-schedule' },
             { icon: BarChart3, label: 'Result Analysis', path: '/hod/result-analysis' },
             { icon: TrendingUp, label: 'Pass/Fail Reports', path: '/hod/pass-fail-reports' },

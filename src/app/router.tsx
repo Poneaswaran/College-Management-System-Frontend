@@ -35,6 +35,11 @@ const MySubmissions = lazy(() => import('../pages/student/MySubmissions'));
 // Assignment Management Pages - HOD
 const HODAssignments = lazy(() => import('../pages/hod/HODAssignments'));
 
+// Exam Management Pages
+const StudentExams = lazy(() => import('../pages/student/StudentExams'));
+const FacultyExams = lazy(() => import('../pages/faculty/FacultyExams'));
+const HODExams = lazy(() => import('../pages/hod/HODExams'));
+
 // Notification Settings
 const NotificationSettingsPage = lazy(() => import('../pages/settings/NotificationSettingsPage'));
 
@@ -70,6 +75,7 @@ export function AppRouter() {
           <Route path="/student/grades" element={<Grades />} />
           <Route path="/student/assignments" element={<StudentAssignments />} />
           <Route path="/student/submissions" element={<MySubmissions />} />
+          <Route path="/student/exams" element={<StudentExams />} />
           <Route path="/faculty/dashboard" element={<FacultyDashboard />} />
           <Route path="/faculty/courses" element={<FacultyCourses />} />
           <Route path="/faculty/students" element={<StudentList />} />
@@ -77,8 +83,10 @@ export function AppRouter() {
           <Route path="/faculty/assignments/create" element={<CreateAssignment />} />
           <Route path="/faculty/materials" element={<StudyMaterials />} />
           <Route path="/faculty/attendance" element={<AttendanceManagement />} />
+          <Route path="/faculty/exams" element={<FacultyExams />} />
           <Route path="/hod/dashboard" element={<HODDashboard />} />
           <Route path="/hod/assignments" element={<HODAssignments />} />
+          <Route path="/hod/exams" element={<HODExams />} />
           <Route path="/settings/notifications" element={<NotificationSettingsPage />} />
           <Route path="/" element={<Navigate to="/auth/login" replace />} />
           <Route path="*" element={<NotFound />} />
