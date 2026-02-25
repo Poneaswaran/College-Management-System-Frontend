@@ -6,6 +6,8 @@ import { store } from '../store';
 import { client } from '../lib/graphql';
 import { ThemeProvider } from '../theme';
 import { SidebarProvider } from '../contexts/SidebarContext';
+import { ToastProvider } from '../components/ui/Toast';
+import { KeyboardShortcutsProvider } from '../components/ui/KeyboardShortcuts';
 
 interface ProvidersProps {
     children: ReactNode;
@@ -16,11 +18,15 @@ export function Providers({ children }: ProvidersProps) {
         <ThemeProvider>
             <Provider store={store}>
                 <ApolloProvider client={client}>
-                    <SidebarProvider>
-                        <HashRouter>
-                            {children}
-                        </HashRouter>
-                    </SidebarProvider>
+                    <ToastProvider>
+                        <SidebarProvider>
+                            <HashRouter>
+                                <KeyboardShortcutsProvider>
+                                    {children}
+                                </KeyboardShortcutsProvider>
+                            </HashRouter>
+                        </SidebarProvider>
+                    </ToastProvider>
                 </ApolloProvider>
             </Provider>
         </ThemeProvider>

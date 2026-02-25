@@ -1,0 +1,22 @@
+{
+    "name": "College Management System",
+    "short_name": "CollegeMS",
+    "description": "A modern college management system for students, faculty, and administration.",
+    "start_url": "./",
+    "display": "standalone",
+    "orientation": "portrait-primary",
+    "background_color": "#0a0a0a",
+    "theme_color": "#06b6d4",
+    "categories": [
+        "education",
+        "productivity"
+    ],
+    "icons": [
+        {
+            "src": "vite.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}
