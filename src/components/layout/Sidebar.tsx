@@ -24,12 +24,11 @@ import {
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { selectCurrentUser, selectIsAuthenticated } from '../../store/auth.store';
+import { selectCurrentUser } from '../../store/auth.store';
 import { useAuth } from '../../features/auth/hooks';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import NotificationBell from '../notifications/NotificationBell';
 
 interface MenuItem {
     icon: LucideIcon;
@@ -171,7 +170,6 @@ export default function Sidebar() {
     const location = useLocation();
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
-    const isAuthenticated = useSelector(selectIsAuthenticated);
     const { logout } = useAuth();
     const { isCollapsed, setIsCollapsed } = useSidebar();
     const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
@@ -213,17 +211,13 @@ export default function Sidebar() {
                         </div>
                     )}
                 </div>
-                <div className="flex items-center gap-1">
-                    {/* Notification Bell */}
-                    {isAuthenticated && <NotificationBell />}
-                    <button
-                        onClick={() => setIsCollapsed(!isCollapsed)}
-                        className="p-1 hover:bg-[var(--color-background-secondary)] rounded transition-colors"
-                        title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                    >
-                        {isCollapsed ? <Menu size={20} /> : <X size={20} />}
-                    </button>
-                </div>
+                <button
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    className="p-1 hover:bg-[var(--color-background-secondary)] rounded transition-colors"
+                    title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                >
+                    {isCollapsed ? <Menu size={20} /> : <X size={20} />}
+                </button>
             </div>
 
             {/* Navigation Section */}
@@ -241,8 +235,8 @@ export default function Sidebar() {
                                 <button
                                     onClick={() => toggleDropdown(item.label)}
                                     className={`flex items-center justify-between w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${hasActiveChild
-                                            ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
-                                            : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
+                                        ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
+                                        : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
                                         }`}
                                     title={isCollapsed ? item.label : ''}
                                 >
@@ -262,8 +256,8 @@ export default function Sidebar() {
                                                     key={child.path}
                                                     to={child.path}
                                                     className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
-                                                            ? 'bg-[var(--color-primary)] text-white'
-                                                            : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
+                                                        ? 'bg-[var(--color-primary)] text-white'
+                                                        : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
                                                         }`}
                                                 >
                                                     <ChildIcon size={18} />
@@ -285,8 +279,8 @@ export default function Sidebar() {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive
-                                        ? 'bg-[var(--color-primary)] text-white'
-                                        : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
+                                    ? 'bg-[var(--color-primary)] text-white'
+                                    : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
                                     }`}
                                 title={isCollapsed ? item.label : ''}
                             >

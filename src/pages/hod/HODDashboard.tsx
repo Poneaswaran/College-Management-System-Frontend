@@ -1,5 +1,4 @@
 import {
-    Bell,
     Mail,
     ChevronDown,
     Users,
@@ -8,10 +7,19 @@ import {
     ClipboardCheck,
     FileCheck,
     AlertCircle,
+    Sun,
+    Moon,
 } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar';
+import NotificationBell from '../../components/notifications/NotificationBell';
+import { useTheme } from '../../theme';
 
 export default function HODDashboard() {
+    const { isDark, setMode } = useTheme();
+
+    const toggleTheme = () => {
+        setMode(isDark ? 'light' : 'dark');
+    };
 
     return (
         <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
@@ -22,14 +30,19 @@ export default function HODDashboard() {
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold text-[var(--color-foreground)]">HOD Dashboard</h1>
                     <div className="flex items-center gap-4">
+                        {/* Theme Toggle Button */}
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 rounded-full hover:bg-[var(--color-background-tertiary)] text-[var(--color-foreground-secondary)] hover:text-[var(--color-primary)] transition-all"
+                            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                        >
+                            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+                        </button>
                         <button className="p-2 rounded-full hover:bg-[var(--color-background-tertiary)] text-[var(--color-foreground-secondary)] relative">
                             <Mail size={20} />
                             <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--color-error)] rounded-full border-2 border-[var(--color-background)]"></span>
                         </button>
-                        <button className="p-2 rounded-full hover:bg-[var(--color-background-tertiary)] text-[var(--color-foreground-secondary)] relative">
-                            <Bell size={20} />
-                            <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--color-error)] rounded-full border-2 border-[var(--color-background)]"></span>
-                        </button>
+                        <NotificationBell />
                         <div className="flex items-center gap-2 cursor-pointer hover:bg-[var(--color-background-tertiary)] px-3 py-1.5 rounded-lg transition-colors">
                             <div className="w-8 h-8 rounded-full bg-[var(--color-primary-light)] text-white flex items-center justify-center font-bold">
                                 HD
