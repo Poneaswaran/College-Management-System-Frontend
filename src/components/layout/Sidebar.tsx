@@ -24,11 +24,12 @@ import {
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { selectCurrentUser } from '../../store/auth.store';
+import { selectCurrentUser, selectIsAuthenticated } from '../../store/auth.store';
 import { useAuth } from '../../features/auth/hooks';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
+import NotificationBell from '../notifications/NotificationBell';
 
 interface MenuItem {
     icon: LucideIcon;
@@ -72,14 +73,14 @@ const facultySidebarItems: MenuItem[] = [
 ];
 
 const hodSidebarItems: SidebarItem[] = [
-    { 
-        icon: LayoutDashboard, 
-        label: 'Dashboard', 
+    {
+        icon: LayoutDashboard,
+        label: 'Dashboard',
         path: '/hod/dashboard'
     },
-    { 
-        icon: BookOpen, 
-        label: 'Academic Management', 
+    {
+        icon: BookOpen,
+        label: 'Academic Management',
         isDropdown: true,
         children: [
             { icon: BookOpen, label: 'Department Courses', path: '/hod/courses' },
@@ -89,9 +90,9 @@ const hodSidebarItems: SidebarItem[] = [
             { icon: Calendar, label: 'Timetable Approval', path: '/hod/timetable-approval' },
         ]
     },
-    { 
-        icon: Users, 
-        label: 'Faculty Management', 
+    {
+        icon: Users,
+        label: 'Faculty Management',
         isDropdown: true,
         children: [
             { icon: Users, label: 'Faculty List', path: '/hod/faculty-list' },
@@ -100,9 +101,9 @@ const hodSidebarItems: SidebarItem[] = [
             { icon: BarChart3, label: 'Workload Distribution', path: '/hod/workload-distribution' },
         ]
     },
-    { 
-        icon: GraduationCap, 
-        label: 'Student Management', 
+    {
+        icon: GraduationCap,
+        label: 'Student Management',
         isDropdown: true,
         children: [
             { icon: Users, label: 'Student List', path: '/hod/students' },
@@ -112,9 +113,9 @@ const hodSidebarItems: SidebarItem[] = [
             { icon: FileCheck, label: 'Student Grievances', path: '/hod/grievances' },
         ]
     },
-    { 
-        icon: FileCheck, 
-        label: 'Examination Management', 
+    {
+        icon: FileCheck,
+        label: 'Examination Management',
         isDropdown: true,
         children: [
             { icon: Calendar, label: 'Exam Schedule Approval', path: '/hod/exam-schedule' },
@@ -123,9 +124,9 @@ const hodSidebarItems: SidebarItem[] = [
             { icon: GraduationCap, label: 'Department Rank List', path: '/hod/rank-list' },
         ]
     },
-    { 
-        icon: BarChart3, 
-        label: 'Reports & Analytics', 
+    {
+        icon: BarChart3,
+        label: 'Reports & Analytics',
         isDropdown: true,
         children: [
             { icon: ClipboardCheck, label: 'Attendance Trends', path: '/hod/attendance-trends' },
@@ -135,18 +136,18 @@ const hodSidebarItems: SidebarItem[] = [
             { icon: BarChart3, label: 'Department Comparison', path: '/hod/department-comparison' },
         ]
     },
-    { 
-        icon: Bell, 
-        label: 'Announcements', 
+    {
+        icon: Bell,
+        label: 'Announcements',
         isDropdown: true,
         children: [
             { icon: Bell, label: 'Post Department Notices', path: '/hod/post-notices' },
             { icon: Bell, label: 'View College Notices', path: '/hod/view-notices' },
         ]
     },
-    { 
-        icon: FolderCheck, 
-        label: 'Approvals', 
+    {
+        icon: FolderCheck,
+        label: 'Approvals',
         isDropdown: true,
         children: [
             { icon: FileCheck, label: 'Faculty Leave Approval', path: '/hod/faculty-leave-approval' },
@@ -155,9 +156,9 @@ const hodSidebarItems: SidebarItem[] = [
             { icon: FileCheck, label: 'Timetable Approval', path: '/hod/timetable-approval-review' },
         ]
     },
-    { 
-        icon: Settings, 
-        label: 'Settings', 
+    {
+        icon: Settings,
+        label: 'Settings',
         isDropdown: true,
         children: [
             { icon: User, label: 'Profile', path: '/hod/profile' },
@@ -170,6 +171,7 @@ export default function Sidebar() {
     const location = useLocation();
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
+    const isAuthenticated = useSelector(selectIsAuthenticated);
     const { logout } = useAuth();
     const { isCollapsed, setIsCollapsed } = useSidebar();
     const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
@@ -178,7 +180,7 @@ export default function Sidebar() {
         await logout();
         navigate('/auth/login');
     };
-    
+
     // Determine which sidebar items to show based on role
     let sidebarItems: SidebarItem[] = studentSidebarItems;
     if (user?.role?.code === 'FACULTY') {
@@ -211,13 +213,17 @@ export default function Sidebar() {
                         </div>
                     )}
                 </div>
-                <button
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="p-1 hover:bg-[var(--color-background-secondary)] rounded transition-colors"
-                    title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                >
-                    {isCollapsed ? <Menu size={20} /> : <X size={20} />}
-                </button>
+                <div className="flex items-center gap-1">
+                    {/* Notification Bell */}
+                    {isAuthenticated && <NotificationBell />}
+                    <button
+                        onClick={() => setIsCollapsed(!isCollapsed)}
+                        className="p-1 hover:bg-[var(--color-background-secondary)] rounded transition-colors"
+                        title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                    >
+                        {isCollapsed ? <Menu size={20} /> : <X size={20} />}
+                    </button>
+                </div>
             </div>
 
             {/* Navigation Section */}
@@ -234,11 +240,10 @@ export default function Sidebar() {
                             <div key={item.label + index}>
                                 <button
                                     onClick={() => toggleDropdown(item.label)}
-                                    className={`flex items-center justify-between w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                                        hasActiveChild
+                                    className={`flex items-center justify-between w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${hasActiveChild
                                             ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
                                             : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
-                                    }`}
+                                        }`}
                                     title={isCollapsed ? item.label : ''}
                                 >
                                     <div className="flex items-center gap-3">
@@ -256,11 +261,10 @@ export default function Sidebar() {
                                                 <Link
                                                     key={child.path}
                                                     to={child.path}
-                                                    className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                                        isActive
+                                                    className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
                                                             ? 'bg-[var(--color-primary)] text-white'
                                                             : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
-                                                    }`}
+                                                        }`}
                                                 >
                                                     <ChildIcon size={18} />
                                                     {child.label}
@@ -280,11 +284,10 @@ export default function Sidebar() {
                             <Link
                                 key={item.path}
                                 to={item.path}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                                    isActive
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive
                                         ? 'bg-[var(--color-primary)] text-white'
                                         : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
-                                }`}
+                                    }`}
                                 title={isCollapsed ? item.label : ''}
                             >
                                 <Icon size={20} />
@@ -299,7 +302,7 @@ export default function Sidebar() {
 
             {/* Logout Section */}
             <div className="p-4 border-t border-[var(--color-border)]">
-                <button 
+                <button
                     onClick={handleLogout}
                     className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-error)] rounded-lg transition-colors"
                     title={isCollapsed ? 'Logout' : ''}

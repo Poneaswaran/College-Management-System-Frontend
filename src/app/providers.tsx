@@ -8,6 +8,7 @@ import { ThemeProvider } from '../theme';
 import { SidebarProvider } from '../contexts/SidebarContext';
 import { ToastProvider } from '../components/ui/Toast';
 import { KeyboardShortcutsProvider } from '../components/ui/KeyboardShortcuts';
+import { NotificationProvider } from '../contexts/NotificationContext';
 
 interface ProvidersProps {
     children: ReactNode;
@@ -19,13 +20,15 @@ export function Providers({ children }: ProvidersProps) {
             <Provider store={store}>
                 <ApolloProvider client={client}>
                     <ToastProvider>
-                        <SidebarProvider>
-                            <HashRouter>
-                                <KeyboardShortcutsProvider>
-                                    {children}
-                                </KeyboardShortcutsProvider>
-                            </HashRouter>
-                        </SidebarProvider>
+                        <NotificationProvider>
+                            <SidebarProvider>
+                                <HashRouter>
+                                    <KeyboardShortcutsProvider>
+                                        {children}
+                                    </KeyboardShortcutsProvider>
+                                </HashRouter>
+                            </SidebarProvider>
+                        </NotificationProvider>
                     </ToastProvider>
                 </ApolloProvider>
             </Provider>

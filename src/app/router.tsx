@@ -35,6 +35,9 @@ const MySubmissions = lazy(() => import('../pages/student/MySubmissions'));
 // Assignment Management Pages - HOD
 const HODAssignments = lazy(() => import('../pages/hod/HODAssignments'));
 
+// Notification Settings
+const NotificationSettingsPage = lazy(() => import('../pages/settings/NotificationSettingsPage'));
+
 // Loading fallback component
 const PageLoader = () => (
   <div style={{
@@ -76,6 +79,7 @@ export function AppRouter() {
           <Route path="/faculty/attendance" element={<AttendanceManagement />} />
           <Route path="/hod/dashboard" element={<HODDashboard />} />
           <Route path="/hod/assignments" element={<HODAssignments />} />
+          <Route path="/settings/notifications" element={<NotificationSettingsPage />} />
           <Route path="/" element={<Navigate to="/auth/login" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

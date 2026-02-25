@@ -31,7 +31,7 @@ export default defineConfig(({ command }) => ({
             // All other node_modules
             return 'vendor';
           }
-          
+
           // Feature-based chunks
           if (id.includes('features/auth') || id.includes('pages/auth')) {
             return 'auth';
@@ -41,6 +41,9 @@ export default defineConfig(({ command }) => ({
           }
           if (id.includes('pages/dashboard')) {
             return 'dashboard';
+          }
+          if (id.includes('components/notifications') || id.includes('contexts/NotificationContext') || id.includes('hooks/useNotificationSSE') || id.includes('graphql/notifications')) {
+            return 'notifications';
           }
         },
       },
