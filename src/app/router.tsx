@@ -18,6 +18,7 @@ const Grades = lazy(() => import('../pages/student/Grades'));
 const FacultyDashboard = lazy(() => import('../pages/faculty/FacultyDashboard'));
 const FacultyCourses = lazy(() => import('../pages/faculty/FacultyCourses'));
 const StudentList = lazy(() => import('../pages/faculty/StudentList'));
+const FacultyProfile = lazy(() => import('../pages/faculty/FacultyProfile'));
 const HODDashboard = lazy(() => import('../pages/hod/HODDashboard'));
 
 // Assignment Management Pages - Faculty
@@ -25,8 +26,9 @@ const CreateAssignment = lazy(() => import('../pages/faculty/CreateAssignment'))
 const FacultyAssignments = lazy(() => import('../pages/faculty/FacultyAssignments'));
 const StudyMaterials = lazy(() => import('../pages/faculty/StudyMaterials'));
 
-// Attendance Management Pages - Faculty
+// Attendance & Leave Management Pages - Faculty
 const AttendanceManagement = lazy(() => import('../pages/faculty/AttendanceManagement'));
+const LeaveApplication = lazy(() => import('../pages/faculty/LeaveApplication'));
 
 // Assignment Management Pages - Student
 const StudentAssignments = lazy(() => import('../pages/student/StudentAssignments'));
@@ -83,7 +85,9 @@ export function AppRouter() {
           <Route path="/faculty/assignments/create" element={<CreateAssignment />} />
           <Route path="/faculty/materials" element={<StudyMaterials />} />
           <Route path="/faculty/attendance" element={<AttendanceManagement />} />
+          <Route path="/faculty/leave" element={<LeaveApplication />} />
           <Route path="/faculty/exams" element={<FacultyExams />} />
+          <Route path="/faculty/profile" element={<FacultyProfile />} />
           <Route path="/hod/dashboard" element={<HODDashboard />} />
           <Route path="/hod/assignments" element={<HODAssignments />} />
           <Route path="/hod/exams" element={<HODExams />} />

@@ -1,12 +1,24 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client/react';
-import { Plus, Settings, Search, FileText } from 'lucide-react';
+import { Plus, Settings, FileText } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
+import { SearchInput } from '../../components/ui/SearchInput';
+import { Select } from '../../components/ui/Select';
+import { FilterBar } from '../../components/ui/FilterBar';
 import { GET_EXAMS, UPDATE_EXAM_STATUS } from '../../features/exams/graphql';
 import type { Exam } from '../../features/exams/types';
 
 export default function HODExams() {
     const [statusFilter, setStatusFilter] = useState('ALL');
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const STATUS_OPTIONS = [
+        { value: 'ALL', label: 'All Status' },
+        { value: 'DRAFT', label: 'Draft' },
+        { value: 'SCHEDULED', label: 'Scheduled' },
+        { value: 'ONGOING', label: 'Ongoing' },
+        { value: 'COMPLETED', label: 'Completed' },
+    ];
 
     // Using mock data fallback if Apollo throws while backend is not ready
     const { data, loading, error } = useQuery<{ exams: Exam[] }>(GET_EXAMS, {
@@ -38,27 +50,21 @@ export default function HODExams() {
                     </button>
                 </div>
 
-                <div className="flex gap-4 items-center bg-[var(--color-card)] p-4 rounded-xl border border-[var(--color-border)] shadow-sm">
-                    <div className="flex-1 relative">
-                        <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-foreground-muted)]" />
-                        <input
-                            type="text"
-                            placeholder="Search exams..."
-                            className="w-full pl-10 pr-4 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/50 text-[var(--color-foreground)]"
+                <FilterBar>
+                    <SearchInput
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        placeholder="Search exams..."
+                        wrapperClassName="flex-1"
+                    />
+                    <FilterBar.Actions>
+                        <Select
+                            value={statusFilter}
+                            onChange={setStatusFilter}
+                            options={STATUS_OPTIONS}
                         />
-                    </div>
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg px-4 py-2 focus:outline-none text-[var(--color-foreground)]"
-                    >
-                        <option value="ALL">All Status</option>
-                        <option value="DRAFT">Draft</option>
-                        <option value="SCHEDULED">Scheduled</option>
-                        <option value="ONGOING">Ongoing</option>
-                        <option value="COMPLETED">Completed</option>
-                    </select>
-                </div>
+                    </FilterBar.Actions>
+                </FilterBar>
 
                 {loading ? (
                     <div className="flex justify-center p-12">

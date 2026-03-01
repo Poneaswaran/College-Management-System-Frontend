@@ -17,17 +17,33 @@ export interface Exam {
 
 export interface ExamSchedule {
     id: string;
-    examId: string;
-    sectionId: string;
-    subjectId: string;
-    subjectName?: string;
-    subjectCode?: string;
     date: string;
     startTime: string;
     endTime: string;
-    room: string;
-    invigilatorId: string;
-    invigilatorName?: string;
+    shiftDisplay?: string;
+    exam?: {
+        id: string;
+    };
+    section?: {
+        id: string;
+        name: string;
+    };
+    subject?: {
+        id: string;
+        name: string;
+        code: string;
+    };
+    room?: {
+        id: string;
+        roomNumber: string;
+    };
+    invigilator?: {
+        id: string;
+        user?: {
+            firstName: string;
+            lastName: string;
+        };
+    };
 }
 
 export interface ExamSeat {

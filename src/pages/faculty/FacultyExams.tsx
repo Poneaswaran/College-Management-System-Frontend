@@ -7,7 +7,7 @@ import type { ExamSchedule } from '../../features/exams/types';
 export default function FacultyExams() {
     // In reality we would fetch schedules for the logged-in faculty member's ID
     const { data: schedulesData, loading: sLoading, error: sError } = useQuery<{ examSchedules: ExamSchedule[] }>(GET_EXAM_SCHEDULES, {
-        variables: { examId: 'current', sectionId: undefined },
+        variables: { examId: 1, sectionId: undefined },
         fetchPolicy: 'cache-and-network',
     });
 
@@ -39,8 +39,8 @@ export default function FacultyExams() {
                     ) : (
                         schedules.map((schedule: ExamSchedule) => (
                             <div key={schedule.id} className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                                <h3 className="font-bold text-[var(--color-foreground)] text-lg mb-1">{schedule.subjectName}</h3>
-                                <p className="text-sm font-medium text-[var(--color-foreground-secondary)]">{schedule.subjectCode}</p>
+                                <h3 className="font-bold text-[var(--color-foreground)] text-lg mb-1">{schedule.subject?.name}</h3>
+                                <p className="text-sm font-medium text-[var(--color-foreground-secondary)]">{schedule.subject?.code}</p>
 
                                 <div className="mt-4 space-y-2 text-sm text-[var(--color-foreground-muted)]">
                                     <div className="flex justify-between">
@@ -53,11 +53,11 @@ export default function FacultyExams() {
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Room:</span>
-                                        <span className="font-medium text-[var(--color-foreground)]">{schedule.room}</span>
+                                        <span className="font-medium text-[var(--color-foreground)]">{schedule.room?.roomNumber || 'N/A'}</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Section:</span>
-                                        <span className="font-medium text-[var(--color-foreground)]">{schedule.sectionId}</span>
+                                        <span className="font-medium text-[var(--color-foreground)]">{schedule.section?.name || 'N/A'}</span>
                                     </div>
                                 </div>
 

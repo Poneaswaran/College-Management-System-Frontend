@@ -5,12 +5,13 @@ import {
     FileText,
     Download,
     Upload,
-    Search,
-    Filter,
     MoreVertical,
     Clock
 } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar';
+import { SearchInput } from '../../components/ui/SearchInput';
+import { Select } from '../../components/ui/Select';
+import { FilterBar } from '../../components/ui/FilterBar';
 
 // Mock Data
 const MOCK_MATERIALS = [
@@ -80,6 +81,14 @@ const StudyMaterials = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState('All');
 
+    const FILE_TYPE_OPTIONS = [
+        { value: 'All', label: 'All Types' },
+        { value: 'PDF', label: 'PDF Documents' },
+        { value: 'DOCX', label: 'Word Documents' },
+        { value: 'PPTX', label: 'Presentations' },
+        { value: 'PNG', label: 'Images' },
+    ];
+
     const filteredMaterials = MOCK_MATERIALS.filter(item => {
         const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             item.subject.toLowerCase().includes(searchTerm.toLowerCase());
@@ -116,34 +125,22 @@ const StudyMaterials = () => {
                         </button>
                     </div>
 
-                    {/* Filters and Search */}
-                    <div className="flex flex-col md:flex-row gap-4 bg-[var(--color-card)] p-4 rounded-xl shadow-sm border border-[var(--color-border)]">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-foreground-muted)]" />
-                            <input
-                                type="text"
-                                placeholder="Search materials by title or subject..."
-                                className="w-full pl-10 pr-4 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] text-[var(--color-foreground)]"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                            <Filter className="text-[var(--color-foreground-muted)]" />
-                            <select
-                                className="px-4 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] text-[var(--color-foreground)] min-w-[150px]"
+                    {/* Filters and Search — Using shared components */}
+                    <FilterBar>
+                        <SearchInput
+                            value={searchTerm}
+                            onChange={setSearchTerm}
+                            placeholder="Search materials by title or subject..."
+                            wrapperClassName="flex-1"
+                        />
+                        <FilterBar.Actions>
+                            <Select
                                 value={filterType}
-                                onChange={(e) => setFilterType(e.target.value)}
-                            >
-                                <option value="All">All Types</option>
-                                <option value="PDF">PDF Documents</option>
-                                <option value="DOCX">Word Documents</option>
-                                <option value="PPTX">Presentations</option>
-                                <option value="PNG">Images</option>
-                            </select>
-                        </div>
-                    </div>
+                                onChange={setFilterType}
+                                options={FILE_TYPE_OPTIONS}
+                            />
+                        </FilterBar.Actions>
+                    </FilterBar>
 
                     {/* Materials Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

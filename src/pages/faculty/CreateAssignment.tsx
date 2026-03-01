@@ -6,6 +6,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar';
+import { FormInput } from '../../components/ui/FormInput';
+import { Select } from '../../components/ui/Select';
 import { useAssignments, useAssignmentDropdowns } from '../../features/assignments/hooks';
 import type { CreateAssignmentInput, AssignmentType, Subject, Section, Semester } from '../../features/assignments/types';
 
@@ -98,6 +100,17 @@ export const CreateAssignment: React.FC = () => {
     }));
 
     // Clear validation error for this field
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (validationErrors[name]) {
       setValidationErrors((prev) => {
         const newErrors = { ...prev };
@@ -255,100 +268,58 @@ export const CreateAssignment: React.FC = () => {
           <form onSubmit={(e) => handleSubmit(e, false)} className="bg-[var(--color-card)] rounded-lg shadow-md p-6">
             {/* Subject, Section, Semester */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div>
-                <label htmlFor="subjectId" className="block text-sm font-medium text-[var(--color-foreground)] mb-2">
-                  Subject <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="subjectId"
-                  name="subjectId"
-                  value={formData.subjectId || ''}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${validationErrors.subjectId ? 'border-red-500' : 'border-[var(--color-border)]'
-                    } rounded-md bg-[var(--color-background)] text-[var(--color-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]`}
-                  required
-                >
-                  <option value="">Select Subject</option>
-                  {subjects.map((subject) => (
-                    <option key={subject.id} value={subject.id}>
-                      {subject.name} ({subject.code})
-                    </option>
-                  ))}
-                </select>
-                {validationErrors.subjectId && (
-                  <p className="text-xs text-red-500 mt-1">{validationErrors.subjectId}</p>
-                )}
-              </div>
+              <Select
+                id="subjectId"
+                name="subjectId"
+                label="Subject"
+                required
+                value={String(formData.subjectId || '')}
+                onChange={(val) => handleSelectChange('subjectId', val)}
+                options={subjects.map((s: Subject) => ({ value: String(s.id), label: `${s.name} (${s.code})` }))}
+                placeholder="Select Subject"
+                error={validationErrors.subjectId}
+                wrapperClassName=""
+              />
 
-              <div>
-                <label htmlFor="sectionId" className="block text-sm font-medium text-[var(--color-foreground)] mb-2">
-                  Section <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="sectionId"
-                  name="sectionId"
-                  value={formData.sectionId || ''}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${validationErrors.sectionId ? 'border-red-500' : 'border-[var(--color-border)]'
-                    } rounded-md bg-[var(--color-background)] text-[var(--color-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]`}
-                  required
-                  disabled={!formData.subjectId}
-                >
-                  <option value="">Select Section</option>
-                  {sections.map((section) => (
-                    <option key={section.id} value={section.id}>
-                      {section.name}
-                    </option>
-                  ))}
-                </select>
-                {validationErrors.sectionId && (
-                  <p className="text-xs text-red-500 mt-1">{validationErrors.sectionId}</p>
-                )}
-              </div>
+              <Select
+                id="sectionId"
+                name="sectionId"
+                label="Section"
+                required
+                value={String(formData.sectionId || '')}
+                onChange={(val) => handleSelectChange('sectionId', val)}
+                options={sections.map((s: Section) => ({ value: String(s.id), label: s.name }))}
+                placeholder="Select Section"
+                error={validationErrors.sectionId}
+                disabled={!formData.subjectId}
+              />
 
-              <div>
-                <label htmlFor="semesterId" className="block text-sm font-medium text-[var(--color-foreground)] mb-2">
-                  Semester <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="semesterId"
-                  name="semesterId"
-                  value={formData.semesterId || ''}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border ${validationErrors.semesterId ? 'border-red-500' : 'border-[var(--color-border)]'
-                    } rounded-md bg-[var(--color-background)] text-[var(--color-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]`}
-                  required
-                >
-                  <option value="">Select Semester</option>
-                  {semesters.map((semester) => (
-                    <option key={semester.id} value={semester.id}>
-                      {semester.name}
-                    </option>
-                  ))}
-                </select>
-                {validationErrors.semesterId && (
-                  <p className="text-xs text-red-500 mt-1">{validationErrors.semesterId}</p>
-                )}
-              </div>
+              <Select
+                id="semesterId"
+                name="semesterId"
+                label="Semester"
+                required
+                value={String(formData.semesterId || '')}
+                onChange={(val) => handleSelectChange('semesterId', val)}
+                options={semesters.map((s: Semester) => ({ value: String(s.id), label: s.name }))}
+                placeholder="Select Semester"
+                error={validationErrors.semesterId}
+              />
             </div>
 
             {/* Title */}
             <div className="mb-6">
-              <label htmlFor="title" className="block text-sm font-medium text-[var(--color-foreground)] mb-2">
-                Assignment Title <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
+              <FormInput
                 id="title"
                 name="title"
+                label="Assignment Title"
+                required
+                type="text"
                 value={formData.title || ''}
                 onChange={handleInputChange}
-                className={`w-full px-3 py-2 border ${validationErrors.title ? 'border-red-500' : 'border-[var(--color-border)]'
-                  } rounded-md bg-[var(--color-background)] text-[var(--color-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]`}
                 placeholder="e.g., Data Structures Assignment 1"
-                required
+                error={validationErrors.title}
               />
-              {validationErrors.title && <p className="text-xs text-red-500 mt-1">{validationErrors.title}</p>}
             </div>
 
             {/* Description */}
@@ -375,22 +346,14 @@ export const CreateAssignment: React.FC = () => {
             {/* Assignment Type and Due Date */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div>
-                <label htmlFor="assignmentType" className="block text-sm font-medium text-[var(--color-foreground)] mb-2">
-                  Assignment Type
-                </label>
-                <select
+                <Select
                   id="assignmentType"
                   name="assignmentType"
+                  label="Assignment Type"
                   value={formData.assignmentType || 'INDIVIDUAL'}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-[var(--color-border)] rounded-md bg-[var(--color-background)] text-[var(--color-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                >
-                  {ASSIGNMENT_TYPES.map((type) => (
-                    <option key={type.value} value={type.value}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => handleSelectChange('assignmentType', val)}
+                  options={ASSIGNMENT_TYPES.map((t) => ({ value: t.value, label: t.label }))}
+                />
               </div>
 
               <div>

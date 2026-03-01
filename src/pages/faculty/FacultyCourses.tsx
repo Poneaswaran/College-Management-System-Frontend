@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQuery } from '@apollo/client/react';
 import {
     BookOpen,
     Users,
@@ -6,8 +7,6 @@ import {
     Clock,
     FileText,
     TrendingUp,
-    Search,
-    Filter,
     MoreVertical,
     Edit,
     Trash2,
@@ -15,95 +14,37 @@ import {
     UserPlus,
 } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar';
+import { SearchInput } from '../../components/ui/SearchInput';
+import { Select } from '../../components/ui/Select';
+import { FilterBar } from '../../components/ui/FilterBar';
+import { GET_FACULTY_COURSES } from '../../features/faculty/graphql/courses';
+import type { FacultyCourse, FacultyCoursesResponse } from '../../features/faculty/types/courses';
 
-// Mock Data
-const mockCourses = [
-    {
-        id: 1,
-        code: 'CS201',
-        name: 'Data Structures',
-        semester: 'Spring 2026',
-        section: 'Section A',
-        students: 45,
-        totalClasses: 48,
-        completedClasses: 32,
-        avgAttendance: 92,
-        assignments: 8,
-        room: 'Room 301',
-        schedule: 'Mon, Wed, Fri - 9:00 AM',
-        color: 'blue',
-    },
-    {
-        id: 2,
-        code: 'CS301',
-        name: 'Algorithm Design',
-        semester: 'Spring 2026',
-        section: 'Section B',
-        students: 38,
-        totalClasses: 48,
-        completedClasses: 30,
-        avgAttendance: 88,
-        assignments: 6,
-        room: 'Room 205',
-        schedule: 'Tue, Thu - 2:00 PM',
-        color: 'green',
-    },
-    {
-        id: 3,
-        code: 'CS202',
-        name: 'Database Systems',
-        semester: 'Spring 2026',
-        section: 'Section A',
-        students: 42,
-        totalClasses: 48,
-        completedClasses: 31,
-        avgAttendance: 85,
-        assignments: 7,
-        room: 'Room 401',
-        schedule: 'Mon, Wed - 4:00 PM',
-        color: 'purple',
-    },
-    {
-        id: 4,
-        code: 'CS401',
-        name: 'Machine Learning',
-        semester: 'Spring 2026',
-        section: 'Section C',
-        students: 35,
-        totalClasses: 48,
-        completedClasses: 29,
-        avgAttendance: 90,
-        assignments: 5,
-        room: 'Room 102',
-        schedule: 'Tue, Thu - 10:00 AM',
-        color: 'orange',
-    },
-    {
-        id: 5,
-        code: 'CS101',
-        name: 'Introduction to Programming',
-        semester: 'Spring 2026',
-        section: 'Section D',
-        students: 52,
-        totalClasses: 48,
-        completedClasses: 33,
-        avgAttendance: 94,
-        assignments: 10,
-        room: 'Room 501',
-        schedule: 'Mon, Wed, Fri - 11:00 AM',
-        color: 'red',
-    },
+// We dynamically assign colors to courses
+const COLORS = ['blue', 'green', 'purple', 'orange', 'red'];
+const getCourseColor = (index: number) => COLORS[index % COLORS.length];
+
+const SEMESTER_OPTIONS = [
+    { value: 'all', label: 'All Semesters' },
+    { value: 'Spring 2026', label: 'Spring 2026' },
+    { value: 'Fall 2025', label: 'Fall 2025' },
 ];
-
 export default function FacultyCourses() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedSemester, setSelectedSemester] = useState('all');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-    const filteredCourses = mockCourses.filter(course => {
-        const matchesSearch = course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            course.code.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesSemester = selectedSemester === 'all' || course.semester === selectedSemester;
+    const { data, loading, error } = useQuery<FacultyCoursesResponse>(GET_FACULTY_COURSES, {
+        fetchPolicy: 'cache-and-network',
+    });
+
+    const coursesData = data?.facultyCourses;
+    const courses = coursesData?.courses || [];
+
+    const filteredCourses = courses.filter((course: FacultyCourse) => {
+        const matchesSearch = course.subjectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            course.subjectCode.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSemester = selectedSemester === 'all' || course.semesterName === selectedSemester;
         return matchesSearch && matchesSemester;
     });
 
@@ -138,7 +79,7 @@ export default function FacultyCourses() {
                             </div>
                             <div>
                                 <p className="text-sm text-[var(--color-foreground-muted)]">Total Courses</p>
-                                <p className="text-2xl font-bold text-[var(--color-foreground)]">{mockCourses.length}</p>
+                                <p className="text-2xl font-bold text-[var(--color-foreground)]">{coursesData?.totalCourses || 0}</p>
                             </div>
                         </div>
                     </div>
@@ -151,7 +92,7 @@ export default function FacultyCourses() {
                             <div>
                                 <p className="text-sm text-[var(--color-foreground-muted)]">Total Students</p>
                                 <p className="text-2xl font-bold text-[var(--color-foreground)]">
-                                    {mockCourses.reduce((sum, c) => sum + c.students, 0)}
+                                    {coursesData?.totalStudents || 0}
                                 </p>
                             </div>
                         </div>
@@ -165,7 +106,7 @@ export default function FacultyCourses() {
                             <div>
                                 <p className="text-sm text-[var(--color-foreground-muted)]">Avg Attendance</p>
                                 <p className="text-2xl font-bold text-[var(--color-foreground)]">
-                                    {(mockCourses.reduce((sum, c) => sum + c.avgAttendance, 0) / mockCourses.length).toFixed(0)}%
+                                    {coursesData?.avgAttendance ? Math.round(coursesData.avgAttendance) : 0}%
                                 </p>
                             </div>
                         </div>
@@ -179,75 +120,69 @@ export default function FacultyCourses() {
                             <div>
                                 <p className="text-sm text-[var(--color-foreground-muted)]">Total Assignments</p>
                                 <p className="text-2xl font-bold text-[var(--color-foreground)]">
-                                    {mockCourses.reduce((sum, c) => sum + c.assignments, 0)}
+                                    {coursesData?.totalAssignments || 0}
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Filters and Search */}
-                <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)] mb-8">
-                    <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-                        <div className="flex-1 relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--color-foreground-muted)]" size={20} />
-                            <input
-                                type="text"
-                                placeholder="Search courses..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg text-[var(--color-foreground)] placeholder:text-[var(--color-foreground-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                            />
-                        </div>
+                {/* Filters and Search — Using shared components */}
+                <FilterBar className="mb-8">
+                    <SearchInput
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        placeholder="Search courses..."
+                        wrapperClassName="flex-1"
+                    />
+                    <FilterBar.Actions>
+                        <Select
+                            value={selectedSemester}
+                            onChange={setSelectedSemester}
+                            options={SEMESTER_OPTIONS}
+                        />
 
-                        <div className="flex gap-4 items-center">
-                            <div className="flex items-center gap-2">
-                                <Filter size={20} className="text-[var(--color-foreground-muted)]" />
-                                <select
-                                    value={selectedSemester}
-                                    onChange={(e) => setSelectedSemester(e.target.value)}
-                                    className="px-4 py-2 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg text-[var(--color-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-                                >
-                                    <option value="all">All Semesters</option>
-                                    <option value="Spring 2026">Spring 2026</option>
-                                    <option value="Fall 2025">Fall 2025</option>
-                                </select>
-                            </div>
-
-                            <div className="flex bg-[var(--color-background)] rounded-lg border border-[var(--color-border)] p-1">
-                                <button
-                                    onClick={() => setViewMode('grid')}
-                                    className={`px-3 py-1 rounded ${viewMode === 'grid' ? 'bg-[var(--color-primary)] text-white' : 'text-[var(--color-foreground-secondary)]'}`}
-                                >
-                                    Grid
-                                </button>
-                                <button
-                                    onClick={() => setViewMode('list')}
-                                    className={`px-3 py-1 rounded ${viewMode === 'list' ? 'bg-[var(--color-primary)] text-white' : 'text-[var(--color-foreground-secondary)]'}`}
-                                >
-                                    List
-                                </button>
-                            </div>
+                        <div className="flex bg-[var(--color-background)] rounded-lg border border-[var(--color-border)] p-1">
+                            <button
+                                onClick={() => setViewMode('grid')}
+                                className={`px-3 py-1 rounded ${viewMode === 'grid' ? 'bg-[var(--color-primary)] text-white' : 'text-[var(--color-foreground-secondary)]'}`}
+                            >
+                                Grid
+                            </button>
+                            <button
+                                onClick={() => setViewMode('list')}
+                                className={`px-3 py-1 rounded ${viewMode === 'list' ? 'bg-[var(--color-primary)] text-white' : 'text-[var(--color-foreground-secondary)]'}`}
+                            >
+                                List
+                            </button>
                         </div>
-                    </div>
-                </div>
+                    </FilterBar.Actions>
+                </FilterBar>
 
                 {/* Courses Display */}
-                {viewMode === 'grid' ? (
+                {loading ? (
+                    <div className="flex justify-center p-12">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-primary)]"></div>
+                    </div>
+                ) : error ? (
+                    <div className="p-6 bg-[var(--color-error-light)] text-[var(--color-error)] rounded-xl border border-[var(--color-error)]">
+                        Failed to load courses: {error.message}
+                    </div>
+                ) : viewMode === 'grid' ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredCourses.map(course => (
-                            <CourseCard key={course.id} course={course} getColorClasses={getColorClasses} />
+                        {filteredCourses.map((course: FacultyCourse, index: number) => (
+                            <CourseCard key={course.id} course={course} color={getCourseColor(index)} getColorClasses={getColorClasses} />
                         ))}
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {filteredCourses.map(course => (
-                            <CourseListItem key={course.id} course={course} getColorClasses={getColorClasses} />
+                        {filteredCourses.map((course: FacultyCourse, index: number) => (
+                            <CourseListItem key={course.id} course={course} color={getCourseColor(index)} getColorClasses={getColorClasses} />
                         ))}
                     </div>
                 )}
 
-                {filteredCourses.length === 0 && (
+                {!loading && !error && filteredCourses.length === 0 && (
                     <div className="text-center py-12 bg-[var(--color-card)] rounded-xl border border-[var(--color-border)]">
                         <BookOpen size={48} className="mx-auto mb-4 text-[var(--color-foreground-muted)] opacity-50" />
                         <p className="text-[var(--color-foreground-secondary)]">No courses found</p>
@@ -259,9 +194,12 @@ export default function FacultyCourses() {
 }
 
 // Course Card Component (Grid View)
-function CourseCard({ course, getColorClasses }: { course: typeof mockCourses[0]; getColorClasses: (color: string) => { bg: string; text: string; border: string } }) {
-    const colors = getColorClasses(course.color);
+function CourseCard({ course, color, getColorClasses }: { course: FacultyCourse; color: string; getColorClasses: (color: string) => { bg: string; text: string; border: string } }) {
+    const colors = getColorClasses(color);
     const [showMenu, setShowMenu] = useState(false);
+
+    const safeProgress = course.classesTotal > 0 ? (course.classesCompleted / course.classesTotal) * 100 : 0;
+    const safeAttendance = course.avgAttendance || 0;
 
     return (
         <div className="bg-[var(--color-card)] rounded-xl shadow-sm border border-[var(--color-border)] overflow-hidden hover:shadow-md transition-shadow">
@@ -269,8 +207,8 @@ function CourseCard({ course, getColorClasses }: { course: typeof mockCourses[0]
             <div className={`${colors.bg} px-6 py-4 border-b ${colors.border}`}>
                 <div className="flex justify-between items-start">
                     <div>
-                        <h3 className={`text-lg font-bold ${colors.text}`}>{course.code}</h3>
-                        <p className="text-[var(--color-foreground)] font-semibold mt-1">{course.name}</p>
+                        <h3 className={`text-lg font-bold ${colors.text}`}>{course.subjectCode}</h3>
+                        <p className="text-[var(--color-foreground)] font-semibold mt-1">{course.subjectName}</p>
                     </div>
                     <div className="relative">
                         <button
@@ -300,11 +238,11 @@ function CourseCard({ course, getColorClasses }: { course: typeof mockCourses[0]
                 <div className="flex items-center gap-4 mt-3 text-sm text-[var(--color-foreground-secondary)]">
                     <span className="flex items-center gap-1">
                         <Users size={14} />
-                        {course.section}
+                        {course.sectionName}
                     </span>
                     <span className="flex items-center gap-1">
                         <Calendar size={14} />
-                        {course.semester}
+                        {course.semesterName}
                     </span>
                 </div>
             </div>
@@ -314,11 +252,11 @@ function CourseCard({ course, getColorClasses }: { course: typeof mockCourses[0]
                 <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
                         <p className="text-sm text-[var(--color-foreground-muted)]">Students</p>
-                        <p className="text-2xl font-bold text-[var(--color-foreground)]">{course.students}</p>
+                        <p className="text-2xl font-bold text-[var(--color-foreground)]">{course.studentsCount}</p>
                     </div>
                     <div>
                         <p className="text-sm text-[var(--color-foreground-muted)]">Assignments</p>
-                        <p className="text-2xl font-bold text-[var(--color-foreground)]">{course.assignments}</p>
+                        <p className="text-2xl font-bold text-[var(--color-foreground)]">{course.assignmentsCount}</p>
                     </div>
                 </div>
 
@@ -326,13 +264,13 @@ function CourseCard({ course, getColorClasses }: { course: typeof mockCourses[0]
                     <div className="flex justify-between text-sm mb-1">
                         <span className="text-[var(--color-foreground-secondary)]">Class Progress</span>
                         <span className="font-medium text-[var(--color-foreground)]">
-                            {course.completedClasses}/{course.totalClasses}
+                            {course.classesCompleted}/{course.classesTotal}
                         </span>
                     </div>
                     <div className="w-full bg-[var(--color-background-tertiary)] rounded-full h-2">
                         <div
                             className="bg-[var(--color-primary)] h-2 rounded-full"
-                            style={{ width: `${(course.completedClasses / course.totalClasses) * 100}%` }}
+                            style={{ width: `${safeProgress}%` }}
                         />
                     </div>
                 </div>
@@ -340,14 +278,14 @@ function CourseCard({ course, getColorClasses }: { course: typeof mockCourses[0]
                 <div className="mb-4">
                     <div className="flex justify-between text-sm mb-1">
                         <span className="text-[var(--color-foreground-secondary)]">Avg Attendance</span>
-                        <span className={`font-medium ${course.avgAttendance >= 90 ? 'text-green-600 dark:text-green-400' : course.avgAttendance >= 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
-                            {course.avgAttendance}%
+                        <span className={`font-medium ${safeAttendance >= 90 ? 'text-green-600 dark:text-green-400' : safeAttendance >= 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
+                            {Math.round(safeAttendance)}%
                         </span>
                     </div>
                     <div className="w-full bg-[var(--color-background-tertiary)] rounded-full h-2">
                         <div
-                            className={`h-2 rounded-full ${course.avgAttendance >= 90 ? 'bg-green-500' : course.avgAttendance >= 75 ? 'bg-yellow-500' : 'bg-red-500'}`}
-                            style={{ width: `${course.avgAttendance}%` }}
+                            className={`h-2 rounded-full ${safeAttendance >= 90 ? 'bg-green-500' : safeAttendance >= 75 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                            style={{ width: `${safeAttendance}%` }}
                         />
                     </div>
                 </div>
@@ -355,11 +293,11 @@ function CourseCard({ course, getColorClasses }: { course: typeof mockCourses[0]
                 <div className="pt-4 border-t border-[var(--color-border)] space-y-2">
                     <div className="flex items-center gap-2 text-sm text-[var(--color-foreground-secondary)]">
                         <Clock size={14} />
-                        {course.schedule}
+                        {course.scheduleSummary}
                     </div>
                     <div className="flex items-center gap-2 text-sm text-[var(--color-foreground-secondary)]">
                         <BookOpen size={14} />
-                        {course.room}
+                        {course.roomNumber}
                     </div>
                 </div>
             </div>
@@ -368,47 +306,48 @@ function CourseCard({ course, getColorClasses }: { course: typeof mockCourses[0]
 }
 
 // Course List Item Component (List View)
-function CourseListItem({ course, getColorClasses }: { course: typeof mockCourses[0]; getColorClasses: (color: string) => { bg: string; text: string; border: string } }) {
-    const colors = getColorClasses(course.color);
+function CourseListItem({ course, color, getColorClasses }: { course: FacultyCourse; color: string; getColorClasses: (color: string) => { bg: string; text: string; border: string } }) {
+    const colors = getColorClasses(color);
+    const safeAttendance = course.avgAttendance || 0;
 
     return (
         <div className="bg-[var(--color-card)] rounded-xl shadow-sm border border-[var(--color-border)] p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-6 flex-1">
                     <div className={`${colors.bg} px-4 py-3 rounded-lg`}>
-                        <p className={`text-lg font-bold ${colors.text}`}>{course.code}</p>
+                        <p className={`text-lg font-bold ${colors.text}`}>{course.subjectCode}</p>
                     </div>
 
                     <div className="flex-1">
-                        <h3 className="text-lg font-bold text-[var(--color-foreground)] mb-1">{course.name}</h3>
+                        <h3 className="text-lg font-bold text-[var(--color-foreground)] mb-1">{course.subjectName}</h3>
                         <div className="flex items-center gap-4 text-sm text-[var(--color-foreground-secondary)]">
                             <span className="flex items-center gap-1">
                                 <Users size={14} />
-                                {course.section}
+                                {course.sectionName}
                             </span>
                             <span className="flex items-center gap-1">
                                 <Calendar size={14} />
-                                {course.semester}
+                                {course.semesterName}
                             </span>
                             <span className="flex items-center gap-1">
                                 <Clock size={14} />
-                                {course.schedule}
+                                {course.scheduleSummary}
                             </span>
                         </div>
                     </div>
 
                     <div className="flex gap-8">
                         <div className="text-center">
-                            <p className="text-2xl font-bold text-[var(--color-foreground)]">{course.students}</p>
+                            <p className="text-2xl font-bold text-[var(--color-foreground)]">{course.studentsCount}</p>
                             <p className="text-xs text-[var(--color-foreground-muted)]">Students</p>
                         </div>
                         <div className="text-center">
-                            <p className="text-2xl font-bold text-[var(--color-foreground)]">{course.assignments}</p>
+                            <p className="text-2xl font-bold text-[var(--color-foreground)]">{course.assignmentsCount}</p>
                             <p className="text-xs text-[var(--color-foreground-muted)]">Assignments</p>
                         </div>
                         <div className="text-center">
-                            <p className={`text-2xl font-bold ${course.avgAttendance >= 90 ? 'text-green-600 dark:text-green-400' : course.avgAttendance >= 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
-                                {course.avgAttendance}%
+                            <p className={`text-2xl font-bold ${safeAttendance >= 90 ? 'text-green-600 dark:text-green-400' : safeAttendance >= 75 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'}`}>
+                                {Math.round(safeAttendance)}%
                             </p>
                             <p className="text-xs text-[var(--color-foreground-muted)]">Attendance</p>
                         </div>

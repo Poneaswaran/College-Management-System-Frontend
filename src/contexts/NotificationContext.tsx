@@ -5,6 +5,7 @@ import {
     useEffect,
     useRef,
     useState,
+    useMemo,
     type ReactNode,
 } from 'react';
 import { useSelector } from 'react-redux';
@@ -88,7 +89,10 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
         fetchPolicy: 'cache-and-network',
     });
 
-    const notifications = notifData?.myNotifications?.notifications ?? [];
+    const notifications = useMemo(
+        () => notifData?.myNotifications?.notifications ?? [],
+        [notifData?.myNotifications?.notifications]
+    );
     const hasMore = notifData?.myNotifications?.hasMore ?? false;
     const totalCount = notifData?.myNotifications?.totalCount ?? 0;
 

@@ -11,11 +11,11 @@ import {
     RotateCcw,
     UserCheck,
     Eye,
-    ChevronDown,
     RefreshCw,
     Timer,
 } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar';
+import { Select } from '../../components/ui/Select';
 import {
     fetchFacultySessionsToday,
     fetchSectionAttendanceForSession,
@@ -420,10 +420,10 @@ export default function AttendanceManagement() {
                                             <div className="w-full bg-[var(--color-background-tertiary)] rounded-full h-2">
                                                 <div
                                                     className={`h-2 rounded-full transition-all duration-500 ${session.attendancePercentage >= 75
-                                                            ? 'bg-green-500'
-                                                            : session.attendancePercentage >= 50
-                                                                ? 'bg-yellow-500'
-                                                                : 'bg-red-500'
+                                                        ? 'bg-green-500'
+                                                        : session.attendancePercentage >= 50
+                                                            ? 'bg-yellow-500'
+                                                            : 'bg-red-500'
                                                         }`}
                                                     style={{ width: `${session.attendancePercentage || 0}%` }}
                                                 />
@@ -738,21 +738,16 @@ export default function AttendanceManagement() {
 
                             {/* Status Selection */}
                             <div className="mb-4">
-                                <label className="block text-sm font-medium text-[var(--color-foreground-secondary)] mb-2">
-                                    Status
-                                </label>
-                                <div className="relative">
-                                    <select
-                                        value={manualMarkStatus}
-                                        onChange={(e) => setManualMarkStatus(e.target.value as AttendanceStatus)}
-                                        className="w-full px-4 py-3 bg-[var(--color-background)] border border-[var(--color-border)] rounded-lg text-[var(--color-foreground)] focus:ring-2 focus:ring-[var(--color-primary)] outline-none appearance-none"
-                                    >
-                                        <option value="PRESENT">Present</option>
-                                        <option value="LATE">Late</option>
-                                        <option value="ABSENT">Absent</option>
-                                    </select>
-                                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-foreground-muted)] pointer-events-none" />
-                                </div>
+                                <Select
+                                    label="Status"
+                                    value={manualMarkStatus}
+                                    onChange={(val) => setManualMarkStatus(val as AttendanceStatus)}
+                                    options={[
+                                        { value: 'PRESENT', label: 'Present' },
+                                        { value: 'LATE', label: 'Late' },
+                                        { value: 'ABSENT', label: 'Absent' },
+                                    ]}
+                                />
                             </div>
 
                             {/* Notes */}

@@ -50,20 +50,37 @@ export const GET_UPCOMING_EXAMS = gql`
 `;
 
 export const GET_EXAM_SCHEDULES = gql`
-    query GetExamSchedules($examId: ID!, $sectionId: ID) {
+    query GetExamSchedules($examId: Int!, $sectionId: Int) {
         examSchedules(examId: $examId, sectionId: $sectionId) {
             id
-            examId
-            sectionId
-            subjectId
-            subjectName
-            subjectCode
             date
             startTime
             endTime
-            room
-            invigilatorId
-            invigilatorName
+            shiftDisplay
+            
+            exam {
+                id
+            }
+            section {
+                id
+                name
+            }
+            subject {
+                id
+                name
+                code
+            }
+            room {
+                id
+                roomNumber
+            }
+            invigilator {
+                id
+                user {
+                    firstName
+                    lastName
+                }
+            }
         }
     }
 `;
