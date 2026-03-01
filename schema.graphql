@@ -1,0 +1,1126 @@
+type AcademicYearType {
+  id: Int!
+  yearCode: String!
+  startDate: Date!
+  endDate: Date!
+  isCurrent: Boolean!
+}
+
+input AdminUpdateStudentProfileInput {
+  rollNumber: String = null
+  year: Int = null
+  semester: Int = null
+  sectionId: Int = null
+  admissionDate: Date = null
+  academicStatus: String = null
+  aadharNumber: String = null
+  idProofType: String = null
+  idProofNumber: String = null
+}
+
+input AssignSeatingInput {
+  scheduleId: Int!
+  studentId: Int!
+  seatNumber: String!
+  roomId: Int = null
+}
+
+type AssignmentDueType {
+  id: Int!
+  title: String!
+  subjectName: String!
+  subjectCode: String!
+  dueDate: String!
+  maxMarks: Float!
+  status: String!
+  isSubmitted: Boolean!
+  submissionDate: String
+}
+
+type AssignmentGradeType {
+  id: ID!
+  marksObtained: Decimal!
+  feedback: String
+  gradedAt: DateTime!
+  updatedAt: DateTime!
+  percentage: Float!
+  gradeLetter: String!
+  submission: AssignmentSubmissionType!
+  gradedBy: UserType!
+  maxMarks: Decimal!
+}
+
+type AssignmentStatisticsType {
+  totalStudents: Int!
+  totalSubmissions: Int!
+  notSubmitted: Int!
+  submissionPercentage: Float!
+  gradedCount: Int!
+  pendingGrading: Int!
+  lateSubmissions: Int!
+  averageMarks: Float!
+  averagePercentage: Float!
+}
+
+type AssignmentSubmissionType {
+  id: ID!
+  submissionText: String
+  submittedAt: DateTime!
+  isLate: Boolean!
+  status: String!
+  gradedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  assignment: AssignmentType!
+  student: StudentProfileType!
+  gradedBy: UserType
+  grade: AssignmentGradeType
+  studentName: String!
+  studentRegisterNumber: String!
+  assignmentTitle: String!
+  hasAttachment: Boolean!
+  attachmentUrl: String
+}
+
+type AssignmentType {
+  id: ID!
+  title: String!
+  description: String!
+  assignmentType: String!
+  status: String!
+  dueDate: DateTime!
+  publishedDate: DateTime
+  allowLateSubmission: Boolean!
+  lateSubmissionDeadline: DateTime
+  maxMarks: Decimal!
+  weightage: Decimal!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  isOverdue: Boolean!
+  canSubmit: Boolean!
+  totalSubmissions: Int!
+  gradedSubmissions: Int!
+  pendingSubmissions: Int!
+  subject: SubjectType!
+  section: SectionType!
+  semester: SemesterType!
+  createdBy: UserType!
+  submissions: [AssignmentSubmissionType!]!
+  subjectName: String!
+  sectionName: String!
+  facultyName: String!
+  timeRemaining: String
+  submissionPercentage: Float!
+  statistics: AssignmentStatisticsType!
+  hasAttachment: Boolean!
+  attachmentUrl: String
+  attachmentFilename: String
+}
+
+type AttendanceReportType {
+  id: ID!
+  totalClasses: Int!
+  presentCount: Int!
+  absentCount: Int!
+  lateCount: Int!
+  attendancePercentage: Decimal!
+  isBelowThreshold: Boolean!
+  lastCalculated: DateTime!
+  createdAt: DateTime!
+  student: StudentProfileType!
+  subject: SubjectType!
+  semester: SemesterType!
+  studentName: String!
+  registerNumber: String!
+  subjectName: String!
+  semesterInfo: String!
+  percentageDisplay: String!
+  statusMessage: String!
+  classesNeededFor75: Int!
+}
+
+type AttendanceSessionType {
+  id: ID!
+  date: Date!
+  status: String!
+  attendanceWindowMinutes: Int!
+  cancellationReason: String
+  notes: String
+  openedAt: DateTime
+  closedAt: DateTime
+  blockedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  isActive: Boolean!
+  canMarkAttendance: Boolean!
+  timeRemaining: Int!
+  totalStudents: Int!
+  presentCount: Int!
+  attendancePercentage: Float!
+  timetableEntry: TimetableEntryType!
+  openedBy: UserType
+  blockedBy: UserType
+  studentAttendances: [StudentAttendanceType!]!
+  subjectName: String!
+  sectionName: String!
+  facultyName: String!
+  periodInfo: String!
+  periodTime: String!
+  statusMessage: String!
+}
+
+input BlockSessionInput {
+  sessionId: Int!
+  cancellationReason: String!
+}
+
+input BulkEnterMarksInput {
+  scheduleId: Int!
+  results: [BulkMarkEntry!]!
+}
+
+type BulkEnterMarksResponse {
+  success: Boolean!
+  message: String!
+  count: Int!
+}
+
+type BulkHallTicketResponse {
+  success: Boolean!
+  message: String!
+  count: Int!
+}
+
+input BulkMarkEntry {
+  studentId: Int!
+  marksObtained: Decimal!
+  isAbsent: Boolean! = false
+  remarks: String! = ""
+}
+
+input CourseGradeInput {
+  studentRegisterNumber: String!
+  subjectId: Int!
+  semesterId: Int!
+  internalMarks: Float!
+  internalMaxMarks: Float! = 40
+  examMarks: Float!
+  examMaxMarks: Float! = 60
+  examType: String! = "FINAL"
+  examDate: Date = null
+  remarks: String = ""
+  isPublished: Boolean! = false
+}
+
+type CourseGradeMutationResponse {
+  success: Boolean!
+  message: String!
+  grade: CourseGradeType
+}
+
+type CourseGradeType {
+  id: Int!
+  subject: SubjectType!
+  semester: SemesterType!
+  internalMarks: Float!
+  internalMaxMarks: Float!
+  examMarks: Float!
+  examMaxMarks: Float!
+  examType: String!
+  examDate: Date
+  totalMarks: Float!
+  totalMaxMarks: Float!
+  percentage: Float!
+  grade: String!
+  gradePoints: Float!
+  credits: Float!
+  remarks: String!
+  isPublished: Boolean!
+  createdAt: String!
+  courseCode: String!
+  courseName: String!
+}
+
+type CourseOverviewType {
+  totalCourses: Int!
+  totalCredits: Float!
+  avgProgress: Float!
+  avgAttendance: Float!
+}
+
+type CourseProgressType {
+  subjectCode: String!
+  subjectName: String!
+  totalAssignments: Int!
+  completedAssignments: Int!
+  percentage: Float!
+}
+
+type CourseScheduleType {
+  dayName: String!
+  startTime: String!
+  endTime: String!
+}
+
+type CourseType {
+  id: Int!
+  name: String!
+  code: String!
+  durationYears: Int!
+  department: DepartmentType!
+}
+
+input CreateAssignmentInput {
+  subjectId: Int!
+  sectionId: Int!
+  semesterId: Int!
+  title: String!
+  description: String!
+  assignmentType: String!
+  dueDate: DateTime!
+  maxMarks: Decimal!
+  weightage: Decimal!
+  allowLateSubmission: Boolean! = false
+  lateSubmissionDeadline: DateTime = null
+  attachmentData: String = null
+  attachmentFilename: String = null
+}
+
+input CreateExamInput {
+  name: String!
+  examType: String!
+  semesterId: Int!
+  startDate: Date!
+  endDate: Date!
+  departmentId: Int = null
+  maxMarks: Decimal! = "100"
+  passMarksPercentage: Decimal! = "40"
+  instructions: String! = ""
+}
+
+type CreateExamResponse {
+  success: Boolean!
+  message: String!
+  exam: ExamType
+}
+
+input CreateExamScheduleInput {
+  examId: Int!
+  subjectId: Int!
+  sectionId: Int!
+  date: Date!
+  startTime: Time!
+  endTime: Time!
+  shift: String! = "MORNING"
+  durationMinutes: Int! = 180
+  roomId: Int = null
+  invigilatorId: Int = null
+  maxMarks: Decimal = null
+  notes: String! = ""
+}
+
+type CreateScheduleResponse {
+  success: Boolean!
+  message: String!
+  schedule: ExamScheduleType
+}
+
+input CreateUserInput {
+  email: String = null
+  registerNumber: String = null
+  password: String!
+  roleId: Int!
+  departmentId: Int = null
+  isActive: Boolean! = true
+  isStaff: Boolean! = false
+}
+
+type CreateUserResponse {
+  user: UserType!
+  message: String!
+  success: Boolean!
+}
+
+"""Date (isoformat)"""
+scalar Date
+
+"""Date with time (isoformat)"""
+scalar DateTime
+
+"""Decimal (fixed-point)"""
+scalar Decimal
+
+type DepartmentType {
+  id: Int!
+  name: String!
+  code: String!
+  isActive: Boolean!
+}
+
+type EnrolledCourseType {
+  id: Int!
+  subjectCode: String!
+  subjectName: String!
+  subjectType: String!
+  credits: Float!
+  facultyName: String!
+  facultyEmail: String
+  description: String!
+  courseProgress: Float!
+  grade: String
+  attendancePercentage: Float!
+  completedAssignments: Int!
+  totalAssignments: Int!
+  classSchedule: [CourseScheduleType!]!
+}
+
+input EnterMarksInput {
+  scheduleId: Int!
+  studentId: Int!
+  marksObtained: Decimal!
+  isAbsent: Boolean! = false
+  remarks: String! = ""
+}
+
+type EnterMarksResponse {
+  success: Boolean!
+  message: String!
+  result: ExamResultType
+}
+
+type ExamMutationResponse {
+  success: Boolean!
+  message: String!
+}
+
+type ExamResultStatisticsType {
+  totalStudents: Int!
+  resultsEntered: Int!
+  passed: Int!
+  failed: Int!
+  absent: Int!
+  passPercentage: Float!
+  averageMarks: Float!
+  highestMarks: Float!
+  lowestMarks: Float!
+}
+
+type ExamResultType {
+  id: ID!
+  marksObtained: Decimal
+  percentage: Decimal
+  isPass: Boolean!
+  isAbsent: Boolean!
+  status: String!
+  remarks: String!
+  publishedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  gradeLetter: String!
+  student: StudentProfileType!
+  schedule: ExamScheduleType!
+  enteredBy: UserType
+  verifiedBy: UserType
+  subjectName: String!
+  subjectCode: String!
+  studentRegisterNumber: String!
+  maxMarks: Decimal!
+}
+
+type ExamScheduleType {
+  id: ID!
+  date: Date!
+  startTime: Time!
+  endTime: Time!
+  shift: String!
+  durationMinutes: Int!
+  notes: String!
+  createdAt: DateTime!
+  effectiveMaxMarks: Decimal!
+  studentCount: Int!
+  resultsEnteredCount: Int!
+  exam: ExamType!
+  subject: SubjectType!
+  section: SectionType!
+  room: RoomType
+  invigilator: UserType
+  results: [ExamResultType!]!
+  seatingArrangements: [ExamSeatingType!]!
+  shiftDisplay: String!
+  subjectName: String!
+  subjectCode: String!
+}
+
+type ExamSeatingType {
+  id: ID!
+  seatNumber: String!
+  isPresent: Boolean!
+  markedAt: DateTime
+  createdAt: DateTime!
+  student: StudentProfileType!
+  room: RoomType
+  schedule: ExamScheduleType!
+  studentRegisterNumber: String!
+  roomNumber: String
+}
+
+type ExamType {
+  id: ID!
+  name: String!
+  examType: String!
+  status: String!
+  startDate: Date!
+  endDate: Date!
+  maxMarks: Decimal!
+  passMarksPercentage: Decimal!
+  instructions: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  isUpcoming: Boolean!
+  isOngoing: Boolean!
+  isCompleted: Boolean!
+  totalSubjects: Int!
+  totalStudents: Int!
+  semester: SemesterType!
+  department: DepartmentType
+  createdBy: UserType
+  schedules: [ExamScheduleType!]!
+  examTypeDisplay: String!
+  statusDisplay: String!
+  durationDays: Int!
+}
+
+type ExportGradesType {
+  success: Boolean!
+  message: String!
+  fileBase64: String
+  filename: String!
+}
+
+type FacultyAttendanceOverviewType {
+  subjectName: String!
+  subjectCode: String!
+  attendancePercentage: Float!
+}
+
+type FacultyDashboardType {
+  facultyName: String!
+  departmentName: String
+  totalStudents: Int!
+  activeCourses: Int!
+  pendingReviews: Int!
+  todayClasses: [FacultyTodayClassType!]!
+  todayClassCount: Int!
+  attendanceOverview: [FacultyAttendanceOverviewType!]!
+  recentActivities: [FacultyRecentActivityType!]!
+}
+
+type FacultyProfileResponse {
+  profile: FacultyProfileType
+  message: String!
+}
+
+type FacultyProfileType {
+  id: Int!
+  designation: String!
+  qualifications: String!
+  specialization: String!
+  joiningDate: Date!
+  officeHours: String!
+  teachingLoad: Int!
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  department: DepartmentType
+  user: UserType!
+  fullName: String!
+}
+
+type FacultyRecentActivityType {
+  id: Int!
+  activityType: String!
+  title: String!
+  description: String!
+  timestamp: String!
+}
+
+type FacultyTodayClassType {
+  id: Int!
+  subjectName: String!
+  subjectCode: String!
+  sectionName: String!
+  roomNumber: String
+  startTime: String!
+  endTime: String!
+  periodNumber: Int!
+}
+
+input GenerateHallTicketInput {
+  examId: Int!
+  studentId: Int = null
+  sectionId: Int = null
+}
+
+input GradeAssignmentInput {
+  submissionId: Int!
+  marksObtained: Decimal!
+  feedback: String = null
+  gradingRubric: String = null
+}
+
+type GradeAssignmentResponse {
+  success: Boolean!
+  message: String!
+  grade: AssignmentGradeType
+}
+
+type GradeOverviewType {
+  cgpa: Float!
+  cgpaStatus: String!
+  totalCredits: Float!
+  creditsEarned: Float!
+  performanceTrend: String!
+  semesterGpas: [SemesterGPAType!]!
+}
+
+type HallTicketResponse {
+  success: Boolean!
+  message: String!
+  hallTicket: HallTicketType
+}
+
+type HallTicketType {
+  id: ID!
+  ticketNumber: String!
+  status: String!
+  isEligible: Boolean!
+  ineligibilityReason: String!
+  generatedAt: DateTime!
+  downloadedAt: DateTime
+  student: StudentProfileType!
+  exam: ExamType!
+  studentRegisterNumber: String!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](https://ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf).
+"""
+scalar JSON @specifiedBy(url: "https://ecma-international.org/wp-content/uploads/ECMA-404_2nd_edition_december_2017.pdf")
+
+input LoginInput {
+  username: String!
+  password: String!
+}
+
+type LoginResponse {
+  user: UserType!
+  accessToken: String!
+  refreshToken: String!
+  message: String!
+}
+
+type LogoutResponse {
+  success: Boolean!
+  message: String!
+}
+
+input ManualMarkAttendanceInput {
+  sessionId: Int!
+  studentId: Int!
+  status: String!
+  notes: String = null
+}
+
+input MarkAttendanceInput {
+  sessionId: ID!
+  imageData: String!
+  latitude: Float = null
+  longitude: Float = null
+  deviceInfo: JSON = null
+}
+
+type MarkAttendanceResponse {
+  attendance: StudentAttendanceType!
+  message: String!
+  success: Boolean!
+}
+
+type Mutation {
+  login(data: LoginInput!): LoginResponse!
+  refreshToken(refreshToken: String!): LoginResponse!
+  logout(accessToken: String = null): LogoutResponse!
+  logoutAllSessions: LogoutResponse!
+  createUser(data: CreateUserInput!): CreateUserResponse!
+  updateStudentProfile(registerNumber: String!, data: UpdateStudentProfileInput!): StudentProfileResponse!
+  updateStudentProfileWithPhoto(registerNumber: String!, data: UpdateStudentProfileWithPhotoInput!, profilePicture: Upload = null, profilePictureBase64: String = null): StudentProfileResponse!
+  adminUpdateStudentProfile(registerNumber: String!, data: AdminUpdateStudentProfileInput!): StudentProfileResponse!
+  requestParentOtp(registerNumber: String!): ParentOtpRequestResponse!
+  verifyParentOtp(registerNumber: String!, otp: String!, relationship: String = null, phoneNumber: String = null): ParentVerifyResponse!
+  updateFacultyProfile(data: UpdateFacultyProfileInput!, userId: Int = null): FacultyProfileResponse!
+  createTimetableEntry(sectionId: Int!, subjectId: Int!, facultyId: Int!, periodDefinitionId: Int!, semesterId: Int!, roomId: Int = null, notes: String = ""): TimetableEntryType!
+  updateTimetableEntry(entryId: Int!, facultyId: Int = null, roomId: Int = null, notes: String = null, isActive: Boolean = null): TimetableEntryType!
+  deleteTimetableEntry(entryId: Int!): Boolean!
+  generatePeriods(semesterId: Int!): String!
+  swapTimetableSlots(entry1Id: Int!, entry2Id: Int!): String!
+  openAttendanceSession(input: OpenSessionInput!): AttendanceSessionType!
+  markAttendance(input: MarkAttendanceInput!): MarkAttendanceResponse!
+  closeAttendanceSession(sessionId: Int!): AttendanceSessionType!
+  blockAttendanceSession(input: BlockSessionInput!): AttendanceSessionType!
+  reopenBlockedSession(sessionId: Int!): AttendanceSessionType!
+  manualMarkAttendance(input: ManualMarkAttendanceInput!): StudentAttendanceType!
+  bulkMarkPresent(sessionId: Int!, studentIds: [Int!]!): [StudentAttendanceType!]!
+  recalculateAttendanceReport(reportId: Int!): AttendanceReportType!
+  createAssignment(input: CreateAssignmentInput!): AssignmentType!
+  updateAssignment(input: UpdateAssignmentInput!): AssignmentType!
+  publishAssignment(assignmentId: Int!): AssignmentType!
+  closeAssignment(assignmentId: Int!): AssignmentType!
+  deleteAssignment(assignmentId: Int!): Boolean!
+  submitAssignment(input: SubmitAssignmentInput!): SubmitAssignmentResponse!
+  gradeAssignment(input: GradeAssignmentInput!): GradeAssignmentResponse!
+  returnSubmission(input: ReturnSubmissionInput!): AssignmentSubmissionType!
+  createCourseGrade(input: CourseGradeInput!): CourseGradeMutationResponse!
+  updateCourseGrade(gradeId: Int!, input: CourseGradeInput!): CourseGradeMutationResponse!
+  publishGrade(gradeId: Int!): CourseGradeMutationResponse!
+  markNotificationRead(notificationId: Int!): NotificationType
+  markAllNotificationsRead(category: String = null): Int!
+  dismissNotification(notificationId: Int!): Boolean!
+  bulkDismissNotifications(notificationIds: [Int!]!): Int!
+  updateNotificationPreference(category: String!, isEnabled: Boolean = null, isSseEnabled: Boolean = null, isEmailEnabled: Boolean = null): NotificationPreferenceType
+  resetNotificationPreferences: [NotificationPreferenceType!]!
+  createExam(input: CreateExamInput!): CreateExamResponse!
+  updateExam(input: UpdateExamInput!): CreateExamResponse!
+  updateExamStatus(examId: Int!, status: String!): ExamMutationResponse!
+  deleteExam(examId: Int!): ExamMutationResponse!
+  createExamSchedule(input: CreateExamScheduleInput!): CreateScheduleResponse!
+  deleteExamSchedule(scheduleId: Int!): ExamMutationResponse!
+  assignSeat(input: AssignSeatingInput!): ExamMutationResponse!
+  autoAssignSeating(scheduleId: Int!, roomId: Int = null): ExamMutationResponse!
+  markExamAttendance(scheduleId: Int!, studentId: Int!, isPresent: Boolean!): ExamMutationResponse!
+  enterMarks(input: EnterMarksInput!): EnterMarksResponse!
+  bulkEnterMarks(input: BulkEnterMarksInput!): BulkEnterMarksResponse!
+  verifyResults(scheduleId: Int!): ExamMutationResponse!
+  publishResults(examId: Int!): ExamMutationResponse!
+  generateHallTicket(input: GenerateHallTicketInput!): HallTicketResponse!
+  bulkGenerateHallTickets(examId: Int!, sectionId: Int!): BulkHallTicketResponse!
+  revokeHallTicket(hallTicketId: Int!): ExamMutationResponse!
+}
+
+type NextClassType {
+  id: Int!
+  subjectName: String!
+  subjectCode: String!
+  facultyName: String!
+  roomNumber: String
+  dayOfWeek: Int!
+  dayName: String!
+  startTime: String!
+  endTime: String!
+  periodNumber: Int!
+}
+
+type NotificationConnection {
+  notifications: [NotificationType!]!
+  totalCount: Int!
+  unreadCount: Int!
+  hasMore: Boolean!
+}
+
+type NotificationPreferenceType {
+  category: String!
+  isEnabled: Boolean!
+  isSseEnabled: Boolean!
+  isEmailEnabled: Boolean!
+}
+
+type NotificationStats {
+  totalCount: Int!
+  unreadCount: Int!
+  readCount: Int!
+  byCategory: JSON!
+}
+
+type NotificationType {
+  id: Int!
+  notificationType: String!
+  category: String!
+  priority: String!
+  title: String!
+  message: String!
+  actionUrl: String!
+  metadata: JSON!
+  isRead: Boolean!
+  readAt: DateTime
+  createdAt: DateTime!
+  actorName: String
+  timeAgo: String!
+}
+
+input OpenSessionInput {
+  timetableEntryId: Int!
+  date: Date!
+  attendanceWindowMinutes: Int = 10
+}
+
+type ParentOtpRequestResponse {
+  maskedContact: String
+  message: String!
+}
+
+type ParentVerifyResponse {
+  user: UserType!
+  accessToken: String!
+  refreshToken: String!
+  message: String!
+}
+
+type PeriodDefinitionType {
+  id: Int!
+  semester: SemesterType!
+  periodNumber: Int!
+  dayOfWeek: Int!
+  startTime: Time!
+  endTime: Time!
+  durationMinutes: Int!
+  dayName: String!
+}
+
+type Query {
+  departments: [DepartmentType!]!
+  courses(departmentId: Int = null): [CourseType!]!
+  sections(courseId: Int = null, year: Int = null, subjectId: Int = null): [SectionType!]!
+  roles(departmentId: Int = null): [RoleType!]!
+  users: [UserType!]!
+  me: UserType
+  myProfile(registerNumber: String!): StudentProfileType
+  studentProfile(registerNumber: String!): StudentProfileType
+  studentProfiles(departmentId: Int = null, courseId: Int = null, year: Int = null, academicStatus: String = null): [StudentProfileType!]!
+  myFacultyProfile: FacultyProfileType
+  faculties(departmentId: Int = null, designation: String = null): [FacultyProfileType!]!
+  academicYears: [AcademicYearType!]!
+  currentAcademicYear: AcademicYearType
+  academicYear(id: Int!): AcademicYearType
+  semesters(academicYearId: Int = null): [SemesterType!]!
+  currentSemester: SemesterType
+  semester(id: Int!): SemesterType
+  studentDashboard(registerNumber: String!): StudentDashboardType
+  myCourses(registerNumber: String!): [EnrolledCourseType!]!
+  courseOverview(registerNumber: String!): CourseOverviewType
+  facultyDashboard: FacultyDashboardType
+  sectionTimetable(sectionId: Int!, semesterId: Int = null): [TimetableEntryType!]!
+  facultySchedule(facultyId: Int!, semesterId: Int = null): [TimetableEntryType!]!
+  periodDefinitions(semesterId: Int!, dayOfWeek: Int = null): [PeriodDefinitionType!]!
+  subjects(departmentId: Int = null, semesterNumber: Int = null, isActive: Boolean = true): [SubjectType!]!
+  rooms(roomType: String = null, departmentId: Int = null, isActive: Boolean = true): [RoomType!]!
+  roomSchedule(roomId: Int!, semesterId: Int = null, dayOfWeek: Int = null): [TimetableEntryType!]!
+  myTimetable(registerNumber: String!): [TimetableEntryType!]!
+  timetableStatistics(registerNumber: String!): TimetableStatisticsType
+  activeSessionsForStudent: [AttendanceSessionType!]!
+  facultySessionsToday: [AttendanceSessionType!]!
+  attendanceSession(sessionId: Int!): AttendanceSessionType
+  studentAttendanceHistory(studentId: Int = null, subjectId: Int = null, startDate: Date = null, endDate: Date = null): [StudentAttendanceType!]!
+  attendanceReport(studentId: Int = null, subjectId: Int = null): AttendanceReportType
+  allReportsForStudent(studentId: Int = null): [AttendanceReportType!]!
+  sectionAttendanceForSession(sessionId: Int!): [StudentAttendanceType!]!
+  lowAttendanceStudents(subjectId: Int!, threshold: Float = 75): [AttendanceReportType!]!
+  assignment(id: Int!): AssignmentType
+  assignments(sectionId: Int = null, subjectId: Int = null, semesterId: Int = null, status: String = null): [AssignmentType!]!
+  myAssignments: [AssignmentType!]!
+  pendingAssignments: [AssignmentType!]!
+  overdueAssignments: [AssignmentType!]!
+  assignmentSubmissions(assignmentId: Int!): [AssignmentSubmissionType!]!
+  mySubmissions: [AssignmentSubmissionType!]!
+  submission(id: Int!): AssignmentSubmissionType
+  studentAssignmentStatistics(studentId: Int = null, semesterId: Int = null): StudentAssignmentStatisticsType!
+  pendingGrading: [AssignmentSubmissionType!]!
+  myGrades(registerNumber: String!, semesterId: Int = null): [CourseGradeType!]!
+  gradeOverview(registerNumber: String!): GradeOverviewType
+  semesterGrades(registerNumber: String!, semesterId: Int!): [CourseGradeType!]!
+  exportGrades(registerNumber: String!, semesterId: Int = null): ExportGradesType!
+  myNotifications(category: String = null, isRead: Boolean = null, limit: Int! = 20, offset: Int! = 0): NotificationConnection!
+  unreadCount(category: String = null): Int!
+  myNotificationPreferences: [NotificationPreferenceType!]!
+  notificationStats: NotificationStats!
+  notificationById(notificationId: Int!): NotificationType
+  exam(id: Int!): ExamType
+  exams(semesterId: Int = null, examType: String = null, status: String = null, departmentId: Int = null): [ExamType!]!
+  upcomingExams: [ExamType!]!
+  examSchedule(id: Int!): ExamScheduleType
+  examSchedules(examId: Int!, sectionId: Int = null): [ExamScheduleType!]!
+  myExamSchedule(examId: Int!): [ExamScheduleType!]!
+  seatingArrangement(scheduleId: Int!): [ExamSeatingType!]!
+  mySeat(scheduleId: Int!): ExamSeatingType
+  examResults(scheduleId: Int!, status: String = null): [ExamResultType!]!
+  myResults(examId: Int = null, semesterId: Int = null): [ExamResultType!]!
+  examResultStatistics(scheduleId: Int!): ExamResultStatisticsType!
+  hallTickets(examId: Int!, sectionId: Int = null): [HallTicketType!]!
+  myHallTicket(examId: Int!): HallTicketType
+}
+
+type RecentActivityType {
+  id: Int!
+  activityType: String!
+  title: String!
+  description: String!
+  timestamp: String!
+  icon: String
+}
+
+input ReturnSubmissionInput {
+  submissionId: Int!
+  feedback: String!
+}
+
+type RoleType {
+  id: Int!
+  name: String!
+  code: String!
+  isGlobal: Boolean!
+  isActive: Boolean!
+  department: DepartmentType
+}
+
+type RoomType {
+  id: Int!
+  roomNumber: String!
+  building: String!
+  capacity: Int!
+  roomType: String!
+  department: DepartmentType
+  facilities: JSON!
+  isActive: Boolean!
+}
+
+type SectionType {
+  id: Int!
+  name: String!
+  year: Int!
+  course: CourseType!
+  semesterId: Int
+}
+
+type SemesterGPAType {
+  id: Int!
+  semester: SemesterType!
+  gpa: Float!
+  totalCredits: Float!
+  creditsEarned: Float!
+  semesterName: String!
+}
+
+type SemesterType {
+  id: Int!
+  academicYear: AcademicYearType!
+  number: Int!
+  startDate: Date!
+  endDate: Date!
+  isCurrent: Boolean!
+  displayName: String!
+  name: String!
+  year: String!
+}
+
+type StudentAssignmentStatisticsType {
+  totalAssignments: Int!
+  totalSubmitted: Int!
+  pendingSubmission: Int!
+  submissionPercentage: Float!
+  gradedCount: Int!
+  pendingGrading: Int!
+  overdueCount: Int!
+  averageMarks: Float!
+  averagePercentage: Float!
+}
+
+type StudentAttendanceType {
+  id: ID!
+  status: String!
+  markedAt: DateTime
+  latitude: Decimal
+  longitude: Decimal
+  deviceInfo: JSON!
+  isManuallyMarked: Boolean!
+  notes: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  isPresent: Boolean!
+  isLate: Boolean!
+  session: AttendanceSessionType!
+  student: StudentProfileType!
+  markedBy: UserType
+  studentName: String!
+  registerNumber: String!
+  subjectName: String!
+  date: Date!
+  hasImage: Boolean!
+  imageUrl: String
+  statusBadge: String!
+}
+
+type StudentDashboardType {
+  studentName: String!
+  registerNumber: String!
+  profilePhotoUrl: String
+  assignmentsDueThisWeek: [AssignmentDueType!]!
+  totalPendingAssignments: Int!
+  totalOverdueAssignments: Int!
+  recentActivities: [RecentActivityType!]!
+  courseProgress: [CourseProgressType!]!
+  overallProgressPercentage: Float!
+  currentGpa: Float
+  nextClass: NextClassType
+  todayClasses: [NextClassType!]!
+}
+
+type StudentProfileResponse {
+  profile: StudentProfileType!
+  message: String!
+}
+
+type StudentProfileType {
+  id: Int!
+  firstName: String!
+  lastName: String
+  phone: String!
+  dateOfBirth: Date
+  gender: String
+  address: String
+  profilePhoto: String
+  registerNumber: String!
+  rollNumber: String
+  department: DepartmentType!
+  course: CourseType!
+  section: SectionType
+  year: Int!
+  semester: Int!
+  admissionDate: Date
+  academicStatus: String!
+  guardianName: String
+  guardianRelationship: String
+  guardianPhone: String
+  guardianEmail: String
+  aadharNumber: String
+  idProofType: String
+  idProofNumber: String
+  isActive: Boolean!
+  profileCompleted: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: UserType!
+  fullName: String!
+  profilePhotoUrl: String
+}
+
+type SubjectType {
+  id: Int!
+  code: String!
+  name: String!
+  department: DepartmentType!
+  semesterNumber: Int!
+  credits: Float!
+  subjectType: String!
+  isActive: Boolean!
+}
+
+input SubmitAssignmentInput {
+  assignmentId: Int!
+  submissionText: String = null
+}
+
+type SubmitAssignmentResponse {
+  success: Boolean!
+  message: String!
+  submission: AssignmentSubmissionType
+}
+
+"""Time (isoformat)"""
+scalar Time
+
+type TimetableEntryType {
+  id: Int!
+  section: SectionType!
+  subject: SubjectType!
+  faculty: UserType
+  periodDefinition: PeriodDefinitionType!
+  room: RoomType
+  semester: SemesterType!
+  isActive: Boolean!
+  notes: String!
+}
+
+type TimetableStatisticsType {
+  totalClasses: Int!
+  theoryClasses: Int!
+  labSessions: Int!
+  tutorialClasses: Int!
+}
+
+input UpdateAssignmentInput {
+  assignmentId: Int!
+  title: String = null
+  description: String = null
+  dueDate: DateTime = null
+  maxMarks: Decimal = null
+  weightage: Decimal = null
+  allowLateSubmission: Boolean = null
+  lateSubmissionDeadline: DateTime = null
+  attachmentData: String = null
+  attachmentFilename: String = null
+}
+
+input UpdateExamInput {
+  examId: Int!
+  name: String = null
+  startDate: Date = null
+  endDate: Date = null
+  maxMarks: Decimal = null
+  passMarksPercentage: Decimal = null
+  instructions: String = null
+}
+
+input UpdateFacultyProfileInput {
+  designation: String = null
+  qualifications: String = null
+  specialization: String = null
+  officeHours: String = null
+  teachingLoad: Int = null
+  departmentId: Int = null
+  isActive: Boolean = null
+}
+
+input UpdateStudentProfileInput {
+  firstName: String = null
+  lastName: String = null
+  phone: String = null
+  dateOfBirth: Date = null
+  gender: String = null
+  address: String = null
+  guardianName: String = null
+  guardianRelationship: String = null
+  guardianPhone: String = null
+  guardianEmail: String = null
+}
+
+input UpdateStudentProfileWithPhotoInput {
+  firstName: String = null
+  lastName: String = null
+  phone: String = null
+  dateOfBirth: Date = null
+  gender: String = null
+  address: String = null
+  guardianName: String = null
+  guardianRelationship: String = null
+  guardianPhone: String = null
+  guardianEmail: String = null
+}
+
+"""Represents a file upload."""
+scalar Upload
+
+type UserType {
+  id: Int!
+  email: String
+  registerNumber: String
+  isActive: Boolean!
+  role: RoleType!
+  department: DepartmentType
+}

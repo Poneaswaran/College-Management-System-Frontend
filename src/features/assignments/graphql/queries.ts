@@ -5,7 +5,7 @@
 import { gql } from '@apollo/client';
 
 export const FACULTY_DASHBOARD_QUERY = gql`
-  query FacultyDashboard {
+  query FacultyAssignmentsDashboard {
     myAssignments {
       id
       title
@@ -33,7 +33,7 @@ export const FACULTY_DASHBOARD_QUERY = gql`
 `;
 
 export const STUDENT_DASHBOARD_QUERY = gql`
-  query StudentDashboard {
+  query StudentAssignmentsDashboard {
     myAssignments {
       id
       title

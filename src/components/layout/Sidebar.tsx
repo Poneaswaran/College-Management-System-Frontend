@@ -6,7 +6,6 @@ import {
     FileText,
     User,
     LogOut,
-    Home,
     ClipboardCheck,
     Users,
     Upload,
@@ -47,10 +46,8 @@ type SidebarItem = MenuItem | DropdownMenuItem;
 
 const studentSidebarItems: MenuItem[] = [
     { icon: LayoutDashboard, label: 'Student Dashboard', path: '/student/dashboard' },
-    { icon: Home, label: 'Overview', path: '/student/overview' },
     { icon: BookOpen, label: 'Courses', path: '/student/courses' },
     { icon: GraduationCap, label: 'Grades', path: '/student/grades' },
-    { icon: Calendar, label: 'Schedule', path: '/student/schedule' },
     { icon: Calendar, label: 'Timetable', path: '/student/timetable' },
     { icon: FileText, label: 'Assignments', path: '/student/assignments' },
     { icon: ClipboardCheck, label: 'Attendance', path: '/student/attendance' },
