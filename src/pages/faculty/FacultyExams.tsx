@@ -15,7 +15,7 @@ export default function FacultyExams() {
 
     return (
         <PageLayout>
-            <div className="p-8 max-w-7xl mx-auto space-y-6">
+            <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
                 <div>
                     <h1 className="text-3xl font-bold text-[var(--color-foreground)]">Invigilation & Marks Entry</h1>
                     <p className="text-[var(--color-foreground-muted)]">View your exam schedules and enter student marks.</p>

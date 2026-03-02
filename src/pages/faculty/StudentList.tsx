@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client/react';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { MoreHorizontal, Download } from 'lucide-react';
 import { DataTable, type Column } from '../../components/ui/DataTable';
 import { SearchInput } from '../../components/ui/SearchInput';
@@ -171,10 +171,8 @@ export const StudentList: React.FC = () => {
     };
 
     return (
-        <div className="flex h-screen bg-[var(--color-background)]">
-            <Sidebar />
-            <div className="flex-1 ml-64 overflow-auto">
-                <div className="p-8">
+        <PageLayout>
+            <div className="p-4 md:p-6 lg:p-8">
                     {/* Header */}
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                         <div>
@@ -229,9 +227,8 @@ export const StudentList: React.FC = () => {
                         onPageSizeChange={handlePageSizeChange}
                         emptyMessage="No students found matching your criteria"
                     />
-                </div>
             </div>
-        </div>
+        </PageLayout>
     );
 };
 

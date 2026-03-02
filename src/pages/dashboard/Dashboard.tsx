@@ -1,5 +1,5 @@
 import { Sun, Moon } from 'lucide-react';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import NotificationBell from '../../components/notifications/NotificationBell';
 import { useTheme } from '../../theme';
 
@@ -11,17 +11,17 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="flex min-h-screen bg-[var(--color-background)]">
-            <Sidebar />
-            <div className="flex-1 ml-64 p-8">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-3xl font-bold text-[var(--color-foreground)]">Dashboard</h1>
-                    <div className="flex items-center gap-4">
+        <PageLayout>
+            <div className="p-4 md:p-6 lg:p-8">
+                <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
+                    <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)]">Dashboard</h1>
+                    <div className="flex items-center gap-3">
                         {/* Theme Toggle Button */}
                         <button
                             onClick={toggleTheme}
                             className="p-2 rounded-full hover:bg-[var(--color-background-tertiary)] text-[var(--color-foreground-secondary)] hover:text-[var(--color-primary)] transition-all"
                             title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
                         >
                             {isDark ? <Sun size={20} /> : <Moon size={20} />}
                         </button>
@@ -35,6 +35,6 @@ export default function Dashboard() {
                     </div>
                 </div>
             </div>
-        </div>
+        </PageLayout>
     );
 }

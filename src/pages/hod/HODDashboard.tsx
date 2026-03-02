@@ -10,7 +10,7 @@ import {
     Sun,
     Moon,
 } from 'lucide-react';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import NotificationBell from '../../components/notifications/NotificationBell';
 import { useTheme } from '../../theme';
 
@@ -22,14 +22,12 @@ export default function HODDashboard() {
     };
 
     return (
-        <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
-            <Sidebar />
-
-            <main className="flex-1 ml-64 p-8">
+        <PageLayout>
+            <main className="p-4 md:p-6 lg:p-8">
                 {/* Dashboard Header */}
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-[var(--color-foreground)]">HOD Dashboard</h1>
-                    <div className="flex items-center gap-4">
+                <div className="flex flex-wrap justify-between items-center gap-3 mb-6 md:mb-8">
+                    <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)]">HOD Dashboard</h1>
+                    <div className="flex items-center gap-3">
                         {/* Theme Toggle Button */}
                         <button
                             onClick={toggleTheme}
@@ -43,12 +41,12 @@ export default function HODDashboard() {
                             <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--color-error)] rounded-full border-2 border-[var(--color-background)]"></span>
                         </button>
                         <NotificationBell />
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-[var(--color-background-tertiary)] px-3 py-1.5 rounded-lg transition-colors">
-                            <div className="w-8 h-8 rounded-full bg-[var(--color-primary-light)] text-white flex items-center justify-center font-bold">
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-[var(--color-background-tertiary)] px-2 py-1.5 rounded-lg transition-colors">
+                            <div className="w-8 h-8 rounded-full bg-[var(--color-primary-light)] text-white flex items-center justify-center font-bold shrink-0">
                                 HD
                             </div>
-                            <span className="text-sm font-medium text-[var(--color-foreground)]">HOD Name</span>
-                            <ChevronDown size={16} className="text-[var(--color-foreground-muted)]" />
+                            <span className="hidden sm:block text-sm font-medium text-[var(--color-foreground)]">HOD Name</span>
+                            <ChevronDown size={16} className="text-[var(--color-foreground-muted)] shrink-0" />
                         </div>
                     </div>
                 </div>
@@ -62,7 +60,7 @@ export default function HODDashboard() {
                 {/* Department Overview Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     {/* Total Students Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary-light)] transition-colors group">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary-light)] transition-colors group">
                         <div className="flex justify-between items-start mb-4">
                             <h3 className="font-semibold text-[var(--color-foreground)]">Total Students</h3>
                             <div className="p-2 bg-[var(--color-background-secondary)] rounded-lg text-[var(--color-primary)]">
@@ -74,7 +72,7 @@ export default function HODDashboard() {
                     </div>
 
                     {/* Total Faculty Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary-light)] transition-colors group">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary-light)] transition-colors group">
                         <div className="flex justify-between items-start mb-4">
                             <h3 className="font-semibold text-[var(--color-foreground)]">Total Faculty</h3>
                             <div className="p-2 bg-[var(--color-background-secondary)] rounded-lg text-[var(--color-primary)]">
@@ -86,7 +84,7 @@ export default function HODDashboard() {
                     </div>
 
                     {/* Ongoing Courses Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary-light)] transition-colors group">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary-light)] transition-colors group">
                         <div className="flex justify-between items-start mb-4">
                             <h3 className="font-semibold text-[var(--color-foreground)]">Ongoing Courses</h3>
                             <div className="p-2 bg-[var(--color-background-secondary)] rounded-lg text-[var(--color-primary)]">
@@ -98,7 +96,7 @@ export default function HODDashboard() {
                     </div>
 
                     {/* Pending Approvals Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-warning)] transition-colors group">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)] hover:border-[var(--color-warning)] transition-colors group">
                         <div className="flex justify-between items-start mb-4">
                             <h3 className="font-semibold text-[var(--color-foreground)]">Pending Approvals</h3>
                             <div className="p-2 bg-[var(--color-background-secondary)] rounded-lg text-[var(--color-warning)]">
@@ -113,7 +111,7 @@ export default function HODDashboard() {
                 {/* Second Row - Performance Metrics */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     {/* Attendance Overview */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <h3 className="font-semibold text-[var(--color-foreground)]">Department Attendance</h3>
@@ -148,7 +146,7 @@ export default function HODDashboard() {
                     </div>
 
                     {/* Pass Percentage */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
                         <div className="flex justify-between items-start mb-4">
                             <div>
                                 <h3 className="font-semibold text-[var(--color-foreground)]">Pass Percentage</h3>
@@ -186,7 +184,7 @@ export default function HODDashboard() {
                 {/* Third Row - Pending Approvals & Quick Actions */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     {/* Pending Approvals List */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
                         <div className="flex justify-between items-start mb-4">
                             <h3 className="font-semibold text-[var(--color-foreground)]">Pending Approvals</h3>
                             <span className="px-2 py-1 bg-[var(--color-warning)] text-white text-xs rounded-full">7 Pending</span>
@@ -229,7 +227,7 @@ export default function HODDashboard() {
                     </div>
 
                     {/* Faculty Performance Snapshot */}
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
+                    <div className="bg-[var(--color-card)] p-6 rounded-xl shadow-sm border border-[var(--color-border)]">
                         <div className="flex justify-between items-start mb-4">
                             <h3 className="font-semibold text-[var(--color-foreground)]">Faculty Performance</h3>
                             <TrendingUp size={20} className="text-[var(--color-success)]" />
@@ -276,7 +274,7 @@ export default function HODDashboard() {
                 </div>
 
                 {/* Recent Activity */}
-                <div className="bg-white rounded-xl shadow-sm border border-[var(--color-border)] p-6">
+                <div className="bg-[var(--color-card)] rounded-xl shadow-sm border border-[var(--color-border)] p-6">
                     <h3 className="text-lg font-bold text-[var(--color-foreground)] mb-6">Recent Activity</h3>
                     <div className="space-y-6">
                         <div className="flex gap-4">
@@ -309,6 +307,6 @@ export default function HODDashboard() {
                     </div>
                 </div>
             </main>
-        </div>
+        </PageLayout>
     );
 }

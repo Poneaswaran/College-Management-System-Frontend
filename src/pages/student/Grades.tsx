@@ -1,7 +1,7 @@
 import { TrendingUp, Award, BookOpen, Calendar, Download, Filter } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { DataTable } from '../../components/ui/DataTable';
 import type { Column } from '../../components/ui/DataTable';
 import { Select } from '../../components/ui/Select';
@@ -213,13 +213,11 @@ export default function Grades() {
     const performanceTrend = data?.gradeOverview?.performanceTrend || 'stable';
 
     return (
-        <div className="flex min-h-screen bg-[var(--color-background)]">
-            <Sidebar />
-            <div className="flex-1 ml-64">
-                <div className="p-8">
+        <PageLayout>
+            <div className="p-4 md:p-6 lg:p-8">
                     {/* Header */}
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-[var(--color-foreground)] mb-2">
+                    <div className="mb-6 md:mb-8">
+                        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)] mb-2">
                             Academic Grades
                         </h1>
                         <p className="text-[var(--color-muted-foreground)]">
@@ -439,7 +437,6 @@ export default function Grades() {
                     </>
                     )}
                 </div>
-            </div>
-        </div>
+        </PageLayout>
     );
 }

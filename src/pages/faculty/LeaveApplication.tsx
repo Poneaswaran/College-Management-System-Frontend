@@ -182,8 +182,8 @@ export default function LeaveApplication() {
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-slide-in-left">
                     <div>
-                        <h1 className="text-3xl md:text-4xl font-black text-[var(--color-foreground)] tracking-tight">Leave Application</h1>
-                        <p className="text-[var(--color-foreground-secondary)] mt-2 text-lg">Manage your leave requests and view remaining balances</p>
+                        <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[var(--color-foreground)] tracking-tight">Leave Application</h1>
+                        <p className="text-[var(--color-foreground-secondary)] mt-2 text-base md:text-lg">Manage your leave requests and view remaining balances</p>
                     </div>
                     <button
                         onClick={() => setIsApplyModalOpen(true)}
@@ -256,8 +256,8 @@ export default function LeaveApplication() {
 
                 {/* Apply Leave Modal */}
                 {isApplyModalOpen && (
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-                        <div className="bg-[var(--color-card)] rounded-2xl shadow-theme-xl border border-[var(--color-border)] max-w-md w-full flex flex-col animate-scale-in overflow-hidden">
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4 animate-fade-in">
+                        <div className="bg-[var(--color-card)] rounded-t-2xl sm:rounded-2xl shadow-theme-xl border border-[var(--color-border)] max-w-md w-full flex flex-col animate-scale-in overflow-hidden max-h-[90vh]">
                             {/* Header */}
                             <div className="px-6 py-5 border-b border-[var(--color-border)] flex items-center justify-between shrink-0 bg-gradient-to-r from-[var(--color-background-secondary)] to-transparent">
                                 <div>

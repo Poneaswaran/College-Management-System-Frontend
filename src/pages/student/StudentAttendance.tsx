@@ -11,7 +11,7 @@ import {
     Calendar,
     TrendingUp
 } from 'lucide-react';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { GET_ACTIVE_SESSIONS, GET_ALL_REPORTS } from '../../features/students/graphql/attendance';
 
 // Types
@@ -75,14 +75,12 @@ export default function StudentAttendance() {
         : '0';
 
     return (
-        <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
-            <Sidebar />
-
-            <main className="flex-1 ml-64 p-8">
+        <PageLayout>
+            <main className="p-4 md:p-6 lg:p-8">
                 {/* Page Header */}
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex flex-wrap justify-between items-center gap-3 mb-6 md:mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-[var(--color-foreground)]">Attendance</h1>
+                        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)]">Attendance</h1>
                         <p className="text-[var(--color-foreground-secondary)] mt-1">Track and mark your attendance</p>
                     </div>
                     <button
@@ -228,7 +226,7 @@ export default function StudentAttendance() {
                     </button>
                 </div>
             </main>
-        </div>
+        </PageLayout>
     );
 }
 

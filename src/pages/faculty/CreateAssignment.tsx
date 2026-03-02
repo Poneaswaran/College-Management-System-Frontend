@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { FormInput } from '../../components/ui/FormInput';
 import { Select } from '../../components/ui/Select';
 import { useAssignments, useAssignmentDropdowns } from '../../features/assignments/hooks';
@@ -246,9 +246,8 @@ export const CreateAssignment: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-[var(--color-background)]">
-      <Sidebar />
-      <div className="flex-1 ml-64 py-8 px-4">
+    <PageLayout>
+      <div className="py-6 px-4 md:py-8 md:px-6">
         <div className="max-w-4xl mx-auto">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-[var(--color-foreground)] mb-2">
@@ -503,7 +502,7 @@ export const CreateAssignment: React.FC = () => {
           </form>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

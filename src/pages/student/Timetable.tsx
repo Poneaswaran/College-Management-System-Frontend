@@ -1,7 +1,7 @@
 import { Calendar, Clock, MapPin, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { client } from '../../lib/graphql';
 import { getErrorMessage } from '../../lib/errorHandling';
 import { TIMETABLE_PAGE_QUERY } from '../../features/students/graphql/timetable';
@@ -84,10 +84,8 @@ export default function Timetable() {
     const periods = getUniquePeriods();
 
     return (
-        <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
-            <Sidebar />
-            
-            <main className="flex-1 ml-64 p-8">
+        <PageLayout>
+            <main className="p-4 md:p-6 lg:p-8">
                 {/* Loading State */}
                 {loading && (
                     <div className="flex items-center justify-center py-20">
@@ -107,10 +105,10 @@ export default function Timetable() {
                 {!loading && !error && data && (
                 <>
                 {/* Header */}
-                <div className="mb-8">
-                    <div className="flex items-center justify-between mb-4">
+                <div className="mb-6 md:mb-8">
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-[var(--color-foreground)]">Weekly Timetable</h1>
+                            <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)]">Weekly Timetable</h1>
                             <p className="text-[var(--color-foreground-secondary)] mt-2">
                                 Your class schedule for the current semester
                             </p>
@@ -124,7 +122,7 @@ export default function Timetable() {
                     </div>
 
                     {/* Legend */}
-                    <div className="flex items-center gap-6 p-4 bg-[var(--color-card)] rounded-lg border border-[var(--color-border)]">
+                    <div className="flex flex-wrap items-center gap-4 md:gap-6 p-4 bg-[var(--color-card)] rounded-lg border border-[var(--color-border)]">
                         <span className="text-sm font-medium text-[var(--color-foreground-secondary)]">Class Types:</span>
                         <div className="flex items-center gap-2">
                             <div className="w-4 h-4 rounded bg-blue-500/20 border-2 border-blue-500"></div>
@@ -250,6 +248,6 @@ export default function Timetable() {
                 </>
                 )}
             </main>
-        </div>
+        </PageLayout>
     );
 }

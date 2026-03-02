@@ -1,7 +1,7 @@
 import { BookOpen, Clock, User, TrendingUp, FileText, Calendar } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { client } from '../../lib/graphql';
 import { getErrorMessage } from '../../lib/errorHandling';
 import { COURSES_PAGE_QUERY } from '../../features/students/graphql/courses';
@@ -72,13 +72,11 @@ export default function StudentCourses() {
     };
 
     return (
-        <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
-            <Sidebar />
-
-            <main className="flex-1 ml-64 p-8">
+        <PageLayout>
+            <main className="p-4 md:p-6 lg:p-8">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-[var(--color-foreground)] mb-2">My Courses</h1>
+                <div className="mb-6 md:mb-8">
+                    <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)] mb-2">My Courses</h1>
                     <p className="text-[var(--color-muted-foreground)]">View and manage your enrolled courses</p>
                 </div>
 
@@ -278,6 +276,6 @@ export default function StudentCourses() {
                 </>
                 )}
             </main>
-        </div>
+        </PageLayout>
     );
 }

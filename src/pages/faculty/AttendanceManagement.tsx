@@ -14,7 +14,7 @@ import {
     RefreshCw,
     Timer,
 } from 'lucide-react';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { Select } from '../../components/ui/Select';
 import {
     fetchFacultySessionsToday,
@@ -253,14 +253,12 @@ export default function AttendanceManagement() {
     // ============================================
 
     return (
-        <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
-            <Sidebar />
-
-            <main className="flex-1 ml-64 p-8">
+        <PageLayout>
+            <main className="p-4 md:p-6 lg:p-8">
                 {/* Page Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex flex-wrap items-start justify-between gap-3 mb-6 md:mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-[var(--color-foreground)]">
+                        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)]">
                             Attendance Management
                         </h1>
                         <p className="text-[var(--color-foreground-muted)] mt-1">
@@ -333,8 +331,7 @@ export default function AttendanceManagement() {
                 </div>
 
                 {/* Main Content: Sessions List + Detail */}
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                    {/* Sessions List */}
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">                    {/* Sessions List */}
                     <div className="lg:col-span-2 space-y-4">
                         <h2 className="text-lg font-bold text-[var(--color-foreground)] mb-2">
                             Today's Sessions
@@ -680,8 +677,8 @@ export default function AttendanceManagement() {
                 {/* BLOCK SESSION MODAL */}
                 {/* ============================================ */}
                 {showBlockModal && (
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-                        <div className="bg-[var(--color-card)] rounded-2xl border border-[var(--color-border)] p-6 w-full max-w-md shadow-2xl">
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4">
+                        <div className="bg-[var(--color-card)] rounded-2xl border border-[var(--color-border)] p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
                             <h3 className="text-lg font-bold text-[var(--color-foreground)] mb-1">
                                 Cancel Session
                             </h3>
@@ -723,8 +720,8 @@ export default function AttendanceManagement() {
                 {/* MANUAL MARK MODAL */}
                 {/* ============================================ */}
                 {showManualMarkModal && manualMarkStudent && (
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-                        <div className="bg-[var(--color-card)] rounded-2xl border border-[var(--color-border)] p-6 w-full max-w-md shadow-2xl">
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4">
+                        <div className="bg-[var(--color-card)] rounded-2xl border border-[var(--color-border)] p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto">
                             <h3 className="text-lg font-bold text-[var(--color-foreground)] mb-1">
                                 Manual Mark Attendance
                             </h3>
@@ -786,6 +783,6 @@ export default function AttendanceManagement() {
                     </div>
                 )}
             </main>
-        </div>
+        </PageLayout>
     );
 }

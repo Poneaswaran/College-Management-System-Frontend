@@ -21,6 +21,7 @@ export default {
                 'slide-in-right': 'slideInRight 0.6s ease-out',
                 'scale-in': 'scaleIn 0.6s ease-out',
                 'neon-glow': 'neonGlow 2s ease-in-out infinite',
+                'select-panel': 'selectPanel 0.15s ease-out',
             },
             keyframes: {
                 fadeIn: {
@@ -42,6 +43,10 @@ export default {
                 scaleIn: {
                     from: { opacity: '0', transform: 'scale(0.95)' },
                     to: { opacity: '1', transform: 'scale(1)' },
+                },
+                selectPanel: {
+                    from: { opacity: '0', transform: 'scaleY(0.92) translateY(-4px)' },
+                    to: { opacity: '1', transform: 'scaleY(1) translateY(0)' },
                 },
                 neonGlow: {
                     '0%, 100%': { 

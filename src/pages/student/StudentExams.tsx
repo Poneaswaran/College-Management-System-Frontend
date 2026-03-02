@@ -21,7 +21,7 @@ export default function StudentExams() {
 
     return (
         <PageLayout>
-            <div className="p-8 max-w-7xl mx-auto space-y-6">
+            <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
                 <div>
                     <h1 className="text-3xl font-bold text-[var(--color-foreground)]">My Exams</h1>
                     <p className="text-[var(--color-foreground-muted)]">View upcoming exams, download hall tickets, and check your results.</p>

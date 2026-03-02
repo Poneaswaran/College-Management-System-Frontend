@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { useTheme } from '../../theme';
 import { client } from '../../lib/graphql';
 import { getErrorMessage } from '../../lib/errorHandling';
@@ -102,14 +102,12 @@ export default function StudentDashboard() {
     const profilePhotoUrl = getMediaUrl(dashboardData?.profilePhotoUrl);
 
     return (
-        <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
-            <Sidebar />
-
-            <main className="flex-1 ml-64 p-8">
+        <PageLayout>
+            <main className="p-4 md:p-6 lg:p-8">
                 {/* Dashboard Header */}
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-[var(--color-foreground)]">Student Dashboard</h1>
-                    <div className="flex items-center gap-4">
+                <div className="flex flex-wrap justify-between items-center gap-3 mb-6 md:mb-8">
+                    <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)]">Student Dashboard</h1>
+                    <div className="flex items-center gap-3">
                         {/* Theme Toggle Button */}
                         <button
                             onClick={toggleTheme}
@@ -123,8 +121,8 @@ export default function StudentDashboard() {
                             <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--color-error)] rounded-full border-2 border-[var(--color-background)]"></span>
                         </button>
                         <NotificationBell />
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-[var(--color-background-tertiary)] px-3 py-1.5 rounded-lg transition-colors">
-                            <div className="w-8 h-8 rounded-full bg-[var(--color-primary-light)] text-white flex items-center justify-center font-bold overflow-hidden">
+                        <div className="flex items-center gap-2 cursor-pointer hover:bg-[var(--color-background-tertiary)] px-2 py-1.5 rounded-lg transition-colors">
+                            <div className="w-8 h-8 rounded-full bg-[var(--color-primary-light)] text-white flex items-center justify-center font-bold overflow-hidden shrink-0">
                                 {profilePhotoUrl ? (
                                     <img
                                         src={profilePhotoUrl}
@@ -135,10 +133,10 @@ export default function StudentDashboard() {
                                     dashboardData?.studentName?.charAt(0) || <User size={20} />
                                 )}
                             </div>
-                            <span className="text-sm font-medium text-[var(--color-foreground)]">
+                            <span className="hidden sm:block text-sm font-medium text-[var(--color-foreground)] max-w-[120px] truncate">
                                 {dashboardData?.studentName || 'Student'}
                             </span>
-                            <ChevronDown size={16} className="text-[var(--color-foreground-muted)]" />
+                            <ChevronDown size={16} className="text-[var(--color-foreground-muted)] shrink-0" />
                         </div>
                     </div>
                 </div>
@@ -430,6 +428,6 @@ export default function StudentDashboard() {
                 )}
 
             </main>
-        </div>
+        </PageLayout>
     );
 }

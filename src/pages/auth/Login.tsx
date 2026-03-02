@@ -88,7 +88,7 @@ export default function Login() {
             </header>
 
             {/* Main Content */}
-            <main className="flex-1 flex items-center justify-center px-4 md:px-6 pb-20 relative z-10">
+            <main className="flex-1 flex items-center justify-center px-4 md:px-6 pb-8 md:pb-20 relative z-10">
                 <div className="w-full max-w-md">
                     {/* Title Section */}
                     <div className="mb-8 text-center md:text-left animate-slide-up">

@@ -11,7 +11,7 @@ import {
     MapPin,
     AlertCircle
 } from 'lucide-react';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { MARK_ATTENDANCE, GET_ACTIVE_SESSIONS } from '../../features/students/graphql/attendance';
 import { convertToWebP, getBase64Size } from '../../lib/imageCompression';
 
@@ -155,10 +155,8 @@ export default function MarkAttendance() {
     }
 
     return (
-        <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
-            <Sidebar />
-
-            <main className="flex-1 ml-64 p-8">
+        <PageLayout>
+            <main className="p-4 md:p-6 lg:p-8">
                 {/* Back Button */}
                 <button
                     onClick={() => navigate('/student/attendance')}
@@ -330,6 +328,6 @@ export default function MarkAttendance() {
                     </div>
                 </div>
             </main>
-        </div>
+        </PageLayout>
     );
 }

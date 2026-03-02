@@ -1,222 +1,798 @@
-import { useState } from 'react';
-
+import { useState, useRef } from 'react';
 import {
-    Folder,
-    FileText,
-    Download,
     Upload,
-    MoreVertical,
-    Clock
+    FileText,
+    Eye,
+    Download,
+    Pencil,
+    Trash2,
+    BarChart2,
+    Plus,
+    X,
+    Search,
+    ChevronDown,
+    AlertTriangle,
+    CheckCircle,
+    Clock,
+    Archive,
+    BookOpen,
+    Layers,
+    TrendingUp,
 } from 'lucide-react';
-import Sidebar from '../../components/layout/Sidebar';
-import { SearchInput } from '../../components/ui/SearchInput';
-import { Select } from '../../components/ui/Select';
-import { FilterBar } from '../../components/ui/FilterBar';
+import PageLayout from '../../components/layout/PageLayout';
+import { useFacultyMaterials } from '../../features/faculty/hooks/studyMaterials';
+import type { UploadMaterialInput, UpdateMaterialInput, StudyMaterial, MaterialType, MaterialStatus } from '../../features/faculty/types/studyMaterials';
+import { MATERIAL_TYPE_LABELS, MATERIAL_STATUS_LABELS, ALLOWED_EXTENSIONS, MAX_FILE_SIZE_MB } from '../../features/faculty/types/studyMaterials';
+import { useToast } from '../../components/ui/Toast';
 
-// Mock Data
-const MOCK_MATERIALS = [
-    {
-        id: 1,
-        title: 'Advanced Data Structures - Lecture Notes',
-        subject: 'Data Structures and Algorithms',
-        type: 'PDF',
-        size: '2.4 MB',
-        date: '2023-10-15',
-        downloads: 45,
-        status: 'Published'
-    },
-    {
-        id: 2,
-        title: 'Database Management Systems - Lab Manual',
-        subject: 'Database Systems',
-        type: 'DOCX',
-        size: '1.8 MB',
-        date: '2023-10-12',
-        downloads: 32,
-        status: 'Published'
-    },
-    {
-        id: 3,
-        title: 'Software Engineering - Unit 3 Question Bank',
-        subject: 'Software Engineering',
-        type: 'PDF',
-        size: '450 KB',
-        date: '2023-10-10',
-        downloads: 128,
-        status: 'Published'
-    },
-    {
-        id: 4,
-        title: 'Operating Systems - Process Scheduling',
-        subject: 'Operating Systems',
-        type: 'PPTX',
-        size: '5.2 MB',
-        date: '2023-10-08',
-        downloads: 15,
-        status: 'Draft'
-    },
-    {
-        id: 5,
-        title: 'Computer Networks - OSI Model Diagram',
-        subject: 'Computer Networks',
-        type: 'PNG',
-        size: '1.1 MB',
-        date: '2023-10-05',
-        downloads: 89,
-        status: 'Published'
-    },
-    {
-        id: 6,
-        title: 'Web Development - HTML/CSS Cheatsheet',
-        subject: 'Web Technologies',
-        type: 'PDF',
-        size: '890 KB',
-        date: '2023-10-01',
-        downloads: 210,
-        status: 'Published'
-    }
-];
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const StudyMaterials = () => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterType, setFilterType] = useState('All');
+function formatDate(dateStr: string | null): string {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
 
-    const FILE_TYPE_OPTIONS = [
-        { value: 'All', label: 'All Types' },
-        { value: 'PDF', label: 'PDF Documents' },
-        { value: 'DOCX', label: 'Word Documents' },
-        { value: 'PPTX', label: 'Presentations' },
-        { value: 'PNG', label: 'Images' },
-    ];
+function formatSize(mb: number | null): string {
+    if (!mb) return '—';
+    return mb >= 1 ? `${mb.toFixed(1)} MB` : `${(mb * 1024).toFixed(0)} KB`;
+}
 
-    const filteredMaterials = MOCK_MATERIALS.filter(item => {
-        const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            item.subject.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesFilter = filterType === 'All' || item.type === filterType;
-        return matchesSearch && matchesFilter;
-    });
+const TYPE_COLORS: Record<MaterialType, string> = {
+    NOTES: 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] border-[var(--color-primary)]/30',
+    SLIDES: 'bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border-[var(--color-secondary)]/30',
+    REFERENCE: 'bg-[var(--color-warning-light)] text-[var(--color-warning)] border-[var(--color-warning)]/30',
+    BOOK: 'bg-[var(--color-success-light)] text-[var(--color-success)] border-[var(--color-success)]/30',
+    PAPER: 'bg-purple-100 text-purple-700 border-purple-200',
+    TUTORIAL: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+    OTHER: 'bg-[var(--color-surface-elevated)] text-[var(--color-muted)] border-[var(--color-border)]',
+};
 
-    const getFileIcon = (type: string) => {
-        switch (type) {
-            case 'PDF': return <FileText className="text-red-500" />;
-            case 'DOCX': return <FileText className="text-blue-500" />;
-            case 'PPTX': return <FileText className="text-orange-500" />;
-            case 'PNG': return <FileText className="text-purple-500" />;
-            default: return <FileText className="text-gray-500" />;
-        }
+const STATUS_CONFIG: Record<MaterialStatus, { label: string; className: string; icon: React.ReactNode }> = {
+    PUBLISHED: {
+        label: 'Published',
+        className: 'bg-[var(--color-success-light)] text-[var(--color-success)] border-[var(--color-success)]/30',
+        icon: <CheckCircle size={11} />,
+    },
+    DRAFT: {
+        label: 'Draft',
+        className: 'bg-[var(--color-warning-light)] text-[var(--color-warning)] border-[var(--color-warning)]/30',
+        icon: <Clock size={11} />,
+    },
+    ARCHIVED: {
+        label: 'Archived',
+        className: 'bg-[var(--color-surface-elevated)] text-[var(--color-muted)] border-[var(--color-border)]',
+        icon: <Archive size={11} />,
+    },
+};
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function StatusBadge({ status }: { status: MaterialStatus }) {
+    const cfg = STATUS_CONFIG[status];
+    return (
+        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${cfg.className}`}>
+            {cfg.icon}
+            {cfg.label}
+        </span>
+    );
+}
+
+function TypeBadge({ type }: { type: MaterialType }) {
+    return (
+        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border ${TYPE_COLORS[type]}`}>
+            {MATERIAL_TYPE_LABELS[type]}
+        </span>
+    );
+}
+
+// ─── File Drop Zone ───────────────────────────────────────────────────────────
+
+interface FileZoneProps {
+    file: File | null;
+    onFile: (f: File | null) => void;
+    required?: boolean;
+}
+
+function FileDropZone({ file, onFile, required }: FileZoneProps) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [dragOver, setDragOver] = useState(false);
+    const [fileError, setFileError] = useState<string | null>(null);
+
+    const validate = (f: File): string | null => {
+        const ext = '.' + f.name.split('.').pop()?.toLowerCase();
+        if (!(ALLOWED_EXTENSIONS as readonly string[]).includes(ext)) return `File type ${ext} is not allowed.`;
+        if (f.size / 1024 / 1024 > MAX_FILE_SIZE_MB) return `File size must be under ${MAX_FILE_SIZE_MB} MB.`;
+        return null;
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setDragOver(false);
+        const f = e.dataTransfer.files[0];
+        if (!f) return;
+        const err = validate(f);
+        setFileError(err);
+        if (!err) onFile(f);
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const f = e.target.files?.[0];
+        if (!f) return;
+        const err = validate(f);
+        setFileError(err);
+        if (!err) onFile(f);
     };
 
     return (
-        <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
-            <Sidebar />
-
-            <main className="flex-1 ml-64 p-8">
-                <div className="space-y-6 animate-fade-in">
-                    {/* Header Section */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                            <h1 className="text-2xl font-bold text-[var(--color-foreground)]">Study Materials</h1>
-                            <p className="text-[var(--color-foreground-muted)]">Manage and distribute course resources to students</p>
+        <div>
+            <div
+                className={`relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
+                    dragOver
+                        ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5'
+                        : 'border-[var(--color-border)] hover:border-[var(--color-primary)]/50 bg-[var(--color-surface-elevated)]'
+                }`}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+                onClick={() => inputRef.current?.click()}
+            >
+                <input
+                    ref={inputRef}
+                    type="file"
+                    className="hidden"
+                    accept={ALLOWED_EXTENSIONS.join(',')}
+                    onChange={handleChange}
+                />
+                {file ? (
+                    <div className="flex items-center justify-center gap-3">
+                        <FileText size={20} className="text-[var(--color-primary)]" />
+                        <div className="text-left">
+                            <p className="text-sm font-semibold text-[var(--color-foreground)]">{file.name}</p>
+                            <p className="text-xs text-[var(--color-muted)]">{formatSize(file.size / 1024 / 1024)}</p>
                         </div>
-
-                        <button className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors shadow-md">
-                            <Upload />
-                            <span>Upload Material</span>
+                        <button
+                            type="button"
+                            className="ml-2 text-[var(--color-muted)] hover:text-[var(--color-error)]"
+                            onClick={(e) => { e.stopPropagation(); onFile(null); setFileError(null); }}
+                        >
+                            <X size={14} />
                         </button>
                     </div>
-
-                    {/* Filters and Search — Using shared components */}
-                    <FilterBar>
-                        <SearchInput
-                            value={searchTerm}
-                            onChange={setSearchTerm}
-                            placeholder="Search materials by title or subject..."
-                            wrapperClassName="flex-1"
-                        />
-                        <FilterBar.Actions>
-                            <Select
-                                value={filterType}
-                                onChange={setFilterType}
-                                options={FILE_TYPE_OPTIONS}
-                            />
-                        </FilterBar.Actions>
-                    </FilterBar>
-
-                    {/* Materials Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredMaterials.map((item) => (
-                            <div
-                                key={item.id}
-                                className="group relative bg-[var(--color-card)] rounded-xl border border-[var(--color-border)] p-5 hover:shadow-lg transition-all duration-300 hover:border-[var(--color-primary)] overflow-hidden"
-                            >
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-3 rounded-lg bg-[var(--color-background-secondary)] text-2xl group-hover:scale-110 transition-transform">
-                                            {getFileIcon(item.type)}
-                                        </div>
-                                        <div>
-                                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[var(--color-background-secondary)] text-[var(--color-foreground-muted)]">
-                                                {item.type}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <button className="text-[var(--color-foreground-muted)] hover:text-[var(--color-foreground)]">
-                                        <MoreVertical />
-                                    </button>
-                                </div>
-
-                                <h3 className="text-lg font-semibold text-[var(--color-foreground)] mb-1 line-clamp-1" title={item.title}>
-                                    {item.title}
-                                </h3>
-                                <p className="text-sm text-[var(--color-foreground-muted)] mb-4">{item.subject}</p>
-
-                                <div className="flex items-center justify-between text-xs text-[var(--color-foreground-muted)] border-t border-[var(--color-border)] pt-4">
-                                    <div className="flex items-center gap-1">
-                                        <Clock className="w-4 h-4" />
-                                        <span>{item.date}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <Download className="w-4 h-4" />
-                                        <span>{item.downloads} downloads</span>
-                                    </div>
-                                    <div>
-                                        <span className={`px-2 py-1 rounded-full text-[10px] font-medium ${item.status === 'Published'
-                                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                            : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                                            }`}>
-                                            {item.status}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                {/* Hover Overlay Action */}
-                                <div className="absolute inset-x-0 bottom-0 p-4 bg-[var(--color-card)]/95 backdrop-blur-sm rounded-b-xl border-t border-[var(--color-border)] translate-y-full group-hover:translate-y-0 transition-transform duration-300 flex justify-between opacity-0 group-hover:opacity-100">
-                                    <button className="flex-1 text-sm font-medium text-[var(--color-foreground)] hover:text-[var(--color-primary)] transition-colors">
-                                        Preview
-                                    </button>
-                                    <div className="w-px bg-[var(--color-border)] mx-2"></div>
-                                    <button className="flex-1 text-sm font-medium text-[var(--color-foreground)] hover:text-[var(--color-primary)] transition-colors">
-                                        Download
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {filteredMaterials.length === 0 && (
-                        <div className="text-center py-12">
-                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[var(--color-background-secondary)] text-[var(--color-foreground-muted)] mb-4">
-                                <Folder className="text-3xl w-8 h-8" />
-                            </div>
-                            <h3 className="text-xl font-medium text-[var(--color-foreground)]">No materials found</h3>
-                            <p className="text-[var(--color-foreground-muted)] mt-1">Try adjusting your search or filters</p>
-                        </div>
-                    )}
-
-                </div>
-            </main>
+                ) : (
+                    <>
+                        <Upload size={24} className="mx-auto mb-2 text-[var(--color-muted)]" />
+                        <p className="text-sm text-[var(--color-foreground)] font-medium">
+                            Drag & drop or <span className="text-[var(--color-primary)]">browse</span>
+                        </p>
+                        <p className="text-xs text-[var(--color-muted)] mt-1">
+                            PDF, DOCX, PPTX, XLSX, ZIP, images, video · max {MAX_FILE_SIZE_MB} MB
+                        </p>
+                    </>
+                )}
+            </div>
+            {fileError && (
+                <p className="mt-1 text-xs text-[var(--color-error)] flex items-center gap-1">
+                    <AlertTriangle size={11} /> {fileError}
+                </p>
+            )}
+            {required && !file && !fileError && (
+                <p className="mt-1 text-xs text-[var(--color-muted)]">A file is required.</p>
+            )}
         </div>
     );
-};
+}
 
-export default StudyMaterials;
+// ─── Upload / Edit Modal ───────────────────────────────────────────────────────
+
+interface MaterialModalProps {
+    mode: 'upload' | 'edit';
+    material?: StudyMaterial | null;
+    assignments: Array<{ subject_id: number; subject_name: string; subject_code: string; section_id: number; section_name: string }>;
+    onSubmit: (input: UploadMaterialInput | UpdateMaterialInput) => Promise<boolean>;
+    onClose: () => void;
+}
+
+function MaterialModal({ mode, material, assignments, onSubmit, onClose }: MaterialModalProps) {
+    const [title, setTitle] = useState(material?.title ?? '');
+    const [description, setDescription] = useState(material?.description ?? '');
+    const [materialType, setMaterialType] = useState<MaterialType>(material?.material_type ?? 'NOTES');
+    const [status, setStatus] = useState<MaterialStatus>(material?.status ?? 'DRAFT');
+    const [selectedSubjectId, setSelectedSubjectId] = useState<number>(material?.subject.id ?? (assignments[0]?.subject_id ?? 0));
+    const [selectedSectionId, setSelectedSectionId] = useState<number>(material?.section.id ?? (assignments[0]?.section_id ?? 0));
+    const [file, setFile] = useState<File | null>(null);
+    const [submitting, setSubmitting] = useState(false);
+
+    const uniqueSubjects = assignments.filter(
+        (a, i, arr) => arr.findIndex((x) => x.subject_id === a.subject_id) === i,
+    );
+    const sectionsForSubject = assignments.filter((a) => a.subject_id === selectedSubjectId);
+
+    const handleSubjectChange = (subjectId: number) => {
+        setSelectedSubjectId(subjectId);
+        const firstSection = assignments.find((a) => a.subject_id === subjectId);
+        if (firstSection) setSelectedSectionId(firstSection.section_id);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!title.trim()) return;
+        if (mode === 'upload' && !file) return;
+
+        setSubmitting(true);
+        let success: boolean;
+        if (mode === 'upload') {
+            const reader = new FileReader();
+            const fileData = await new Promise<string>((resolve) => {
+                reader.onload = () => resolve(reader.result as string);
+                reader.readAsDataURL(file!);
+            });
+            success = await onSubmit({
+                subject_id: selectedSubjectId,
+                section_id: selectedSectionId,
+                title: title.trim(),
+                description: description.trim(),
+                material_type: materialType,
+                file_data: fileData,
+                file_name: file!.name,
+                status,
+            } as UploadMaterialInput);
+        } else {
+            const input: UpdateMaterialInput = {
+                id: material!.id,
+                title: title.trim(),
+                description: description.trim(),
+                material_type: materialType,
+                status,
+            };
+            if (file) {
+                const reader = new FileReader();
+                const fileData = await new Promise<string>((resolve) => {
+                    reader.onload = () => resolve(reader.result as string);
+                    reader.readAsDataURL(file);
+                });
+                input.file_data = fileData;
+                input.file_name = file.name;
+            }
+            success = await onSubmit(input);
+        }
+        if (!success) setSubmitting(false);
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-theme-xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-scale-in">
+                <div className="flex items-center justify-between p-5 border-b border-[var(--color-border)]">
+                    <h2 className="text-lg font-bold text-[var(--color-foreground)]">
+                        {mode === 'upload' ? 'Upload New Material' : 'Edit Material'}
+                    </h2>
+                    <button onClick={onClose} className="text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">
+                        <X size={20} />
+                    </button>
+                </div>
+                <form onSubmit={(e) => { void handleSubmit(e); }} className="p-5 space-y-4">
+                    {/* Title */}
+                    <div>
+                        <label className="block text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wider mb-1">
+                            Title <span className="text-[var(--color-error)]">*</span>
+                        </label>
+                        <input
+                            className="input w-full"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="e.g. Unit 3 – Sorting Algorithms"
+                            required
+                        />
+                    </div>
+                    {/* Description */}
+                    <div>
+                        <label className="block text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wider mb-1">Description</label>
+                        <textarea
+                            className="input w-full resize-none"
+                            rows={3}
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Brief description of the material…"
+                        />
+                    </div>
+                    {/* Subject + Section (upload only) */}
+                    {mode === 'upload' && (
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wider mb-1">
+                                    Subject <span className="text-[var(--color-error)]">*</span>
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        className="input w-full appearance-none pr-8"
+                                        value={selectedSubjectId}
+                                        onChange={(e) => handleSubjectChange(Number(e.target.value))}
+                                    >
+                                        {uniqueSubjects.map((a) => (
+                                            <option key={a.subject_id} value={a.subject_id}>
+                                                {a.subject_code}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-muted)] pointer-events-none" />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wider mb-1">
+                                    Section <span className="text-[var(--color-error)]">*</span>
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        className="input w-full appearance-none pr-8"
+                                        value={selectedSectionId}
+                                        onChange={(e) => setSelectedSectionId(Number(e.target.value))}
+                                    >
+                                        {sectionsForSubject.map((a) => (
+                                            <option key={a.section_id} value={a.section_id}>
+                                                {a.section_name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-muted)] pointer-events-none" />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {/* Type + Status */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="block text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wider mb-1">Type</label>
+                            <div className="relative">
+                                <select
+                                    className="input w-full appearance-none pr-8"
+                                    value={materialType}
+                                    onChange={(e) => setMaterialType(e.target.value as MaterialType)}
+                                >
+                                    {(Object.keys(MATERIAL_TYPE_LABELS) as MaterialType[]).map((t) => (
+                                        <option key={t} value={t}>{MATERIAL_TYPE_LABELS[t]}</option>
+                                    ))}
+                                </select>
+                                <ChevronDown size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-muted)] pointer-events-none" />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wider mb-1">Status</label>
+                            <div className="flex gap-2 mt-1">
+                                {(['DRAFT', 'PUBLISHED'] as MaterialStatus[]).map((s) => (
+                                    <button
+                                        key={s}
+                                        type="button"
+                                        onClick={() => setStatus(s)}
+                                        className={`flex-1 py-1.5 text-xs font-semibold rounded border transition-all ${
+                                            status === s
+                                                ? s === 'PUBLISHED'
+                                                    ? 'bg-[var(--color-success-light)] text-[var(--color-success)] border-[var(--color-success)]'
+                                                    : 'bg-[var(--color-warning-light)] text-[var(--color-warning)] border-[var(--color-warning)]'
+                                                : 'bg-transparent text-[var(--color-muted)] border-[var(--color-border)] hover:border-[var(--color-primary)]/50'
+                                        }`}
+                                    >
+                                        {MATERIAL_STATUS_LABELS[s]}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    {/* File */}
+                    <div>
+                        <label className="block text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wider mb-1">
+                            {mode === 'upload' ? 'File' : 'Replace File'} {mode === 'upload' && <span className="text-[var(--color-error)]">*</span>}
+                        </label>
+                        <FileDropZone file={file} onFile={setFile} required={mode === 'upload'} />
+                    </div>
+                    {/* Footer */}
+                    <div className="flex justify-end gap-3 pt-2">
+                        <button type="button" onClick={onClose} className="btn btn-outline btn-md">Cancel</button>
+                        <button
+                            type="submit"
+                            disabled={submitting || (mode === 'upload' && !file) || !title.trim()}
+                            className="btn btn-primary btn-md"
+                        >
+                            {submitting ? 'Saving…' : mode === 'upload' ? 'Upload' : 'Save Changes'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+// ─── Stats Modal ───────────────────────────────────────────────────────────────
+
+interface StatsModalProps {
+    material: StudyMaterial;
+    stats: import('../../features/faculty/types/studyMaterials').MaterialStats | null;
+    loading: boolean;
+    onClose: () => void;
+}
+
+function StatsModal({ material, stats, loading, onClose }: StatsModalProps) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+            <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-theme-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scale-in">
+                <div className="flex items-center justify-between p-5 border-b border-[var(--color-border)]">
+                    <div>
+                        <h2 className="text-lg font-bold text-[var(--color-foreground)]">Material Statistics</h2>
+                        <p className="text-sm text-[var(--color-muted)] mt-0.5">{material.title}</p>
+                    </div>
+                    <button onClick={onClose} className="text-[var(--color-muted)] hover:text-[var(--color-foreground)] transition-colors">
+                        <X size={20} />
+                    </button>
+                </div>
+                <div className="p-5">
+                    {loading ? (
+                        <div className="space-y-3">
+                            {[1, 2, 3].map((i) => (
+                                <div key={i} className="h-10 bg-[var(--color-surface-elevated)] rounded animate-pulse" />
+                            ))}
+                        </div>
+                    ) : stats ? (
+                        <>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+                                {[
+                                    { label: 'Total Downloads', value: stats.total_downloads, icon: <Download size={16} /> },
+                                    { label: 'Unique Downloads', value: stats.unique_downloads, icon: <Download size={16} /> },
+                                    { label: 'Total Views', value: stats.total_views, icon: <Eye size={16} /> },
+                                    { label: 'Unique Views', value: stats.unique_views, icon: <Eye size={16} /> },
+                                ].map((stat) => (
+                                    <div key={stat.label} className="bg-[var(--color-surface-elevated)] border border-[var(--color-border)] rounded-lg p-3 text-center">
+                                        <div className="text-[var(--color-primary)] mb-1 flex justify-center">{stat.icon}</div>
+                                        <div className="text-xl font-bold text-[var(--color-foreground)]">{stat.value}</div>
+                                        <div className="text-xs text-[var(--color-muted)] mt-0.5">{stat.label}</div>
+                                    </div>
+                                ))}
+                            </div>
+                            <h3 className="text-sm font-semibold text-[var(--color-muted)] uppercase tracking-wider mb-3">Recent Downloads</h3>
+                            {stats.recent_downloads.length === 0 ? (
+                                <p className="text-sm text-[var(--color-muted)] text-center py-4">No downloads yet.</p>
+                            ) : (
+                                <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
+                                    <table className="w-full text-sm">
+                                        <thead className="bg-[var(--color-surface-elevated)] border-b border-[var(--color-border)]">
+                                            <tr>
+                                                {['Student', 'Roll No.', 'Downloaded At', 'IP Address'].map((h) => (
+                                                    <th key={h} className="text-left px-4 py-2.5 text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wider">{h}</th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-[var(--color-border)]">
+                                            {stats.recent_downloads.map((rec) => (
+                                                <tr key={rec.id} className="hover:bg-[var(--color-surface-elevated)] transition-colors">
+                                                    <td className="px-4 py-2.5 font-medium text-[var(--color-foreground)]">{rec.student_name}</td>
+                                                    <td className="px-4 py-2.5 text-[var(--color-muted)] font-mono text-xs">{rec.student_roll_number}</td>
+                                                    <td className="px-4 py-2.5 text-[var(--color-muted)]">{formatDate(rec.downloaded_at)}</td>
+                                                    <td className="px-4 py-2.5 text-[var(--color-muted)] font-mono text-xs">{rec.ip_address}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <p className="text-sm text-[var(--color-error)] text-center py-4">Failed to load statistics.</p>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ─── Delete Confirm Row ───────────────────────────────────────────────────────
+
+interface DeleteConfirmProps {
+    onConfirm: () => void;
+    onCancel: () => void;
+}
+
+function DeleteConfirmBar({ onConfirm, onCancel }: DeleteConfirmProps) {
+    return (
+        <td colSpan={8} className="px-4 py-3 bg-[var(--color-error-light)] border-t border-b border-[var(--color-error)]/30">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-sm text-[var(--color-error)] font-medium">
+                    <AlertTriangle size={14} />
+                    This action is permanent. Are you sure you want to delete this material?
+                </div>
+                <div className="flex items-center gap-2">
+                    <button onClick={onCancel} className="btn btn-outline btn-md text-xs px-3 py-1.5">Cancel</button>
+                    <button onClick={onConfirm} className="text-xs px-3 py-1.5 rounded font-semibold bg-[var(--color-error)] text-white hover:opacity-90 transition-opacity">
+                        Yes, Delete
+                    </button>
+                </div>
+            </div>
+        </td>
+    );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
+export default function StudyMaterials() {
+    const { addToast } = useToast();
+    const {
+        materials,
+        allMaterials,
+        assignments,
+        loading,
+        error,
+        refresh,
+        showUploadModal,
+        showEditModal,
+        showStatsModal,
+        selectedMaterial,
+        stats,
+        statsLoading,
+        deleteConfirmId,
+        setShowUploadModal,
+        setDeleteConfirmId,
+        closeModals,
+        statusFilter,
+        setStatusFilter,
+        typeFilter,
+        setTypeFilter,
+        searchQuery,
+        setSearchQuery,
+        handleUpload,
+        handleUpdate,
+        handleDelete,
+        openStatsModal,
+        openEditModal,
+    } = useFacultyMaterials();
+
+    const onUpload = async (input: UploadMaterialInput | UpdateMaterialInput) => {
+        const ok = await handleUpload(input as UploadMaterialInput);
+        if (ok) addToast({ title: 'Success', message: 'Material uploaded successfully.', type: 'success' });
+        else addToast({ title: 'Error', message: 'Upload failed. Please try again.', type: 'error' });
+        return ok;
+    };
+
+    const onUpdate = async (input: UploadMaterialInput | UpdateMaterialInput) => {
+        const ok = await handleUpdate(input as UpdateMaterialInput);
+        if (ok) addToast({ title: 'Success', message: 'Material updated.', type: 'success' });
+        else addToast({ title: 'Error', message: 'Update failed. Please try again.', type: 'error' });
+        return ok;
+    };
+
+    const onDelete = async (id: number) => {
+        const ok = await handleDelete(id);
+        if (ok) addToast({ title: 'Success', message: 'Material deleted.', type: 'success' });
+        else addToast({ title: 'Error', message: 'Delete failed. Please try again.', type: 'error' });
+    };
+
+    // Summary stats
+    const totalDownloads = allMaterials.reduce((s, m) => s + m.download_count, 0);
+    const totalViews = allMaterials.reduce((s, m) => s + m.view_count, 0);
+
+    const STATUS_TABS: Array<{ key: string; label: string }> = [
+        { key: '', label: 'All' },
+        { key: 'PUBLISHED', label: 'Published' },
+        { key: 'DRAFT', label: 'Draft' },
+        { key: 'ARCHIVED', label: 'Archived' },
+    ];
+
+    return (
+        <PageLayout>
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                {[
+                    { label: 'Total Uploaded', value: allMaterials.length, icon: <BookOpen size={20} />, color: 'text-[var(--color-primary)]', bg: 'bg-[var(--color-primary)]/10' },
+                    { label: 'Published', value: allMaterials.filter((m) => m.status === 'PUBLISHED').length, icon: <CheckCircle size={20} />, color: 'text-[var(--color-success)]', bg: 'bg-[var(--color-success-light)]' },
+                    { label: 'Total Downloads', value: totalDownloads, icon: <Download size={20} />, color: 'text-[var(--color-secondary)]', bg: 'bg-[var(--color-secondary)]/10' },
+                    { label: 'Total Views', value: totalViews, icon: <TrendingUp size={20} />, color: 'text-[var(--color-warning)]', bg: 'bg-[var(--color-warning-light)]' },
+                ].map((card) => (
+                    <div key={card.label} className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-4 shadow-theme-md animate-scale-in">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <p className="text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wider">{card.label}</p>
+                                <p className={`text-3xl font-bold mt-1 ${card.color}`}>{card.value}</p>
+                            </div>
+                            <div className={`p-2 rounded-lg ${card.bg} ${card.color}`}>{card.icon}</div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Toolbar */}
+            <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-theme-md mb-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 p-4">
+                    {/* Status tabs */}
+                    <div className="flex items-center gap-1 bg-[var(--color-surface-elevated)] rounded-lg p-1">
+                        {STATUS_TABS.map((tab) => (
+                            <button
+                                key={tab.key}
+                                onClick={() => setStatusFilter(tab.key)}
+                                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                                    statusFilter === tab.key
+                                        ? 'bg-[var(--color-primary)] text-white shadow-sm'
+                                        : 'text-[var(--color-muted)] hover:text-[var(--color-foreground)]'
+                                }`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {/* Type filter */}
+                        <div className="relative">
+                            <select
+                                className="input text-sm pl-3 pr-8 py-1.5 appearance-none"
+                                value={typeFilter}
+                                onChange={(e) => setTypeFilter(e.target.value)}
+                            >
+                                <option value="">All Types</option>
+                                {(Object.keys(MATERIAL_TYPE_LABELS) as MaterialType[]).map((t) => (
+                                    <option key={t} value={t}>{MATERIAL_TYPE_LABELS[t]}</option>
+                                ))}
+                            </select>
+                            <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--color-muted)] pointer-events-none" />
+                        </div>
+                        {/* Search */}
+                        <div className="relative">
+                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)]" />
+                            <input
+                                className="input text-sm pl-8 pr-3 py-1.5 w-52"
+                                placeholder="Search materials…"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                        {/* Upload button */}
+                        <button onClick={() => setShowUploadModal(true)} className="btn btn-primary btn-md flex items-center gap-2">
+                            <Plus size={15} /> Upload
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Table / States */}
+            {loading ? (
+                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-theme-md overflow-hidden">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                        <div key={i} className="flex items-center gap-4 px-5 py-4 border-b border-[var(--color-border)] last:border-0">
+                            <div className="h-4 bg-[var(--color-surface-elevated)] rounded animate-pulse w-64" />
+                            <div className="h-4 bg-[var(--color-surface-elevated)] rounded animate-pulse w-40" />
+                            <div className="h-4 bg-[var(--color-surface-elevated)] rounded animate-pulse w-20" />
+                            <div className="h-4 bg-[var(--color-surface-elevated)] rounded animate-pulse w-20 ml-auto" />
+                        </div>
+                    ))}
+                </div>
+            ) : error ? (
+                <div className="bg-[var(--color-error-light)] border border-[var(--color-error)]/30 rounded-xl p-6 text-center">
+                    <AlertTriangle size={24} className="mx-auto text-[var(--color-error)] mb-2" />
+                    <p className="text-sm text-[var(--color-error)] font-medium">{error}</p>
+                    <button onClick={refresh} className="btn btn-outline btn-md mt-3">Try Again</button>
+                </div>
+            ) : materials.length === 0 ? (
+                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl p-12 text-center shadow-theme-md">
+                    <Layers size={40} className="mx-auto text-[var(--color-muted)] mb-3 opacity-40" />
+                    <p className="text-lg font-semibold text-[var(--color-foreground)] mb-1">No materials found</p>
+                    <p className="text-sm text-[var(--color-muted)] mb-4">
+                        {searchQuery || statusFilter || typeFilter ? 'Try adjusting your filters.' : 'Upload your first study material to get started.'}
+                    </p>
+                    {!searchQuery && !statusFilter && !typeFilter && (
+                        <button onClick={() => setShowUploadModal(true)} className="btn btn-primary btn-md inline-flex items-center gap-2">
+                            <Plus size={15} /> Upload Material
+                        </button>
+                    )}
+                </div>
+            ) : (
+                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-theme-md overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead className="bg-[var(--color-surface-elevated)] border-b border-[var(--color-border)]">
+                                <tr>
+                                    {['Title', 'Subject & Section', 'Type', 'Status', 'Size', 'Downloads / Views', 'Uploaded', 'Actions'].map((h) => (
+                                        <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wider whitespace-nowrap">{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[var(--color-border)]">
+                                {materials.map((mat) => (
+                                    <>
+                                        <tr key={mat.id} className="hover:bg-[var(--color-surface-elevated)] transition-colors group">
+                                            <td className="px-4 py-3 max-w-xs">
+                                                <p className="font-medium text-[var(--color-foreground)] truncate">{mat.title}</p>
+                                                {mat.description && (
+                                                    <p className="text-xs text-[var(--color-muted)] truncate mt-0.5">{mat.description}</p>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                <p className="font-medium text-[var(--color-foreground)]">{mat.subject.code}</p>
+                                                <p className="text-xs text-[var(--color-muted)]">{mat.section.name}</p>
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                <TypeBadge type={mat.material_type} />
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                <StatusBadge status={mat.status} />
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-[var(--color-muted)]">
+                                                <span className="font-mono text-xs">{formatSize(mat.file_size_mb)}</span>
+                                                <span className="ml-1 text-xs text-[var(--color-muted)]/60 uppercase">{mat.file_extension.replace('.', '')}</span>
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                <div className="flex items-center gap-2 text-[var(--color-muted)]">
+                                                    <span className="flex items-center gap-1 text-xs"><Download size={11} /> {mat.download_count}</span>
+                                                    <span className="flex items-center gap-1 text-xs"><Eye size={11} /> {mat.view_count}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-xs text-[var(--color-muted)]">
+                                                {formatDate(mat.uploaded_at)}
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={() => openEditModal(mat)}
+                                                        className="p-1.5 rounded text-[var(--color-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition-colors"
+                                                        title="Edit"
+                                                    >
+                                                        <Pencil size={13} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => void openStatsModal(mat)}
+                                                        className="p-1.5 rounded text-[var(--color-muted)] hover:text-[var(--color-secondary)] hover:bg-[var(--color-secondary)]/10 transition-colors"
+                                                        title="Statistics"
+                                                    >
+                                                        <BarChart2 size={13} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setDeleteConfirmId(mat.id)}
+                                                        className="p-1.5 rounded text-[var(--color-muted)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-light)] transition-colors"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 size={13} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {deleteConfirmId === mat.id && (
+                                            <tr key={`delete-${mat.id}`}>
+                                                <DeleteConfirmBar
+                                                    onConfirm={() => void onDelete(mat.id)}
+                                                    onCancel={() => setDeleteConfirmId(null)}
+                                                />
+                                            </tr>
+                                        )}
+                                    </>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {/* Upload Modal */}
+            {showUploadModal && (
+                <MaterialModal
+                    mode="upload"
+                    assignments={assignments}
+                    onSubmit={onUpload}
+                    onClose={closeModals}
+                />
+            )}
+
+            {/* Edit Modal */}
+            {showEditModal && selectedMaterial && (
+                <MaterialModal
+                    mode="edit"
+                    material={selectedMaterial}
+                    assignments={assignments}
+                    onSubmit={onUpdate}
+                    onClose={closeModals}
+                />
+            )}
+
+            {/* Stats Modal */}
+            {showStatsModal && selectedMaterial && (
+                <StatsModal
+                    material={selectedMaterial}
+                    stats={stats}
+                    loading={statsLoading}
+                    onClose={closeModals}
+                />
+            )}
+        </PageLayout>
+    );
+}

@@ -203,7 +203,7 @@ export default function StudentProfile() {
 
     return (
         <PageLayout>
-            <div className="p-8">
+            <div className="p-4 md:p-6 lg:p-8">
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-[var(--color-foreground)] mb-2">My Profile</h1>

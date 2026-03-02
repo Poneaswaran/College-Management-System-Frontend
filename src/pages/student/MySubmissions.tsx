@@ -5,7 +5,7 @@
 
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { useSubmissions } from '../../features/assignments/hooks';
 import { SubmissionCard } from '../../features/assignments/components/SubmissionCard';
 import type { Submission } from '../../features/assignments/types';
@@ -30,9 +30,8 @@ export const MySubmissions: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-[var(--color-background)]">
-      <Sidebar />
-      <div className="flex-1 ml-64 py-8 px-4">
+    <PageLayout>
+      <div className="py-6 px-4 md:py-8 md:px-6">
         <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6">
@@ -79,7 +78,7 @@ export const MySubmissions: React.FC = () => {
         )}
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

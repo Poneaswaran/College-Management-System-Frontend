@@ -170,7 +170,7 @@ export default function Sidebar() {
     const navigate = useNavigate();
     const user = useSelector(selectCurrentUser);
     const { logout } = useAuth();
-    const { isCollapsed, setIsCollapsed } = useSidebar();
+    const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar();
     const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
 
     const handleLogout = async () => {
@@ -187,7 +187,7 @@ export default function Sidebar() {
     }
 
     const toggleDropdown = (label: string) => {
-        if (!isCollapsed) {
+        if (!isCollapsed || isMobileOpen) {
             setOpenDropdowns(prev => ({
                 ...prev,
                 [label]: !prev[label]
@@ -195,27 +195,60 @@ export default function Sidebar() {
         }
     };
 
+    // Close mobile sidebar when navigating
+    const handleNavClick = () => {
+        if (isMobileOpen) setIsMobileOpen(false);
+    };
+
     return (
-        <aside className={`${isCollapsed ? 'w-20' : 'w-64'} h-screen bg-white dark:bg-[var(--color-card)] border-r border-[var(--color-border)] flex flex-col fixed left-0 top-0 overflow-y-auto z-50 transition-all duration-300`}>
+        <>
+            {/* Mobile backdrop overlay */}
+            {isMobileOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    onClick={() => setIsMobileOpen(false)}
+                    aria-hidden="true"
+                />
+            )}
+
+        <aside className={[
+            // Base styles
+            'h-screen bg-[var(--color-card)] border-r border-[var(--color-border)] flex flex-col fixed left-0 top-0 overflow-y-auto z-50 transition-all duration-300',
+            // Desktop width
+            isCollapsed ? 'w-20' : 'w-64',
+            // Mobile: hidden by default, visible when open (translate instead of display to keep transitions)
+            'max-lg:w-72 max-lg:shadow-2xl',
+            isMobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
+        ].join(' ')}>
             {/* Logo Section */}
-            <div className="p-6 border-b border-[var(--color-border)] flex items-center justify-between gap-3">
+            <div className="p-4 lg:p-6 border-b border-[var(--color-border)] flex items-center justify-between gap-3 shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-[var(--color-primary)] rounded-lg flex items-center justify-center text-white">
+                    <div className="w-8 h-8 bg-[var(--color-primary)] rounded-lg flex items-center justify-center text-white shrink-0">
                         <BookOpen size={20} />
                     </div>
-                    {!isCollapsed && (
-                        <div className="flex flex-col">
-                            <span className="font-bold text-sm leading-tight text-[var(--color-foreground)]">UNIVERSITY OF</span>
-                            <span className="font-bold text-sm leading-tight text-[var(--color-foreground)]">KNOWLEDGE</span>
+                    {(!isCollapsed || isMobileOpen) && (
+                        <div className="flex flex-col min-w-0">
+                            <span className="font-bold text-sm leading-tight text-[var(--color-foreground)] truncate">UNIVERSITY OF</span>
+                            <span className="font-bold text-sm leading-tight text-[var(--color-foreground)] truncate">KNOWLEDGE</span>
                         </div>
                     )}
                 </div>
+                {/* Desktop collapse toggle */}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="p-1 hover:bg-[var(--color-background-secondary)] rounded transition-colors"
+                    className="hidden lg:flex p-1 hover:bg-[var(--color-background-secondary)] rounded transition-colors shrink-0"
                     title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                    aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                 >
                     {isCollapsed ? <Menu size={20} /> : <X size={20} />}
+                </button>
+                {/* Mobile close button */}
+                <button
+                    onClick={() => setIsMobileOpen(false)}
+                    className="lg:hidden p-1 hover:bg-[var(--color-background-secondary)] rounded transition-colors shrink-0"
+                    aria-label="Close navigation"
+                >
+                    <X size={20} />
                 </button>
             </div>
 
@@ -223,6 +256,8 @@ export default function Sidebar() {
             <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
                 {sidebarItems.map((item, index) => {
                     const Icon = item.icon;
+                    // Show labels when not collapsed OR when mobile drawer is open
+                    const showLabel = !isCollapsed || isMobileOpen;
 
                     // Check if this is a dropdown item
                     if ('isDropdown' in item && item.isDropdown && 'children' in item) {
@@ -233,19 +268,20 @@ export default function Sidebar() {
                             <div key={item.label + index}>
                                 <button
                                     onClick={() => toggleDropdown(item.label)}
-                                    className={`flex items-center justify-between w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${hasActiveChild
+                                    className={`flex items-center justify-between w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${hasActiveChild
                                         ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
                                         : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
                                         }`}
-                                    title={isCollapsed ? item.label : ''}
+                                    title={!showLabel ? item.label : ''}
+                                    aria-expanded={isOpen}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <Icon size={20} />
-                                        {!isCollapsed && item.label}
+                                        <Icon size={20} className="shrink-0" />
+                                        {showLabel && <span className="truncate">{item.label}</span>}
                                     </div>
-                                    {!isCollapsed && (isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
+                                    {showLabel && (isOpen ? <ChevronDown size={16} className="shrink-0" /> : <ChevronRight size={16} className="shrink-0" />)}
                                 </button>
-                                {isOpen && item.children && !isCollapsed && (
+                                {isOpen && item.children && showLabel && (
                                     <div className="ml-4 mt-1 space-y-1">
                                         {item.children.map((child) => {
                                             const isActive = location.pathname === child.path;
@@ -254,13 +290,14 @@ export default function Sidebar() {
                                                 <Link
                                                     key={child.path}
                                                     to={child.path}
-                                                    className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${isActive
+                                                    onClick={handleNavClick}
+                                                    className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${isActive
                                                         ? 'bg-[var(--color-primary)] text-white'
                                                         : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
                                                         }`}
                                                 >
-                                                    <ChildIcon size={18} />
-                                                    {child.label}
+                                                    <ChildIcon size={18} className="shrink-0" />
+                                                    <span className="truncate">{child.label}</span>
                                                 </Link>
                                             );
                                         })}
@@ -277,14 +314,16 @@ export default function Sidebar() {
                             <Link
                                 key={item.path}
                                 to={item.path}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${isActive
+                                onClick={handleNavClick}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors min-h-[44px] ${isActive
                                     ? 'bg-[var(--color-primary)] text-white'
                                     : 'text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-primary)]'
                                     }`}
-                                title={isCollapsed ? item.label : ''}
+                                title={!showLabel ? item.label : ''}
+                                aria-current={isActive ? 'page' : undefined}
                             >
-                                <Icon size={20} />
-                                {!isCollapsed && item.label}
+                                <Icon size={20} className="shrink-0" />
+                                {showLabel && <span className="truncate">{item.label}</span>}
                             </Link>
                         );
                     }
@@ -294,16 +333,18 @@ export default function Sidebar() {
             </nav>
 
             {/* Logout Section */}
-            <div className="p-4 border-t border-[var(--color-border)]">
+            <div className="p-4 border-t border-[var(--color-border)] shrink-0">
                 <button
                     onClick={handleLogout}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-error)] rounded-lg transition-colors"
-                    title={isCollapsed ? 'Logout' : ''}
+                    className="flex items-center gap-3 w-full px-4 py-3 text-sm font-medium text-[var(--color-foreground-secondary)] hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-error)] rounded-lg transition-colors min-h-[44px]"
+                    title={!isCollapsed && !isMobileOpen ? 'Logout' : ''}
+                    aria-label="Logout"
                 >
-                    <LogOut size={20} />
-                    {!isCollapsed && 'Logout'}
+                    <LogOut size={20} className="shrink-0" />
+                    {(!isCollapsed || isMobileOpen) && <span>Logout</span>}
                 </button>
             </div>
         </aside>
+        </>
     );
 }

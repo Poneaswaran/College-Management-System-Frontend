@@ -13,7 +13,7 @@ import {
     Eye,
     UserPlus,
 } from 'lucide-react';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { SearchInput } from '../../components/ui/SearchInput';
 import { Select } from '../../components/ui/Select';
 import { FilterBar } from '../../components/ui/FilterBar';
@@ -60,13 +60,11 @@ export default function FacultyCourses() {
     };
 
     return (
-        <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
-            <Sidebar />
-
-            <main className="flex-1 ml-64 p-8">
+        <PageLayout>
+            <main className="p-4 md:p-6 lg:p-8">
                 {/* Page Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-[var(--color-foreground)] mb-2">My Courses</h1>
+                <div className="mb-6 md:mb-8">
+                    <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)] mb-2">My Courses</h1>
                     <p className="text-[var(--color-foreground-secondary)]">Manage your courses, students, and academic activities</p>
                 </div>
 
@@ -189,7 +187,7 @@ export default function FacultyCourses() {
                     </div>
                 )}
             </main>
-        </div>
+        </PageLayout>
     );
 }
 

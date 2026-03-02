@@ -11,7 +11,7 @@ import {
     Filter,
     BookOpen
 } from 'lucide-react';
-import Sidebar from '../../components/layout/Sidebar';
+import PageLayout from '../../components/layout/PageLayout';
 import { GET_ATTENDANCE_HISTORY } from '../../features/students/graphql/attendance';
 
 interface AttendanceRecord {
@@ -101,10 +101,8 @@ export default function AttendanceHistory() {
     );
 
     return (
-        <div className="flex bg-[var(--color-background-secondary)] min-h-screen">
-            <Sidebar />
-
-            <main className="flex-1 ml-64 p-8">
+        <PageLayout>
+            <main className="p-4 md:p-6 lg:p-8">
                 {/* Back Button */}
                 <button
                     onClick={() => navigate('/student/attendance')}
@@ -289,6 +287,6 @@ export default function AttendanceHistory() {
                     </div>
                 )}
             </main>
-        </div>
+        </PageLayout>
     );
 }
