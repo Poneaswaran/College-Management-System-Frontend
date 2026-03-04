@@ -15,6 +15,7 @@ import {
     Calendar,
     User,
 } from 'lucide-react';
+import React from 'react';
 import PageLayout from '../../components/layout/PageLayout';
 import { useHODMaterials } from '../../features/faculty/hooks/studyMaterials';
 import type { StudyMaterial, MaterialType, MaterialStatus } from '../../features/faculty/types/studyMaterials';
@@ -96,7 +97,7 @@ function StatsModal({ material, stats, loading, onClose }: StatsModalProps) {
                         <p className="text-sm text-[var(--color-muted)] mt-0.5">{material.title}</p>
                         {material.faculty && (
                             <p className="text-xs text-[var(--color-muted)] flex items-center gap-1 mt-0.5">
-                                <User size={10} /> {material.faculty.full_name}
+                                <User size={10} /> {material.faculty.fullName}
                             </p>
                         )}
                     </div>
@@ -115,10 +116,10 @@ function StatsModal({ material, stats, loading, onClose }: StatsModalProps) {
                         <>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                                 {[
-                                    { label: 'Total Downloads', value: stats.total_downloads, icon: <Download size={16} /> },
-                                    { label: 'Unique Downloads', value: stats.unique_downloads, icon: <Download size={16} /> },
-                                    { label: 'Total Views', value: stats.total_views, icon: <Eye size={16} /> },
-                                    { label: 'Unique Views', value: stats.unique_views, icon: <Eye size={16} /> },
+                                    { label: 'Total Downloads', value: stats.totalDownloads, icon: <Download size={16} /> },
+                                    { label: 'Unique Downloads', value: stats.uniqueDownloads, icon: <Download size={16} /> },
+                                    { label: 'Total Views', value: stats.totalViews, icon: <Eye size={16} /> },
+                                    { label: 'Unique Views', value: stats.uniqueViews, icon: <Eye size={16} /> },
                                 ].map((stat) => (
                                     <div key={stat.label} className="bg-[var(--color-surface-elevated)] border border-[var(--color-border)] rounded-lg p-3 text-center">
                                         <div className="text-[var(--color-primary)] mb-1 flex justify-center">{stat.icon}</div>
@@ -128,7 +129,7 @@ function StatsModal({ material, stats, loading, onClose }: StatsModalProps) {
                                 ))}
                             </div>
                             <h3 className="text-sm font-semibold text-[var(--color-muted)] uppercase tracking-wider mb-3">Recent Downloads</h3>
-                            {stats.recent_downloads.length === 0 ? (
+                            {stats.recentDownloads.length === 0 ? (
                                 <p className="text-sm text-[var(--color-muted)] text-center py-4">No downloads yet.</p>
                             ) : (
                                 <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
@@ -141,12 +142,12 @@ function StatsModal({ material, stats, loading, onClose }: StatsModalProps) {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-[var(--color-border)]">
-                                            {stats.recent_downloads.map((rec) => (
+                                            {stats.recentDownloads.map((rec) => (
                                                 <tr key={rec.id} className="hover:bg-[var(--color-surface-elevated)] transition-colors">
-                                                    <td className="px-4 py-2.5 font-medium text-[var(--color-foreground)]">{rec.student_name}</td>
-                                                    <td className="px-4 py-2.5 text-[var(--color-muted)] font-mono text-xs">{rec.student_roll_number}</td>
-                                                    <td className="px-4 py-2.5 text-[var(--color-muted)]">{formatDate(rec.downloaded_at)}</td>
-                                                    <td className="px-4 py-2.5 text-[var(--color-muted)] font-mono text-xs">{rec.ip_address}</td>
+                                                    <td className="px-4 py-2.5 font-medium text-[var(--color-foreground)]">{rec.studentName}</td>
+                                                    <td className="px-4 py-2.5 text-[var(--color-muted)] font-mono text-xs">{rec.studentRollNumber}</td>
+                                                    <td className="px-4 py-2.5 text-[var(--color-muted)]">{formatDate(rec.downloadedAt)}</td>
+                                                    <td className="px-4 py-2.5 text-[var(--color-muted)] font-mono text-xs">{rec.ipAddress}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -334,29 +335,29 @@ export default function HODStudyMaterials() {
                                             )}
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap">
-                                            <p className="text-sm text-[var(--color-foreground)]">{mat.faculty?.full_name ?? '—'}</p>
+                                            <p className="text-sm text-[var(--color-foreground)]">{mat.faculty?.fullName ?? '—'}</p>
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap">
                                             <p className="font-medium text-[var(--color-foreground)]">{mat.subject.code}</p>
                                             <p className="text-xs text-[var(--color-muted)]">{mat.section.name}</p>
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap">
-                                            <TypeBadge type={mat.material_type} />
+                                            <TypeBadge type={mat.materialType} />
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap">
                                             <StatusBadge status={mat.status} />
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap text-xs text-[var(--color-muted)] font-mono">
-                                            {formatSize(mat.file_size_mb)}
+                                            {formatSize(mat.fileSizeMb)}
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap">
                                             <div className="flex items-center gap-2 text-xs text-[var(--color-muted)]">
-                                                <span className="flex items-center gap-1"><Download size={11} /> {mat.download_count}</span>
-                                                <span className="flex items-center gap-1"><Eye size={11} /> {mat.view_count}</span>
+                                                <span className="flex items-center gap-1"><Download size={11} /> {mat.downloadCount}</span>
+                                                <span className="flex items-center gap-1"><Eye size={11} /> {mat.viewCount}</span>
                                             </div>
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap text-xs text-[var(--color-muted)]">
-                                            {formatDate(mat.uploaded_at)}
+                                            {formatDate(mat.uploadedAt)}
                                         </td>
                                         <td className="px-4 py-3 whitespace-nowrap">
                                             <button

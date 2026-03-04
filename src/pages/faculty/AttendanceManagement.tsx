@@ -13,12 +13,18 @@ import {
     Eye,
     RefreshCw,
     Timer,
+    MapPin,
+    Camera,
+    User,
+    X,
 } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
+import { SERVER_URL } from '../../config/constant';
 import { Select } from '../../components/ui/Select';
 import {
     fetchFacultySessionsToday,
     fetchSectionAttendanceForSession,
+    fetchStudentAttendanceDetail,
     openAttendanceSession,
     closeAttendanceSession,
     blockAttendanceSession,
@@ -28,6 +34,7 @@ import {
 import type {
     AttendanceSession,
     StudentAttendanceRecord,
+    StudentAttendanceDetail,
     SessionStatus,
     AttendanceStatus,
 } from '../../features/attendance/types';
@@ -98,6 +105,12 @@ export default function AttendanceManagement() {
     const [manualMarkStudent, setManualMarkStudent] = useState<StudentAttendanceRecord | null>(null);
     const [manualMarkStatus, setManualMarkStatus] = useState<AttendanceStatus>('PRESENT');
     const [manualMarkNotes, setManualMarkNotes] = useState('');
+
+    // Student detail modal
+    const [showStudentDetailModal, setShowStudentDetailModal] = useState(false);
+    const [studentDetail, setStudentDetail] = useState<StudentAttendanceDetail | null>(null);
+    const [studentDetailLoading, setStudentDetailLoading] = useState(false);
+    const [studentDetailError, setStudentDetailError] = useState<string | null>(null);
 
     // ============================================
     // DATA FETCHING
@@ -233,6 +246,25 @@ export default function AttendanceManagement() {
             setError(err instanceof Error ? err.message : 'Failed to mark attendance');
         } finally {
             setActionLoading(null);
+        }
+    };
+
+    const handleOpenStudentDetail = async (record: StudentAttendanceRecord) => {
+        if (!selectedSession || !record.student?.id) return;
+        setStudentDetail(null);
+        setStudentDetailError(null);
+        setShowStudentDetailModal(true);
+        setStudentDetailLoading(true);
+        try {
+            const detail = await fetchStudentAttendanceDetail(
+                selectedSession.id,
+                record.student.id
+            );
+            setStudentDetail(detail);
+        } catch (err) {
+            setStudentDetailError(err instanceof Error ? err.message : 'Failed to fetch detail');
+        } finally {
+            setStudentDetailLoading(false);
         }
     };
 
@@ -596,18 +628,29 @@ export default function AttendanceManagement() {
                                             {studentRecords.map((record) => (
                                                 <div
                                                     key={record.id}
-                                                    className="flex items-center justify-between p-3 bg-[var(--color-background-secondary)] rounded-lg hover:bg-[var(--color-background-tertiary)] transition-colors group"
+                                                    onClick={() => handleOpenStudentDetail(record)}
+                                                    className="flex items-center justify-between p-3 bg-[var(--color-background-secondary)] rounded-lg hover:bg-[var(--color-background-tertiary)] transition-colors group cursor-pointer"
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         {/* Avatar */}
-                                                        <div className="w-10 h-10 rounded-full bg-[var(--color-primary-light)]/20 text-[var(--color-primary)] flex items-center justify-center font-bold text-sm">
-                                                            {record.studentName
-                                                                .split(' ')
-                                                                .map((n) => n[0])
-                                                                .join('')
-                                                                .substring(0, 2)
-                                                                .toUpperCase()}
-                                                        </div>
+                                                        {record.student?.profilePhotoUrl ? (
+                                                            <div className="w-10 h-10 rounded-full overflow-hidden border border-[var(--color-border)] shrink-0">
+                                                                <img
+                                                                    src={`${SERVER_URL}${record.student.profilePhotoUrl}`}
+                                                                    alt={record.studentName}
+                                                                    className="w-full h-full object-cover"
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            <div className="w-10 h-10 rounded-full bg-[var(--color-primary-light)]/20 text-[var(--color-primary)] flex items-center justify-center font-bold text-sm shrink-0">
+                                                                {record.studentName
+                                                                    .split(' ')
+                                                                    .map((n) => n[0])
+                                                                    .join('')
+                                                                    .substring(0, 2)
+                                                                    .toUpperCase()}
+                                                            </div>
+                                                        )}
                                                         <div>
                                                             <p className="font-medium text-[var(--color-foreground)] text-sm">
                                                                 {record.studentName}
@@ -778,6 +821,231 @@ export default function AttendanceManagement() {
                                 >
                                     {actionLoading === 'manual-mark' ? 'Saving...' : 'Save'}
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* ============================================ */}
+                {/* STUDENT ATTENDANCE DETAIL MODAL */}
+                {/* ============================================ */}
+                {showStudentDetailModal && (
+                    <div
+                        className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4"
+                        onClick={() => setShowStudentDetailModal(false)}
+                    >
+                        <div
+                            className="bg-[var(--color-card)] rounded-2xl border border-[var(--color-border)] w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Modal Header */}
+                            <div className="flex items-center justify-between p-5 border-b border-[var(--color-border)]">
+                                <h3 className="text-lg font-bold text-[var(--color-foreground)]">Attendance Detail</h3>
+                                <button
+                                    onClick={() => setShowStudentDetailModal(false)}
+                                    className="p-1.5 text-[var(--color-foreground-muted)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-background-tertiary)] rounded-lg transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            {/* Modal Body */}
+                            <div className="p-5 space-y-5">
+                                {studentDetailLoading ? (
+                                    <div className="space-y-4 animate-pulse">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-16 h-16 rounded-full bg-[var(--color-background-tertiary)]" />
+                                            <div className="flex-1 space-y-2">
+                                                <div className="h-4 bg-[var(--color-background-tertiary)] rounded w-2/3" />
+                                                <div className="h-3 bg-[var(--color-background-tertiary)] rounded w-1/3" />
+                                            </div>
+                                        </div>
+                                        <div className="h-20 bg-[var(--color-background-tertiary)] rounded-xl" />
+                                        <div className="h-12 bg-[var(--color-background-tertiary)] rounded-xl" />
+                                    </div>
+                                ) : studentDetailError ? (
+                                    <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400">
+                                        <AlertTriangle className="w-5 h-5 shrink-0" />
+                                        <span className="text-sm">{studentDetailError}</span>
+                                    </div>
+                                ) : studentDetail ? (
+                                    <>
+                                        {/* Student Info Header */}
+                                        <div className="flex items-center gap-4">
+                                            {studentDetail.student?.profilePhoto ? (
+                                                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[var(--color-border)] shrink-0">
+                                                    <img
+                                                        src={`${SERVER_URL}${studentDetail.student.profilePhoto}`}
+                                                        alt={studentDetail.studentName}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="w-16 h-16 rounded-full bg-[var(--color-primary-light)]/20 text-[var(--color-primary)] flex items-center justify-center font-bold text-xl shrink-0">
+                                                    {studentDetail.studentName
+                                                        .split(' ')
+                                                        .map((n) => n[0])
+                                                        .join('')
+                                                        .substring(0, 2)
+                                                        .toUpperCase()}
+                                                </div>
+                                            )}
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-bold text-[var(--color-foreground)] text-lg leading-tight">
+                                                    {studentDetail.studentName}
+                                                </p>
+                                                <p className="text-sm text-[var(--color-foreground-muted)] font-mono mt-0.5">
+                                                    {studentDetail.registerNumber}
+                                                </p>
+                                                <div className="mt-2 flex flex-wrap items-center gap-2">
+                                                    <span
+                                                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${studentDetail.status === 'PRESENT'
+                                                                ? 'bg-green-500/20 text-green-400'
+                                                                : studentDetail.status === 'LATE'
+                                                                    ? 'bg-yellow-500/20 text-yellow-400'
+                                                                    : 'bg-red-500/20 text-red-400'
+                                                            }`}
+                                                    >
+                                                        {studentDetail.status === 'PRESENT' && <CheckCircle className="w-3.5 h-3.5" />}
+                                                        {studentDetail.status === 'LATE' && <Clock className="w-3.5 h-3.5" />}
+                                                        {studentDetail.status === 'ABSENT' && <XCircle className="w-3.5 h-3.5" />}
+                                                        {studentDetail.status}
+                                                    </span>
+                                                    {studentDetail.isManuallyMarked && (
+                                                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-[var(--color-primary)]/15 text-[var(--color-primary)] border border-[var(--color-primary)]/30">
+                                                            Manual
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Detail Cards */}
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {/* Marked At */}
+                                            {studentDetail.markedAt && (
+                                                <div className="col-span-2 flex items-start gap-3 p-3.5 bg-[var(--color-background-secondary)] rounded-xl">
+                                                    <Clock className="w-4 h-4 text-[var(--color-foreground-muted)] mt-0.5 shrink-0" />
+                                                    <div>
+                                                        <p className="text-xs text-[var(--color-foreground-muted)] mb-0.5">Marked At</p>
+                                                        <p className="text-sm font-medium text-[var(--color-foreground)]">
+                                                            {new Date(studentDetail.markedAt).toLocaleString()}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Marked By */}
+                                            {studentDetail.markedBy && (
+                                                <div className="col-span-2 flex items-start gap-3 p-3.5 bg-[var(--color-background-secondary)] rounded-xl">
+                                                    <User className="w-4 h-4 text-[var(--color-foreground-muted)] mt-0.5 shrink-0" />
+                                                    <div>
+                                                        <p className="text-xs text-[var(--color-foreground-muted)] mb-0.5">Marked By</p>
+                                                        <p className="text-sm font-medium text-[var(--color-foreground)]">
+                                                            {studentDetail.markedBy.fullName}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* GPS Coordinates */}
+                                            {(studentDetail.latitude != null || studentDetail.longitude != null) && (
+                                                <div className="col-span-2 flex items-start gap-3 p-3.5 bg-[var(--color-background-secondary)] rounded-xl">
+                                                    <MapPin className="w-4 h-4 text-[var(--color-foreground-muted)] mt-0.5 shrink-0" />
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-xs text-[var(--color-foreground-muted)] mb-0.5">Location</p>
+                                                        <p className="text-sm font-medium text-[var(--color-foreground)] font-mono">
+                                                            {studentDetail.latitude?.toFixed(6)}, {studentDetail.longitude?.toFixed(6)}
+                                                        </p>
+                                                        {studentDetail.latitude && studentDetail.longitude && (
+                                                            <a
+                                                                href={`https://www.google.com/maps?q=${studentDetail.latitude},${studentDetail.longitude}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-xs text-[var(--color-primary)] hover:underline mt-1 inline-block"
+                                                                onClick={(e) => e.stopPropagation()}
+                                                            >
+                                                                View on Map ↗
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Notes */}
+                                            {studentDetail.notes && (
+                                                <div className="col-span-2 flex items-start gap-3 p-3.5 bg-[var(--color-background-secondary)] rounded-xl">
+                                                    <Eye className="w-4 h-4 text-[var(--color-foreground-muted)] mt-0.5 shrink-0" />
+                                                    <div>
+                                                        <p className="text-xs text-[var(--color-foreground-muted)] mb-0.5">Notes</p>
+                                                        <p className="text-sm text-[var(--color-foreground)]">{studentDetail.notes}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Selfie / Attendance Image */}
+                                        {studentDetail.hasImage && studentDetail.imageUrl ? (
+                                            <div>
+                                                <p className="flex items-center gap-1.5 text-sm font-medium text-[var(--color-foreground-secondary)] mb-2">
+                                                    <Camera className="w-4 h-4" />
+                                                    Attendance Photo
+                                                </p>
+                                                <img
+                                                    src={`${SERVER_URL}${studentDetail.imageUrl}`}
+                                                    alt="Attendance selfie"
+                                                    className="w-full rounded-xl object-cover max-h-64 border border-[var(--color-border)]"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-3 p-3.5 bg-[var(--color-background-secondary)] rounded-xl text-[var(--color-foreground-muted)]">
+                                                <Camera className="w-4 h-4 shrink-0" />
+                                                <span className="text-sm">No attendance photo captured</span>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : null}
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="flex justify-end gap-3 p-5 pt-0">
+                                <button
+                                    onClick={() => setShowStudentDetailModal(false)}
+                                    className="px-5 py-2.5 bg-[var(--color-background-tertiary)] text-[var(--color-foreground-secondary)] rounded-lg hover:bg-[var(--color-border)] transition-colors text-sm font-medium"
+                                >
+                                    Close
+                                </button>
+                                {studentDetail && (selectedSession?.status === 'ACTIVE' || selectedSession?.status === 'CLOSED') && (
+                                    <button
+                                        onClick={() => {
+                                            if (!studentDetail) return;
+                                            const syntheticRecord: StudentAttendanceRecord = {
+                                                id: studentDetail.id,
+                                                status: studentDetail.status,
+                                                markedAt: studentDetail.markedAt,
+                                                isManuallyMarked: studentDetail.isManuallyMarked,
+                                                isPresent: studentDetail.status === 'PRESENT',
+                                                notes: studentDetail.notes,
+                                                studentName: studentDetail.studentName,
+                                                registerNumber: studentDetail.registerNumber,
+                                                student: studentDetail.student ? {
+                                                    id: studentDetail.student.id,
+                                                    firstName: studentDetail.student.firstName,
+                                                    lastName: studentDetail.student.lastName,
+                                                    registerNumber: studentDetail.student.registerNumber,
+                                                } : undefined,
+                                            };
+                                            setShowStudentDetailModal(false);
+                                            setManualMarkStudent(syntheticRecord);
+                                            setManualMarkStatus(studentDetail.status === 'ABSENT' ? 'PRESENT' : studentDetail.status);
+                                            setShowManualMarkModal(true);
+                                        }}
+                                        className="flex items-center gap-2 px-5 py-2.5 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors text-sm font-medium"
+                                    >
+                                        <UserCheck className="w-4 h-4" />
+                                        Edit Attendance
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

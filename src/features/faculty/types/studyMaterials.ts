@@ -47,65 +47,65 @@ export interface SectionRef {
 
 export interface FacultyRef {
     id: number;
-    full_name: string;
+    fullName: string;
 }
 
 export interface StudyMaterial {
     id: number;
     title: string;
     description: string;
-    material_type: MaterialType;
+    materialType: MaterialType;
     status: MaterialStatus;
     subject: SubjectRef;
     section: SectionRef;
     faculty?: FacultyRef;           // present in HOD/student views
-    file_url: string;
-    file_size_mb: number;
-    file_extension: string;
-    view_count: number;
-    download_count: number;
-    uploaded_at: string;            // ISO datetime
-    published_at: string | null;
-    updated_at: string;
+    fileUrl: string;
+    fileSizeMb: number;
+    fileExtension: string;
+    viewCount: number;
+    downloadCount: number;
+    uploadedAt: string;            // ISO datetime
+    publishedAt: string | null;
+    updatedAt: string;
 }
 
 export interface TeachingAssignment {
-    subject_id: number;
-    subject_name: string;
-    subject_code: string;
-    section_id: number;
-    section_name: string;
+    subjectId: number;
+    subjectName: string;
+    subjectCode: string;
+    sectionId: number;
+    sectionName: string;
 }
 
 // ─── Statistics ───────────────────────────────────────────────────────────────
 
 export interface DownloadRecord {
     id: number;
-    student_name: string;
-    student_roll_number: string;
-    downloaded_at: string;
-    ip_address: string;
+    studentName: string;
+    studentRollNumber: string;
+    downloadedAt: string;
+    ipAddress: string;
 }
 
 export interface MaterialStats {
-    material_id: number;
-    total_downloads: number;
-    unique_downloads: number;
-    total_views: number;
-    unique_views: number;
-    recent_downloads: DownloadRecord[];
+    materialId: number;
+    totalDownloads: number;
+    uniqueDownloads: number;
+    totalViews: number;
+    uniqueViews: number;
+    recentDownloads: DownloadRecord[];
 }
 
 // ─── API Shapes ───────────────────────────────────────────────────────────────
 
 export interface UploadMaterialInput {
-    subject_id: number;
-    section_id: number;
+    subjectId: number;
+    sectionId: number;
     title: string;
     description: string;
-    material_type: MaterialType;
-    file_data: string;              // Base64 data URI
-    file_name: string;
+    materialType: MaterialType;
+    fileData: string;              // Base64 data URI
+    fileName: string;
     status: MaterialStatus;
 }
 
@@ -113,10 +113,10 @@ export interface UpdateMaterialInput {
     id: number;
     title?: string;
     description?: string;
-    material_type?: MaterialType;
+    materialType?: MaterialType;
     status?: MaterialStatus;
-    file_data?: string;
-    file_name?: string;
+    fileData?: string;
+    fileName?: string;
 }
 
 export interface MutationResult {
@@ -125,5 +125,5 @@ export interface MutationResult {
 }
 
 export interface UploadMaterialResult extends MutationResult {
-    material: { id: number; title: string; file_url: string; uploaded_at: string };
+    material: { id: number; title: string; fileUrl: string; uploadedAt: string };
 }

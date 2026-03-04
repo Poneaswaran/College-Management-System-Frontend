@@ -61,7 +61,7 @@ export function useFacultyMaterials() {
 
     const filteredMaterials = materials.filter((m) => {
         if (statusFilter && m.status !== statusFilter) return false;
-        if (typeFilter && m.material_type !== typeFilter) return false;
+        if (typeFilter && m.materialType !== typeFilter) return false;
         if (searchQuery) {
             const q = searchQuery.toLowerCase();
             return (
@@ -195,13 +195,13 @@ export function useStudentMaterials() {
 
     const filteredMaterials = materials.filter((m) => {
         if (subjectFilter && String(m.subject.id) !== subjectFilter) return false;
-        if (typeFilter && m.material_type !== typeFilter) return false;
+        if (typeFilter && m.materialType !== typeFilter) return false;
         if (searchQuery) {
             const q = searchQuery.toLowerCase();
             return (
                 m.title.toLowerCase().includes(q) ||
                 m.subject.name.toLowerCase().includes(q) ||
-                m.faculty?.full_name?.toLowerCase().includes(q)
+                m.faculty?.fullName?.toLowerCase().includes(q)
             );
         }
         return true;
@@ -214,8 +214,8 @@ export function useStudentMaterials() {
 
     const handleDownload = async (material: StudyMaterial) => {
         await recordMaterialDownload(material.id);
-        if (material.file_url && material.file_url !== '#') {
-            window.open(material.file_url, '_blank', 'noopener,noreferrer');
+        if (material.fileUrl && material.fileUrl !== '#') {
+            window.open(material.fileUrl, '_blank', 'noopener,noreferrer');
         }
     };
 
@@ -278,14 +278,14 @@ export function useHODMaterials() {
 
     const filteredMaterials = searchQuery
         ? materials.filter((m) => {
-              const q = searchQuery.toLowerCase();
-              return (
-                  m.title.toLowerCase().includes(q) ||
-                  m.subject.name.toLowerCase().includes(q) ||
-                  m.faculty?.full_name?.toLowerCase().includes(q) ||
-                  m.section.name.toLowerCase().includes(q)
-              );
-          })
+            const q = searchQuery.toLowerCase();
+            return (
+                m.title.toLowerCase().includes(q) ||
+                m.subject.name.toLowerCase().includes(q) ||
+                m.faculty?.fullName?.toLowerCase().includes(q) ||
+                m.section.name.toLowerCase().includes(q)
+            );
+        })
         : materials;
 
     const applyFilter = (key: keyof HODMaterialFilters, value: string | number | undefined) => {
@@ -309,11 +309,11 @@ export function useHODMaterials() {
         total: materials.length,
         published: materials.filter((m) => m.status === 'PUBLISHED').length,
         thisMonth: materials.filter((m) => {
-            const d = new Date(m.uploaded_at);
+            const d = new Date(m.uploadedAt);
             const now = new Date();
             return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
         }).length,
-        mostDownloaded: materials.reduce((max, m) => (m.download_count > max ? m.download_count : max), 0),
+        mostDownloaded: materials.reduce((max, m) => (m.downloadCount > max ? m.downloadCount : max), 0),
     };
 
     // Unique subjects / sections from materials

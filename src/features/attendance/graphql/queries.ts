@@ -94,6 +94,35 @@ export const SECTION_ATTENDANCE_FOR_SESSION_QUERY = gql`
   }
 `;
 
+export const GET_STUDENT_ATTENDANCE_DETAIL_QUERY = gql`
+  query GetStudentAttendanceDetail($sessionId: Int!, $studentId: Int!) {
+    studentAttendanceDetail(sessionId: $sessionId, studentId: $studentId) {
+      id
+      status
+      markedAt
+      isManuallyMarked
+      notes
+      hasImage
+      imageUrl
+      latitude
+      longitude
+      registerNumber
+      studentName
+      student {
+        id
+        firstName
+        lastName
+        registerNumber
+        profilePhoto
+      }
+      markedBy {
+        id
+        fullName
+      }
+    }
+  }
+`;
+
 export const LOW_ATTENDANCE_STUDENTS_QUERY = gql`
   query LowAttendanceStudents($subjectId: Int!, $threshold: Float) {
     lowAttendanceStudents(subjectId: $subjectId, threshold: $threshold) {

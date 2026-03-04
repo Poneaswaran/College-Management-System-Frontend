@@ -25,40 +25,40 @@ import {
 // ============================================
 
 interface TeachingAssignmentsResponse {
-    my_faculty_subjects_sections: TeachingAssignment[];
+    myFacultySubjectsSections: TeachingAssignment[];
 }
 
 interface UploadedMaterialsResponse {
-    my_uploaded_materials: StudyMaterial[];
+    myUploadedMaterials: StudyMaterial[];
 }
 
 interface StudentMaterialsResponse {
-    available_materials_for_student: StudyMaterial[];
+    availableMaterialsForStudent: StudyMaterial[];
 }
 
 interface MaterialStatsResponse {
-    material_statistics: MaterialStats;
+    materialStatistics: MaterialStats;
 }
 
 interface AllMaterialsResponse {
-    study_materials: StudyMaterial[];
+    studyMaterials: StudyMaterial[];
 }
 
 interface UploadMaterialResponse {
-    upload_study_material: UploadMaterialResult;
+    uploadStudyMaterial: UploadMaterialResult;
 }
 
 interface UpdateMaterialResponse {
-    update_study_material: MutationResult;
+    updateStudyMaterial: MutationResult;
 }
 
 interface DeleteMaterialResponse {
-    delete_study_material: MutationResult;
+    deleteStudyMaterial: MutationResult;
 }
 
 interface RecordEventResponse {
-    record_material_view?: MutationResult;
-    record_material_download?: MutationResult;
+    recordMaterialView?: MutationResult;
+    recordMaterialDownload?: MutationResult;
 }
 
 // ============================================
@@ -72,7 +72,7 @@ export async function fetchTeachingAssignments(): Promise<TeachingAssignment[]> 
             fetchPolicy: 'network-only',
         });
         if (!data) throw new Error('No data returned');
-        return data.my_faculty_subjects_sections;
+        return data.myFacultySubjectsSections;
     } catch {
         return MOCK_TEACHING_ASSIGNMENTS;
     }
@@ -86,7 +86,7 @@ export async function fetchMyMaterials(status?: string): Promise<StudyMaterial[]
             fetchPolicy: 'network-only',
         });
         if (!data) throw new Error('No data returned');
-        return data.my_uploaded_materials;
+        return data.myUploadedMaterials;
     } catch {
         if (status) {
             return MOCK_FACULTY_MATERIALS.filter((m) => m.status === status);
@@ -99,11 +99,11 @@ export async function fetchMaterialStats(materialId: number): Promise<MaterialSt
     try {
         const { data } = await client.query<MaterialStatsResponse>({
             query: GET_MATERIAL_STATS,
-            variables: { material_id: materialId },
+            variables: { materialId },
             fetchPolicy: 'network-only',
         });
         if (!data) throw new Error('No data returned');
-        return data.material_statistics;
+        return data.materialStatistics;
     } catch {
         return getMockStats(materialId);
     }
@@ -116,12 +116,12 @@ export async function uploadMaterial(input: UploadMaterialInput): Promise<Upload
             variables: { input },
         });
         if (!data) throw new Error('No data returned');
-        return data.upload_study_material;
+        return data.uploadStudyMaterial;
     } catch {
         return {
             success: true,
             message: 'Material uploaded successfully (mock)',
-            material: { id: Date.now(), title: input.title, file_url: '#', uploaded_at: new Date().toISOString() },
+            material: { id: Date.now(), title: input.title, fileUrl: '#', uploadedAt: new Date().toISOString() },
         };
     }
 }
@@ -133,7 +133,7 @@ export async function updateMaterial(input: UpdateMaterialInput): Promise<Mutati
             variables: { input },
         });
         if (!data) throw new Error('No data returned');
-        return data.update_study_material;
+        return data.updateStudyMaterial;
     } catch {
         return { success: true, message: 'Material updated successfully (mock)' };
     }
@@ -143,10 +143,10 @@ export async function deleteMaterial(materialId: number): Promise<MutationResult
     try {
         const { data } = await client.mutate<DeleteMaterialResponse>({
             mutation: DELETE_STUDY_MATERIAL,
-            variables: { material_id: materialId },
+            variables: { materialId },
         });
         if (!data) throw new Error('No data returned');
-        return data.delete_study_material;
+        return data.deleteStudyMaterial;
     } catch {
         return { success: true, message: 'Material deleted successfully (mock)' };
     }
@@ -163,7 +163,7 @@ export async function fetchStudentMaterials(): Promise<StudyMaterial[]> {
             fetchPolicy: 'network-only',
         });
         if (!data) throw new Error('No data returned');
-        return data.available_materials_for_student;
+        return data.availableMaterialsForStudent;
     } catch {
         return MOCK_STUDENT_MATERIALS;
     }
@@ -173,7 +173,7 @@ export async function recordMaterialView(materialId: number): Promise<void> {
     try {
         await client.mutate<RecordEventResponse>({
             mutation: RECORD_MATERIAL_VIEW,
-            variables: { input: { material_id: materialId } },
+            variables: { input: { materialId } },
         });
     } catch {
         // non-critical – silently fail
@@ -184,7 +184,7 @@ export async function recordMaterialDownload(materialId: number): Promise<void> 
     try {
         await client.mutate<RecordEventResponse>({
             mutation: RECORD_MATERIAL_DOWNLOAD,
-            variables: { input: { material_id: materialId } },
+            variables: { input: { materialId } },
         });
     } catch {
         // non-critical – silently fail
@@ -210,12 +210,12 @@ export async function fetchAllMaterials(filters: HODMaterialFilters = {}): Promi
             fetchPolicy: 'network-only',
         });
         if (!data) throw new Error('No data returned');
-        return data.study_materials;
+        return data.studyMaterials;
     } catch {
         let result = [...MOCK_HOD_MATERIALS];
         if (filters.subjectId) result = result.filter((m) => m.subject.id === filters.subjectId);
         if (filters.sectionId) result = result.filter((m) => m.section.id === filters.sectionId);
-        if (filters.materialType) result = result.filter((m) => m.material_type === filters.materialType);
+        if (filters.materialType) result = result.filter((m) => m.materialType === filters.materialType);
         if (filters.status) result = result.filter((m) => m.status === filters.status);
         return result;
     }

@@ -86,6 +86,39 @@ export interface StudentAttendanceRecord {
     student?: StudentInfo;
 }
 
+export interface StudentAttendanceDetailInfo {
+    id: number;
+    firstName: string;
+    lastName: string;
+    registerNumber: string;
+    profilePhoto?: string;
+}
+
+export interface MarkedByInfo {
+    id: number;
+    fullName: string;
+}
+
+export interface StudentAttendanceDetail {
+    id: number;
+    status: AttendanceStatus;
+    markedAt?: string;
+    isManuallyMarked: boolean;
+    notes?: string;
+    hasImage: boolean;
+    imageUrl?: string;
+    latitude?: number;
+    longitude?: number;
+    registerNumber: string;
+    studentName: string;
+    student?: StudentAttendanceDetailInfo;
+    markedBy?: MarkedByInfo;
+}
+
+export interface StudentAttendanceDetailResponse {
+    studentAttendanceDetail: StudentAttendanceDetail;
+}
+
 export interface StudentAttendanceHistoryRecord {
     id: number;
     status: AttendanceStatus;

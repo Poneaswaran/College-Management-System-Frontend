@@ -7,22 +7,22 @@ import { gql } from '@apollo/client';
 export const GET_MY_TEACHING_ASSIGNMENTS = gql`
     query GetMyTeachingAssignments {
         myFacultySubjectsSections {
-            subject_id
-            subject_name
-            subject_code
-            section_id
-            section_name
+            subjectId
+            subjectName
+            subjectCode
+            sectionId
+            sectionName
         }
     }
 `;
 
 export const GET_MY_UPLOADED_MATERIALS = gql`
     query GetMyUploadedMaterials($status: String) {
-        my_uploaded_materials(status: $status) {
+        myUploadedMaterials(status: $status) {
             id
             title
             description
-            material_type
+            materialType
             status
             subject {
                 id
@@ -33,56 +33,56 @@ export const GET_MY_UPLOADED_MATERIALS = gql`
                 id
                 name
             }
-            file_url
-            file_size_mb
-            file_extension
-            view_count
-            download_count
-            uploaded_at
-            published_at
-            updated_at
+            fileUrl
+            fileSizeMb
+            fileExtension
+            viewCount
+            downloadCount
+            uploadedAt
+            publishedAt
+            updatedAt
         }
     }
 `;
 
 export const GET_MATERIAL_STATS = gql`
-    query GetMaterialStats($material_id: Int!) {
-        material_statistics(material_id: $material_id) {
-            material_id
-            total_downloads
-            unique_downloads
-            total_views
-            unique_views
-            recent_downloads {
+    query GetMaterialStats($materialId: Int!) {
+        materialStatistics(materialId: $materialId) {
+            materialId
+            totalDownloads
+            uniqueDownloads
+            totalViews
+            uniqueViews
+            recentDownloads {
                 id
-                student_name
-                student_roll_number
-                downloaded_at
-                ip_address
+                studentName
+                studentRollNumber
+                downloadedAt
+                ipAddress
             }
         }
     }
 `;
 
 export const GET_MATERIAL_DOWNLOAD_LIST = gql`
-    query GetMaterialDownloadList($material_id: Int!) {
-        material_download_list(material_id: $material_id) {
+    query GetMaterialDownloadList($materialId: Int!) {
+        materialDownloadList(materialId: $materialId) {
             id
-            student_name
-            student_roll_number
-            downloaded_at
-            ip_address
+            studentName
+            studentRollNumber
+            downloadedAt
+            ipAddress
         }
     }
 `;
 
 export const GET_STUDY_MATERIAL = gql`
     query GetStudyMaterial($id: Int!) {
-        study_material(id: $id) {
+        studyMaterial(id: $id) {
             id
             title
             description
-            material_type
+            materialType
             status
             subject {
                 id
@@ -95,16 +95,16 @@ export const GET_STUDY_MATERIAL = gql`
             }
             faculty {
                 id
-                full_name
+                fullName
             }
-            file_url
-            file_size_mb
-            file_extension
-            view_count
-            download_count
-            uploaded_at
-            published_at
-            updated_at
+            fileUrl
+            fileSizeMb
+            fileExtension
+            viewCount
+            downloadCount
+            uploadedAt
+            publishedAt
+            updatedAt
         }
     }
 `;
@@ -115,11 +115,11 @@ export const GET_STUDY_MATERIAL = gql`
 
 export const GET_AVAILABLE_MATERIALS_FOR_STUDENT = gql`
     query GetAvailableMaterialsForStudent {
-        available_materials_for_student {
+        availableMaterialsForStudent {
             id
             title
             description
-            material_type
+            materialType
             status
             subject {
                 id
@@ -132,16 +132,16 @@ export const GET_AVAILABLE_MATERIALS_FOR_STUDENT = gql`
             }
             faculty {
                 id
-                full_name
+                fullName
             }
-            file_url
-            file_size_mb
-            file_extension
-            view_count
-            download_count
-            uploaded_at
-            published_at
-            updated_at
+            fileUrl
+            fileSizeMb
+            fileExtension
+            viewCount
+            downloadCount
+            uploadedAt
+            publishedAt
+            updatedAt
         }
     }
 `;
@@ -157,7 +157,7 @@ export const GET_ALL_MATERIALS = gql`
         $materialType: String
         $status: String
     ) {
-        study_materials(
+        studyMaterials(
             subjectId: $subjectId
             sectionId: $sectionId
             materialType: $materialType
@@ -166,7 +166,7 @@ export const GET_ALL_MATERIALS = gql`
             id
             title
             description
-            material_type
+            materialType
             status
             subject {
                 id
@@ -179,16 +179,16 @@ export const GET_ALL_MATERIALS = gql`
             }
             faculty {
                 id
-                full_name
+                fullName
             }
-            file_url
-            file_size_mb
-            file_extension
-            view_count
-            download_count
-            uploaded_at
-            published_at
-            updated_at
+            fileUrl
+            fileSizeMb
+            fileExtension
+            viewCount
+            downloadCount
+            uploadedAt
+            publishedAt
+            updatedAt
         }
     }
 `;
@@ -199,14 +199,14 @@ export const GET_ALL_MATERIALS = gql`
 
 export const UPLOAD_STUDY_MATERIAL = gql`
     mutation UploadStudyMaterial($input: UploadStudyMaterialInput!) {
-        upload_study_material(input: $input) {
+        uploadStudyMaterial(input: $input) {
             success
             message
             material {
                 id
                 title
-                file_url
-                uploaded_at
+                fileUrl
+                uploadedAt
             }
         }
     }
@@ -214,21 +214,21 @@ export const UPLOAD_STUDY_MATERIAL = gql`
 
 export const UPDATE_STUDY_MATERIAL = gql`
     mutation UpdateStudyMaterial($input: UpdateStudyMaterialInput!) {
-        update_study_material(input: $input) {
+        updateStudyMaterial(input: $input) {
             success
             message
             material {
                 id
                 title
-                updated_at
+                updatedAt
             }
         }
     }
 `;
 
 export const DELETE_STUDY_MATERIAL = gql`
-    mutation DeleteStudyMaterial($material_id: Int!) {
-        delete_study_material(material_id: $material_id) {
+    mutation DeleteStudyMaterial($materialId: Int!) {
+        deleteStudyMaterial(materialId: $materialId) {
             success
             message
         }
@@ -237,7 +237,7 @@ export const DELETE_STUDY_MATERIAL = gql`
 
 export const RECORD_MATERIAL_VIEW = gql`
     mutation RecordMaterialView($input: RecordMaterialViewInput!) {
-        record_material_view(input: $input) {
+        recordMaterialView(input: $input) {
             success
             message
         }
@@ -246,12 +246,12 @@ export const RECORD_MATERIAL_VIEW = gql`
 
 export const RECORD_MATERIAL_DOWNLOAD = gql`
     mutation RecordMaterialDownload($input: RecordMaterialDownloadInput!) {
-        record_material_download(input: $input) {
+        recordMaterialDownload(input: $input) {
             success
             message
             material {
                 id
-                download_count
+                downloadCount
             }
         }
     }

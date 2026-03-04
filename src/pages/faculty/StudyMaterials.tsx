@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import React from 'react';
 import {
     Upload,
     FileText,
@@ -126,11 +127,10 @@ function FileDropZone({ file, onFile, required }: FileZoneProps) {
     return (
         <div>
             <div
-                className={`relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
-                    dragOver
+                className={`relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${dragOver
                         ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5'
                         : 'border-[var(--color-border)] hover:border-[var(--color-primary)]/50 bg-[var(--color-surface-elevated)]'
-                }`}
+                    }`}
                 onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={handleDrop}
@@ -187,7 +187,7 @@ function FileDropZone({ file, onFile, required }: FileZoneProps) {
 interface MaterialModalProps {
     mode: 'upload' | 'edit';
     material?: StudyMaterial | null;
-    assignments: Array<{ subject_id: number; subject_name: string; subject_code: string; section_id: number; section_name: string }>;
+    assignments: Array<{ subjectId: number; subjectName: string; subjectCode: string; sectionId: number; sectionName: string }>;
     onSubmit: (input: UploadMaterialInput | UpdateMaterialInput) => Promise<boolean>;
     onClose: () => void;
 }
@@ -195,22 +195,22 @@ interface MaterialModalProps {
 function MaterialModal({ mode, material, assignments, onSubmit, onClose }: MaterialModalProps) {
     const [title, setTitle] = useState(material?.title ?? '');
     const [description, setDescription] = useState(material?.description ?? '');
-    const [materialType, setMaterialType] = useState<MaterialType>(material?.material_type ?? 'NOTES');
+    const [materialType, setMaterialType] = useState<MaterialType>(material?.materialType ?? 'NOTES');
     const [status, setStatus] = useState<MaterialStatus>(material?.status ?? 'DRAFT');
-    const [selectedSubjectId, setSelectedSubjectId] = useState<number>(material?.subject.id ?? (assignments[0]?.subject_id ?? 0));
-    const [selectedSectionId, setSelectedSectionId] = useState<number>(material?.section.id ?? (assignments[0]?.section_id ?? 0));
+    const [selectedSubjectId, setSelectedSubjectId] = useState<number>(material?.subject.id ?? (assignments[0]?.subjectId ?? 0));
+    const [selectedSectionId, setSelectedSectionId] = useState<number>(material?.section.id ?? (assignments[0]?.sectionId ?? 0));
     const [file, setFile] = useState<File | null>(null);
     const [submitting, setSubmitting] = useState(false);
 
     const uniqueSubjects = assignments.filter(
-        (a, i, arr) => arr.findIndex((x) => x.subject_id === a.subject_id) === i,
+        (a, i, arr) => arr.findIndex((x) => x.subjectId === a.subjectId) === i,
     );
-    const sectionsForSubject = assignments.filter((a) => a.subject_id === selectedSubjectId);
+    const sectionsForSubject = assignments.filter((a) => a.subjectId === selectedSubjectId);
 
     const handleSubjectChange = (subjectId: number) => {
         setSelectedSubjectId(subjectId);
-        const firstSection = assignments.find((a) => a.subject_id === subjectId);
-        if (firstSection) setSelectedSectionId(firstSection.section_id);
+        const firstSection = assignments.find((a) => a.subjectId === subjectId);
+        if (firstSection) setSelectedSectionId(firstSection.sectionId);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -227,13 +227,13 @@ function MaterialModal({ mode, material, assignments, onSubmit, onClose }: Mater
                 reader.readAsDataURL(file!);
             });
             success = await onSubmit({
-                subject_id: selectedSubjectId,
-                section_id: selectedSectionId,
+                subjectId: selectedSubjectId,
+                sectionId: selectedSectionId,
                 title: title.trim(),
                 description: description.trim(),
-                material_type: materialType,
-                file_data: fileData,
-                file_name: file!.name,
+                materialType: materialType,
+                fileData: fileData,
+                fileName: file!.name,
                 status,
             } as UploadMaterialInput);
         } else {
@@ -241,7 +241,7 @@ function MaterialModal({ mode, material, assignments, onSubmit, onClose }: Mater
                 id: material!.id,
                 title: title.trim(),
                 description: description.trim(),
-                material_type: materialType,
+                materialType: materialType,
                 status,
             };
             if (file) {
@@ -250,8 +250,8 @@ function MaterialModal({ mode, material, assignments, onSubmit, onClose }: Mater
                     reader.onload = () => resolve(reader.result as string);
                     reader.readAsDataURL(file);
                 });
-                input.file_data = fileData;
-                input.file_name = file.name;
+                input.fileData = fileData;
+                input.fileName = file.name;
             }
             success = await onSubmit(input);
         }
@@ -308,8 +308,8 @@ function MaterialModal({ mode, material, assignments, onSubmit, onClose }: Mater
                                         onChange={(e) => handleSubjectChange(Number(e.target.value))}
                                     >
                                         {uniqueSubjects.map((a) => (
-                                            <option key={a.subject_id} value={a.subject_id}>
-                                                {a.subject_code}
+                                            <option key={a.subjectId} value={a.subjectId}>
+                                                {a.subjectCode}
                                             </option>
                                         ))}
                                     </select>
@@ -327,8 +327,8 @@ function MaterialModal({ mode, material, assignments, onSubmit, onClose }: Mater
                                         onChange={(e) => setSelectedSectionId(Number(e.target.value))}
                                     >
                                         {sectionsForSubject.map((a) => (
-                                            <option key={a.section_id} value={a.section_id}>
-                                                {a.section_name}
+                                            <option key={a.sectionId} value={a.sectionId}>
+                                                {a.sectionName}
                                             </option>
                                         ))}
                                     </select>
@@ -362,13 +362,12 @@ function MaterialModal({ mode, material, assignments, onSubmit, onClose }: Mater
                                         key={s}
                                         type="button"
                                         onClick={() => setStatus(s)}
-                                        className={`flex-1 py-1.5 text-xs font-semibold rounded border transition-all ${
-                                            status === s
+                                        className={`flex-1 py-1.5 text-xs font-semibold rounded border transition-all ${status === s
                                                 ? s === 'PUBLISHED'
                                                     ? 'bg-[var(--color-success-light)] text-[var(--color-success)] border-[var(--color-success)]'
                                                     : 'bg-[var(--color-warning-light)] text-[var(--color-warning)] border-[var(--color-warning)]'
                                                 : 'bg-transparent text-[var(--color-muted)] border-[var(--color-border)] hover:border-[var(--color-primary)]/50'
-                                        }`}
+                                            }`}
                                     >
                                         {MATERIAL_STATUS_LABELS[s]}
                                     </button>
@@ -433,10 +432,10 @@ function StatsModal({ material, stats, loading, onClose }: StatsModalProps) {
                         <>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                                 {[
-                                    { label: 'Total Downloads', value: stats.total_downloads, icon: <Download size={16} /> },
-                                    { label: 'Unique Downloads', value: stats.unique_downloads, icon: <Download size={16} /> },
-                                    { label: 'Total Views', value: stats.total_views, icon: <Eye size={16} /> },
-                                    { label: 'Unique Views', value: stats.unique_views, icon: <Eye size={16} /> },
+                                    { label: 'Total Downloads', value: stats.totalDownloads, icon: <Download size={16} /> },
+                                    { label: 'Unique Downloads', value: stats.uniqueDownloads, icon: <Download size={16} /> },
+                                    { label: 'Total Views', value: stats.totalViews, icon: <Eye size={16} /> },
+                                    { label: 'Unique Views', value: stats.uniqueViews, icon: <Eye size={16} /> },
                                 ].map((stat) => (
                                     <div key={stat.label} className="bg-[var(--color-surface-elevated)] border border-[var(--color-border)] rounded-lg p-3 text-center">
                                         <div className="text-[var(--color-primary)] mb-1 flex justify-center">{stat.icon}</div>
@@ -446,7 +445,7 @@ function StatsModal({ material, stats, loading, onClose }: StatsModalProps) {
                                 ))}
                             </div>
                             <h3 className="text-sm font-semibold text-[var(--color-muted)] uppercase tracking-wider mb-3">Recent Downloads</h3>
-                            {stats.recent_downloads.length === 0 ? (
+                            {stats.recentDownloads.length === 0 ? (
                                 <p className="text-sm text-[var(--color-muted)] text-center py-4">No downloads yet.</p>
                             ) : (
                                 <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
@@ -459,12 +458,12 @@ function StatsModal({ material, stats, loading, onClose }: StatsModalProps) {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-[var(--color-border)]">
-                                            {stats.recent_downloads.map((rec) => (
+                                            {stats.recentDownloads.map((rec) => (
                                                 <tr key={rec.id} className="hover:bg-[var(--color-surface-elevated)] transition-colors">
-                                                    <td className="px-4 py-2.5 font-medium text-[var(--color-foreground)]">{rec.student_name}</td>
-                                                    <td className="px-4 py-2.5 text-[var(--color-muted)] font-mono text-xs">{rec.student_roll_number}</td>
-                                                    <td className="px-4 py-2.5 text-[var(--color-muted)]">{formatDate(rec.downloaded_at)}</td>
-                                                    <td className="px-4 py-2.5 text-[var(--color-muted)] font-mono text-xs">{rec.ip_address}</td>
+                                                    <td className="px-4 py-2.5 font-medium text-[var(--color-foreground)]">{rec.studentName}</td>
+                                                    <td className="px-4 py-2.5 text-[var(--color-muted)] font-mono text-xs">{rec.studentRollNumber}</td>
+                                                    <td className="px-4 py-2.5 text-[var(--color-muted)]">{formatDate(rec.downloadedAt)}</td>
+                                                    <td className="px-4 py-2.5 text-[var(--color-muted)] font-mono text-xs">{rec.ipAddress}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -562,8 +561,8 @@ export default function StudyMaterials() {
     };
 
     // Summary stats
-    const totalDownloads = allMaterials.reduce((s, m) => s + m.download_count, 0);
-    const totalViews = allMaterials.reduce((s, m) => s + m.view_count, 0);
+    const totalDownloads = allMaterials.reduce((s, m) => s + m.downloadCount, 0);
+    const totalViews = allMaterials.reduce((s, m) => s + m.viewCount, 0);
 
     const STATUS_TABS: Array<{ key: string; label: string }> = [
         { key: '', label: 'All' },
@@ -603,11 +602,10 @@ export default function StudyMaterials() {
                             <button
                                 key={tab.key}
                                 onClick={() => setStatusFilter(tab.key)}
-                                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
-                                    statusFilter === tab.key
+                                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${statusFilter === tab.key
                                         ? 'bg-[var(--color-primary)] text-white shadow-sm'
                                         : 'text-[var(--color-muted)] hover:text-[var(--color-foreground)]'
-                                }`}
+                                    }`}
                             >
                                 {tab.label}
                             </button>
@@ -690,8 +688,8 @@ export default function StudyMaterials() {
                             </thead>
                             <tbody className="divide-y divide-[var(--color-border)]">
                                 {materials.map((mat) => (
-                                    <>
-                                        <tr key={mat.id} className="hover:bg-[var(--color-surface-elevated)] transition-colors group">
+                                    <React.Fragment key={mat.id}>
+                                        <tr className="hover:bg-[var(--color-surface-elevated)] transition-colors group">
                                             <td className="px-4 py-3 max-w-xs">
                                                 <p className="font-medium text-[var(--color-foreground)] truncate">{mat.title}</p>
                                                 {mat.description && (
@@ -703,23 +701,23 @@ export default function StudyMaterials() {
                                                 <p className="text-xs text-[var(--color-muted)]">{mat.section.name}</p>
                                             </td>
                                             <td className="px-4 py-3 whitespace-nowrap">
-                                                <TypeBadge type={mat.material_type} />
+                                                <TypeBadge type={mat.materialType} />
                                             </td>
                                             <td className="px-4 py-3 whitespace-nowrap">
                                                 <StatusBadge status={mat.status} />
                                             </td>
                                             <td className="px-4 py-3 whitespace-nowrap text-[var(--color-muted)]">
-                                                <span className="font-mono text-xs">{formatSize(mat.file_size_mb)}</span>
-                                                <span className="ml-1 text-xs text-[var(--color-muted)]/60 uppercase">{mat.file_extension.replace('.', '')}</span>
+                                                <span className="font-mono text-xs">{formatSize(mat.fileSizeMb)}</span>
+                                                <span className="ml-1 text-xs text-[var(--color-muted)]/60 uppercase">{mat.fileExtension.replace('.', '')}</span>
                                             </td>
                                             <td className="px-4 py-3 whitespace-nowrap">
                                                 <div className="flex items-center gap-2 text-[var(--color-muted)]">
-                                                    <span className="flex items-center gap-1 text-xs"><Download size={11} /> {mat.download_count}</span>
-                                                    <span className="flex items-center gap-1 text-xs"><Eye size={11} /> {mat.view_count}</span>
+                                                    <span className="flex items-center gap-1 text-xs"><Download size={11} /> {mat.downloadCount}</span>
+                                                    <span className="flex items-center gap-1 text-xs"><Eye size={11} /> {mat.viewCount}</span>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3 whitespace-nowrap text-xs text-[var(--color-muted)]">
-                                                {formatDate(mat.uploaded_at)}
+                                                {formatDate(mat.uploadedAt)}
                                             </td>
                                             <td className="px-4 py-3 whitespace-nowrap">
                                                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -755,7 +753,7 @@ export default function StudyMaterials() {
                                                 />
                                             </tr>
                                         )}
-                                    </>
+                                    </React.Fragment>
                                 ))}
                             </tbody>
                         </table>

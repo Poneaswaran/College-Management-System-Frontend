@@ -16,6 +16,7 @@ import {
     User,
     Calendar,
 } from 'lucide-react';
+import React from 'react';
 import PageLayout from '../../components/layout/PageLayout';
 import { useStudentMaterials } from '../../features/faculty/hooks/studyMaterials';
 import type { StudyMaterial, MaterialType } from '../../features/faculty/types/studyMaterials';
@@ -62,10 +63,10 @@ function ExtBadge({ ext }: { ext: string }) {
     const color = isVideo
         ? 'bg-rose-100 text-rose-700'
         : isDoc
-        ? 'bg-blue-100 text-blue-700'
-        : isSlide
-        ? 'bg-orange-100 text-orange-700'
-        : 'bg-[var(--color-surface-elevated)] text-[var(--color-muted)]';
+            ? 'bg-blue-100 text-blue-700'
+            : isSlide
+                ? 'bg-orange-100 text-orange-700'
+                : 'bg-[var(--color-surface-elevated)] text-[var(--color-muted)]';
     return <span className={`px-1.5 py-0.5 rounded text-xs font-bold font-mono ${color}`}>{clean}</span>;
 }
 
@@ -78,14 +79,14 @@ interface DetailPanelProps {
 }
 
 function DetailPanel({ material, onClose, onDownload }: DetailPanelProps) {
-    const tc = TYPE_COLORS[material.material_type];
+    const tc = TYPE_COLORS[material.materialType];
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
             <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-theme-xl w-full max-w-lg animate-scale-in">
                 <div className="flex items-start justify-between p-5 border-b border-[var(--color-border)]">
                     <div className="flex items-start gap-4">
                         <div className={`p-3 rounded-lg ${tc.bg} ${tc.text} border ${tc.border}`}>
-                            {TYPE_ICONS[material.material_type]}
+                            {TYPE_ICONS[material.materialType]}
                         </div>
                         <div>
                             <h2 className="text-base font-bold text-[var(--color-foreground)] leading-tight">{material.title}</h2>
@@ -110,23 +111,23 @@ function DetailPanel({ material, onClose, onDownload }: DetailPanelProps) {
                         </div>
                         <div className="bg-[var(--color-surface-elevated)] border border-[var(--color-border)] rounded-lg p-3">
                             <p className="text-xs text-[var(--color-muted)] uppercase tracking-wider mb-1">Faculty</p>
-                            <p className="font-semibold text-[var(--color-foreground)]">{material.faculty?.full_name ?? '—'}</p>
+                            <p className="font-semibold text-[var(--color-foreground)]">{material.faculty?.fullName ?? '—'}</p>
                         </div>
                         <div className="bg-[var(--color-surface-elevated)] border border-[var(--color-border)] rounded-lg p-3">
                             <p className="text-xs text-[var(--color-muted)] uppercase tracking-wider mb-1">File</p>
                             <div className="flex items-center gap-1.5">
-                                <ExtBadge ext={material.file_extension} />
-                                <span className="text-[var(--color-muted)] text-xs">{formatSize(material.file_size_mb)}</span>
+                                <ExtBadge ext={material.fileExtension} />
+                                <span className="text-[var(--color-muted)] text-xs">{formatSize(material.fileSizeMb)}</span>
                             </div>
                         </div>
                         <div className="bg-[var(--color-surface-elevated)] border border-[var(--color-border)] rounded-lg p-3">
                             <p className="text-xs text-[var(--color-muted)] uppercase tracking-wider mb-1">Uploaded</p>
-                            <p className="font-semibold text-[var(--color-foreground)]">{formatDate(material.uploaded_at)}</p>
+                            <p className="font-semibold text-[var(--color-foreground)]">{formatDate(material.uploadedAt)}</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-4 text-xs text-[var(--color-muted)]">
-                        <span className="flex items-center gap-1"><Eye size={12} /> {material.view_count} views</span>
-                        <span className="flex items-center gap-1"><Download size={12} /> {material.download_count} downloads</span>
+                        <span className="flex items-center gap-1"><Eye size={12} /> {material.viewCount} views</span>
+                        <span className="flex items-center gap-1"><Download size={12} /> {material.downloadCount} downloads</span>
                     </div>
                     <div className="flex gap-3 pt-2">
                         <button onClick={onClose} className="btn btn-outline btn-md flex-1">Close</button>
@@ -152,7 +153,7 @@ interface MaterialCardProps {
 }
 
 function MaterialCard({ material, onView, onDownload }: MaterialCardProps) {
-    const tc = TYPE_COLORS[material.material_type];
+    const tc = TYPE_COLORS[material.materialType];
     return (
         <div
             className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-theme-md hover:shadow-theme-xl hover:border-[var(--color-primary)]/40 transition-all cursor-pointer group animate-slide-up"
@@ -161,10 +162,10 @@ function MaterialCard({ material, onView, onDownload }: MaterialCardProps) {
             {/* Header */}
             <div className={`p-4 border-b border-[var(--color-border)] flex items-center gap-3`}>
                 <div className={`p-2.5 rounded-lg ${tc.bg} ${tc.text} border ${tc.border}`}>
-                    {TYPE_ICONS[material.material_type]}
+                    {TYPE_ICONS[material.materialType]}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-semibold uppercase tracking-wider ${tc.text}`}>{MATERIAL_TYPE_LABELS[material.material_type]}</p>
+                    <p className={`text-xs font-semibold uppercase tracking-wider ${tc.text}`}>{MATERIAL_TYPE_LABELS[material.materialType]}</p>
                     <p className="font-semibold text-[var(--color-foreground)] text-sm leading-snug mt-0.5 truncate">{material.title}</p>
                 </div>
             </div>
@@ -182,23 +183,23 @@ function MaterialCard({ material, onView, onDownload }: MaterialCardProps) {
                 {material.faculty && (
                     <div className="flex items-center gap-1.5 text-xs text-[var(--color-muted)]">
                         <User size={11} />
-                        <span>{material.faculty.full_name}</span>
+                        <span>{material.faculty.fullName}</span>
                     </div>
                 )}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                        <ExtBadge ext={material.file_extension} />
-                        <span className="text-xs text-[var(--color-muted)]">{formatSize(material.file_size_mb)}</span>
+                        <ExtBadge ext={material.fileExtension} />
+                        <span className="text-xs text-[var(--color-muted)]">{formatSize(material.fileSizeMb)}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-[var(--color-muted)]">
                         <Calendar size={10} />
-                        {formatDate(material.published_at ?? material.uploaded_at)}
+                        {formatDate(material.publishedAt ?? material.uploadedAt)}
                     </div>
                 </div>
                 <div className="flex items-center justify-between text-xs text-[var(--color-muted)]">
                     <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1"><Eye size={10} /> {material.view_count}</span>
-                        <span className="flex items-center gap-1"><Download size={10} /> {material.download_count}</span>
+                        <span className="flex items-center gap-1"><Eye size={10} /> {material.viewCount}</span>
+                        <span className="flex items-center gap-1"><Download size={10} /> {material.downloadCount}</span>
                     </div>
                     <button
                         onClick={(e) => { e.stopPropagation(); onDownload(material); }}

@@ -9,6 +9,8 @@ import { ensureInt } from '../../utils/graphql-helpers';
 import type {
     AttendanceSession,
     StudentAttendanceRecord,
+    StudentAttendanceDetail,
+    StudentAttendanceDetailResponse,
     StudentAttendanceHistoryRecord,
     AttendanceReport,
     OpenSessionInput,
@@ -27,6 +29,7 @@ import {
     FACULTY_SESSIONS_TODAY_QUERY,
     GET_ATTENDANCE_SESSION_QUERY,
     SECTION_ATTENDANCE_FOR_SESSION_QUERY,
+    GET_STUDENT_ATTENDANCE_DETAIL_QUERY,
     LOW_ATTENDANCE_STUDENTS_QUERY,
     STUDENT_ATTENDANCE_HISTORY_QUERY,
     OPEN_ATTENDANCE_SESSION_MUTATION,
@@ -95,6 +98,30 @@ export const fetchSectionAttendanceForSession = async (
 
     return data.sectionAttendanceForSession;
 };
+
+/**
+ * Get detailed attendance info for a single student in a session
+ */
+export const fetchStudentAttendanceDetail = async (
+    sessionId: number,
+    studentId: number
+): Promise<StudentAttendanceDetail> => {
+    const { data } = await client.query<StudentAttendanceDetailResponse>({
+        query: GET_STUDENT_ATTENDANCE_DETAIL_QUERY,
+        variables: {
+            sessionId: ensureInt(sessionId),
+            studentId: ensureInt(studentId),
+        },
+        fetchPolicy: 'network-only',
+    });
+
+    if (!data?.studentAttendanceDetail) {
+        throw new Error('Failed to fetch student attendance detail');
+    }
+
+    return data.studentAttendanceDetail;
+};
+
 
 /**
  * Get students with low attendance for a subject
