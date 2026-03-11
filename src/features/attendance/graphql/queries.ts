@@ -266,3 +266,21 @@ export const RECALCULATE_ATTENDANCE_REPORT_MUTATION = gql`
     }
   }
 `;
+
+export const GET_FACULTY_ATTENDANCE_HISTORY = gql`
+  query GetFacultyAttendance($facultyId: Int, $dateFrom: Date, $dateTo: Date) {
+    facultyAttendanceHistory(facultyId: $facultyId, dateFrom: $dateFrom, dateTo: $dateTo) {
+      id
+      date
+      facultyName
+      punchInTime
+      punchInPhotoUrl
+      punchInLatitude
+      punchInLongitude
+      punchOutTime
+      punchOutPhotoUrl
+      isLate
+      notes
+    }
+  }
+`;

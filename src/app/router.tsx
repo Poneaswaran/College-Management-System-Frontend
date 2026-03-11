@@ -28,6 +28,7 @@ const StudyMaterials = lazy(() => import('../pages/faculty/StudyMaterials'));
 
 // Attendance & Leave Management Pages - Faculty
 const AttendanceManagement = lazy(() => import('../pages/faculty/AttendanceManagement'));
+const FacultyMarkAttendance = lazy(() => import('../pages/faculty/MarkAttendance'));
 const LeaveApplication = lazy(() => import('../pages/faculty/LeaveApplication'));
 
 // Grade Submission - Faculty
@@ -111,6 +112,7 @@ export function AppRouter() {
           <Route path="/faculty/assignments/create" element={<CreateAssignment />} />
           <Route path="/faculty/materials" element={<StudyMaterials />} />
           <Route path="/faculty/attendance" element={<AttendanceManagement />} />
+          <Route path="/faculty/mark-attendance" element={<FacultyMarkAttendance />} />
           <Route path="/faculty/leave" element={<LeaveApplication />} />
           <Route path="/faculty/grades" element={<FacultyGrades />} />
           <Route path="/faculty/grades/:id" element={<FacultyGradeDetail />} />

@@ -20,6 +20,7 @@ import {
     ChevronRight,
     Menu,
     X,
+    UserCheck,
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -55,11 +56,19 @@ const studentSidebarItems: MenuItem[] = [
     { icon: User, label: 'Profile', path: '/student/profile' },
 ];
 
-const facultySidebarItems: MenuItem[] = [
+const facultySidebarItems: SidebarItem[] = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/faculty/dashboard' },
     { icon: BookOpen, label: 'My Courses', path: '/faculty/courses' },
     { icon: Users, label: 'Student List', path: '/faculty/students' },
-    { icon: ClipboardCheck, label: 'Attendance Management', path: '/faculty/attendance' },
+    {
+        icon: ClipboardCheck,
+        label: 'Attendance',
+        isDropdown: true,
+        children: [
+            { icon: ClipboardCheck, label: 'Attendance Management', path: '/faculty/attendance' },
+            { icon: UserCheck, label: 'Mark Attendance', path: '/faculty/mark-attendance' },
+        ]
+    },
     { icon: GraduationCap, label: 'Grade Submission', path: '/faculty/grades' },
     { icon: FileText, label: 'Assignments Management', path: '/faculty/assignments' },
     { icon: Upload, label: 'Study Materials Upload', path: '/faculty/materials' },

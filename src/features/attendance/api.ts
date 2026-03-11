@@ -23,7 +23,11 @@ import type {
     ManualMarkResponse,
     BulkMarkPresentResponse,
     RecalculateReportResponse,
+    FacultyPunchInput,
+    FacultyAttendanceHistory,
+    GetFacultyAttendanceResponse,
 } from './types';
+import axiosApi from '../../lib/axios';
 
 import {
     FACULTY_SESSIONS_TODAY_QUERY,
@@ -39,6 +43,7 @@ import {
     MANUAL_MARK_ATTENDANCE_MUTATION,
     BULK_MARK_PRESENT_MUTATION,
     RECALCULATE_ATTENDANCE_REPORT_MUTATION,
+    GET_FACULTY_ATTENDANCE_HISTORY,
 } from './graphql/queries';
 
 // ============================================
@@ -173,6 +178,31 @@ export const fetchStudentAttendanceHistory = async (
     }
 
     return data.studentAttendanceHistory;
+};
+
+/**
+ * Get faculty attendance history
+ */
+export const fetchFacultyAttendanceHistory = async (
+    facultyId?: number,
+    dateFrom?: string,
+    dateTo?: string
+): Promise<FacultyAttendanceHistory[]> => {
+    const { data } = await client.query<GetFacultyAttendanceResponse>({
+        query: GET_FACULTY_ATTENDANCE_HISTORY,
+        variables: {
+            facultyId: facultyId ? ensureInt(facultyId) : undefined,
+            dateFrom,
+            dateTo,
+        },
+        fetchPolicy: 'network-only',
+    });
+
+    if (!data?.facultyAttendanceHistory) {
+        throw new Error('Failed to fetch faculty attendance history');
+    }
+
+    return data.facultyAttendanceHistory;
 };
 
 // ============================================
@@ -324,4 +354,54 @@ export const recalculateAttendanceReport = async (
     }
 
     return data.recalculateAttendanceReport;
+};
+
+// ============================================
+// FACULTY PUNCH (REST)
+// ============================================
+
+/**
+ * Faculty punch-in
+ */
+export const facultyPunchIn = async (input: FacultyPunchInput): Promise<{ message: string }> => {
+    const formData = new FormData();
+    if (input.punch_in_photo) {
+        formData.append('punch_in_photo', input.punch_in_photo);
+    }
+    formData.append('punch_in_latitude', input.latitude.toString());
+    formData.append('punch_in_longitude', input.longitude.toString());
+    if (input.notes) {
+        formData.append('notes', input.notes);
+    }
+
+    const { data } = await axiosApi.post('/attendance/faculty/punch-in/', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+
+    return data;
+};
+
+/**
+ * Faculty punch-out
+ */
+export const facultyPunchOut = async (input: FacultyPunchInput): Promise<{ message: string }> => {
+    const formData = new FormData();
+    if (input.punch_out_photo) {
+        formData.append('punch_out_photo', input.punch_out_photo);
+    }
+    formData.append('punch_out_latitude', input.latitude.toString());
+    formData.append('punch_out_longitude', input.longitude.toString());
+    if (input.notes) {
+        formData.append('notes', input.notes);
+    }
+
+    const { data } = await axiosApi.post('/attendance/faculty/punch-out/', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+
+    return data;
 };

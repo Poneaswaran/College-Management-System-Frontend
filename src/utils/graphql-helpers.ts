@@ -28,6 +28,17 @@ export const ensureInt = (value: string | number | null | undefined): number | u
 };
 
 /**
+ * Ensures an ID is stringified for GraphQL ID inputs.
+ * 
+ * @param id The ID to format
+ * @returns string
+ */
+export const formatId = (id: string | number | null | undefined): string => {
+    if (id === null || id === undefined) return '';
+    return String(id);
+};
+
+/**
  * Ensures a value is converted to a float/number for GraphQL inputs.
  * 
  * @param value The input value

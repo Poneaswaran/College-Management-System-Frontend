@@ -46,7 +46,7 @@ export const GET_MY_UPLOADED_MATERIALS = gql`
 `;
 
 export const GET_MATERIAL_STATS = gql`
-    query GetMaterialStats($materialId: Int!) {
+    query GetMaterialStats($materialId: ID!) {
         materialStatistics(materialId: $materialId) {
             materialId
             totalDownloads
@@ -65,7 +65,7 @@ export const GET_MATERIAL_STATS = gql`
 `;
 
 export const GET_MATERIAL_DOWNLOAD_LIST = gql`
-    query GetMaterialDownloadList($materialId: Int!) {
+    query GetMaterialDownloadList($materialId: ID!) {
         materialDownloadList(materialId: $materialId) {
             id
             studentName
@@ -227,7 +227,7 @@ export const UPDATE_STUDY_MATERIAL = gql`
 `;
 
 export const DELETE_STUDY_MATERIAL = gql`
-    mutation DeleteStudyMaterial($materialId: Int!) {
+    mutation DeleteStudyMaterial($materialId: ID!) {
         deleteStudyMaterial(materialId: $materialId) {
             success
             message

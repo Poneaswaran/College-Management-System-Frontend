@@ -1,4 +1,4 @@
-import { StudyMaterial, TeachingAssignment, MaterialStats, DownloadRecord } from '../types/studyMaterials';
+import type { StudyMaterial, TeachingAssignment, MaterialStats, DownloadRecord } from '../types/studyMaterials';
 
 // ============================================
 // Mock data for Study Materials module

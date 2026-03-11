@@ -6,12 +6,12 @@ import {
     GET_AVAILABLE_MATERIALS_FOR_STUDENT,
     GET_MATERIAL_STATS,
     GET_ALL_MATERIALS,
-    UPLOAD_STUDY_MATERIAL,
     UPDATE_STUDY_MATERIAL,
     DELETE_STUDY_MATERIAL,
     RECORD_MATERIAL_VIEW,
     RECORD_MATERIAL_DOWNLOAD,
 } from '../graphql/studyMaterials';
+import api from '../../../lib/axios';
 import {
     MOCK_TEACHING_ASSIGNMENTS,
     MOCK_FACULTY_MATERIALS,
@@ -19,6 +19,7 @@ import {
     MOCK_HOD_MATERIALS,
     getMockStats,
 } from '../mockData/studyMaterials';
+import { formatId, ensureInt } from '../../../utils/graphql-helpers';
 
 // ============================================
 // Apollo response interfaces
@@ -42,10 +43,6 @@ interface MaterialStatsResponse {
 
 interface AllMaterialsResponse {
     studyMaterials: StudyMaterial[];
-}
-
-interface UploadMaterialResponse {
-    uploadStudyMaterial: UploadMaterialResult;
 }
 
 interface UpdateMaterialResponse {
@@ -95,33 +92,54 @@ export async function fetchMyMaterials(status?: string): Promise<StudyMaterial[]
     }
 }
 
-export async function fetchMaterialStats(materialId: number): Promise<MaterialStats> {
+export async function fetchMaterialStats(materialId: number | string): Promise<MaterialStats> {
+    const fId = formatId(materialId);
     try {
         const { data } = await client.query<MaterialStatsResponse>({
             query: GET_MATERIAL_STATS,
-            variables: { materialId },
+            variables: { materialId: fId },
             fetchPolicy: 'network-only',
         });
         if (!data) throw new Error('No data returned');
         return data.materialStatistics;
     } catch {
-        return getMockStats(materialId);
+        return getMockStats(Number(fId) || 0);
     }
 }
 
 export async function uploadMaterial(input: UploadMaterialInput): Promise<UploadMaterialResult> {
     try {
-        const { data } = await client.mutate<UploadMaterialResponse>({
-            mutation: UPLOAD_STUDY_MATERIAL,
-            variables: { input },
+        const formData = new FormData();
+        formData.append('subject', input.subjectId.toString());
+        formData.append('section', input.sectionId.toString());
+        formData.append('title', input.title);
+        formData.append('material_type', input.materialType);
+        formData.append('status', input.status);
+        if (input.file) {
+            formData.append('file', input.file);
+        }
+        if (input.description) {
+            formData.append('description', input.description);
+        }
+
+        const { data } = await api.post('/study-materials/upload/', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
         });
-        if (!data) throw new Error('No data returned');
-        return data.uploadStudyMaterial;
-    } catch {
+
         return {
             success: true,
-            message: 'Material uploaded successfully (mock)',
-            material: { id: Date.now(), title: input.title, fileUrl: '#', uploadedAt: new Date().toISOString() },
+            message: 'Material uploaded successfully',
+            material: data,
+        };
+    } catch (error) {
+        console.error('Upload failed:', error);
+        const err = error as { response?: { data?: { message?: string } } };
+        return {
+            success: false,
+            message: err?.response?.data?.message || 'Failed to upload material',
+            material: null as unknown as { id: number; title: string; fileUrl: string; uploadedAt: string },
         };
     }
 }
@@ -139,11 +157,12 @@ export async function updateMaterial(input: UpdateMaterialInput): Promise<Mutati
     }
 }
 
-export async function deleteMaterial(materialId: number): Promise<MutationResult> {
+export async function deleteMaterial(materialId: number | string): Promise<MutationResult> {
+    const fId = formatId(materialId);
     try {
         const { data } = await client.mutate<DeleteMaterialResponse>({
             mutation: DELETE_STUDY_MATERIAL,
-            variables: { materialId },
+            variables: { materialId: fId },
         });
         if (!data) throw new Error('No data returned');
         return data.deleteStudyMaterial;
@@ -169,22 +188,24 @@ export async function fetchStudentMaterials(): Promise<StudyMaterial[]> {
     }
 }
 
-export async function recordMaterialView(materialId: number): Promise<void> {
+export async function recordMaterialView(materialId: number | string): Promise<void> {
+    const pId = ensureInt(materialId);
     try {
         await client.mutate<RecordEventResponse>({
             mutation: RECORD_MATERIAL_VIEW,
-            variables: { input: { materialId } },
+            variables: { input: { materialId: pId } },
         });
     } catch {
         // non-critical – silently fail
     }
 }
 
-export async function recordMaterialDownload(materialId: number): Promise<void> {
+export async function recordMaterialDownload(materialId: number | string): Promise<void> {
+    const pId = ensureInt(materialId);
     try {
         await client.mutate<RecordEventResponse>({
             mutation: RECORD_MATERIAL_DOWNLOAD,
-            variables: { input: { materialId } },
+            variables: { input: { materialId: pId } },
         });
     } catch {
         // non-critical – silently fail
@@ -203,10 +224,15 @@ export interface HODMaterialFilters {
 }
 
 export async function fetchAllMaterials(filters: HODMaterialFilters = {}): Promise<StudyMaterial[]> {
+    const safeFilters = {
+        ...filters,
+        subjectId: filters.subjectId ? ensureInt(filters.subjectId) : undefined,
+        sectionId: filters.sectionId ? ensureInt(filters.sectionId) : undefined,
+    };
     try {
         const { data } = await client.query<AllMaterialsResponse>({
             query: GET_ALL_MATERIALS,
-            variables: filters,
+            variables: safeFilters,
             fetchPolicy: 'network-only',
         });
         if (!data) throw new Error('No data returned');

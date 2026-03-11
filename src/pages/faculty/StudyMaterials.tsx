@@ -221,18 +221,13 @@ function MaterialModal({ mode, material, assignments, onSubmit, onClose }: Mater
         setSubmitting(true);
         let success: boolean;
         if (mode === 'upload') {
-            const reader = new FileReader();
-            const fileData = await new Promise<string>((resolve) => {
-                reader.onload = () => resolve(reader.result as string);
-                reader.readAsDataURL(file!);
-            });
             success = await onSubmit({
                 subjectId: selectedSubjectId,
                 sectionId: selectedSectionId,
                 title: title.trim(),
                 description: description.trim(),
                 materialType: materialType,
-                fileData: fileData,
+                file: file!,
                 fileName: file!.name,
                 status,
             } as UploadMaterialInput);

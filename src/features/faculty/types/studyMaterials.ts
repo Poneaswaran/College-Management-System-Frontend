@@ -104,8 +104,9 @@ export interface UploadMaterialInput {
     title: string;
     description: string;
     materialType: MaterialType;
-    fileData: string;              // Base64 data URI
-    fileName: string;
+    fileData?: string;              // Base64 data URI (optional now)
+    fileName?: string;
+    file?: File;                    // Added actual File object for REST API
     status: MaterialStatus;
 }
 
@@ -117,6 +118,7 @@ export interface UpdateMaterialInput {
     status?: MaterialStatus;
     fileData?: string;
     fileName?: string;
+    file?: File;
 }
 
 export interface MutationResult {

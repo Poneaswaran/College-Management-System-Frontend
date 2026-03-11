@@ -210,3 +210,33 @@ export interface BulkMarkPresentResponse {
 export interface RecalculateReportResponse {
     recalculateAttendanceReport: AttendanceReport;
 }
+
+// ============================================
+// FACULTY PUNCH TYPES (REST)
+// ============================================
+
+export interface FacultyPunchInput {
+    punch_in_photo?: File;
+    punch_out_photo?: File;
+    latitude: number;
+    longitude: number;
+    notes?: string;
+}
+
+export interface FacultyAttendanceHistory {
+    id: number;
+    date: string;
+    facultyName: string;
+    punchInTime: string;
+    punchInPhotoUrl: string;
+    punchInLatitude: number;
+    punchInLongitude: number;
+    punchOutTime: string | null;
+    punchOutPhotoUrl: string | null;
+    isLate: boolean;
+    notes: string | null;
+}
+
+export interface GetFacultyAttendanceResponse {
+    facultyAttendanceHistory: FacultyAttendanceHistory[];
+}
