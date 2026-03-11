@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client/react';
 import { Edit3, CheckCircle, FileText } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
+import { Header } from '../../components/layout/Header';
 import { GET_EXAM_SCHEDULES } from '../../features/exams/graphql';
 import type { ExamSchedule } from '../../features/exams/types';
 
@@ -15,9 +16,9 @@ export default function FacultyExams() {
 
     return (
         <PageLayout>
+            <Header title="Invigilation & Marks Entry" />
             <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-[var(--color-foreground)]">Invigilation & Marks Entry</h1>
                     <p className="text-[var(--color-foreground-muted)]">View your exam schedules and enter student marks.</p>
                 </div>
 

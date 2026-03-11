@@ -57,7 +57,9 @@ export const parseGraphQLError = (error: unknown): GraphQLErrorDetails => {
         if (
             errorDetails.code === 'UNAUTHENTICATED' ||
             gqlError.message.toLowerCase().includes('unauthorized') ||
-            gqlError.message.toLowerCase().includes('not authenticated')
+            gqlError.message.toLowerCase().includes('not authenticated') ||
+            gqlError.message.toLowerCase().includes('authentication required') ||
+            gqlError.message.toLowerCase().includes('please login')
         ) {
             errorDetails.isAuthError = true;
             errorDetails.message = 'Your session has expired. Please login again.';

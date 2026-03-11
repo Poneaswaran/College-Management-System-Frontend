@@ -17,6 +17,7 @@ import {
     TrendingUp,
 } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
+import { Header } from '../../components/layout/Header';
 import { useFacultyGradeDetail } from '../../features/faculty/hooks/grades';
 import type { GradeStatus, ExamType, LetterGrade } from '../../features/faculty/types/grades';
 import { getMediaUrl } from '../../lib/constants';
@@ -269,18 +270,23 @@ export default function FacultyGradeDetail() {
 
     return (
         <PageLayout>
+            <Header title="Grade details" />
             <main className="p-4 md:p-6 lg:p-8 space-y-6">
 
-                {/* ——— Header ——— */}
-                <div className="flex items-start gap-4">
+                {/* ——— Back Link ——— */}
+                <div className="flex items-center gap-2 -mt-2 mb-4">
                     <button
                         onClick={() => navigate('/faculty/grades')}
-                        className="mt-1 p-2 rounded-lg hover:bg-[var(--color-background-secondary)] transition-colors text-[var(--color-foreground-muted)]"
-                        aria-label="Back to course list"
+                        className="p-1 px-2 rounded-lg hover:bg-[var(--color-background-secondary)] transition-colors text-[var(--color-foreground-muted)] flex items-center gap-1.5 text-sm"
                     >
-                        <ArrowLeft size={20} />
+                        <ArrowLeft size={16} />
+                        Back to Grade List
                     </button>
-                    <div className="flex-1 min-w-0">
+                </div>
+
+                {/* ——— Course Header Info ——— */}
+                <div className="flex items-start gap-4">
+                    <div className="flex-1 min-w-0 font-mono">
                         <div className="flex items-center gap-3 flex-wrap">
                             <h1 className="text-xl md:text-2xl font-bold text-[var(--color-foreground)] truncate">
                                 {courseSection.subjectName}

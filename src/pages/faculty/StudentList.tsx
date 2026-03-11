@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client/react';
 import PageLayout from '../../components/layout/PageLayout';
+import { Header } from '../../components/layout/Header';
 import { MoreHorizontal, Download } from 'lucide-react';
 import { DataTable, type Column } from '../../components/ui/DataTable';
 import { SearchInput } from '../../components/ui/SearchInput';
@@ -173,24 +174,24 @@ export const StudentList: React.FC = () => {
     return (
         <PageLayout>
             <div className="p-4 md:p-6 lg:p-8">
-                    {/* Header */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                        <div>
-                            <h1 className="text-3xl font-bold text-[var(--color-foreground)]">Student List</h1>
-                            <p className="text-[var(--color-foreground-muted)] mt-1">
-                                Manage and view all enrolled students
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <button className="flex items-center gap-2 px-4 py-2 bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-background-secondary)] transition-colors">
-                                <Download size={16} />
-                                Export
-                            </button>
-                            <button className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
-                                Add Student
-                            </button>
-                        </div>
+                {/* Dashboard Header */}
+                <Header title="Student List" />
+
+                {/* Page Actions */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                    <p className="text-[var(--color-foreground-muted)]">
+                        Manage and view all enrolled students
+                    </p>
+                    <div className="flex items-center gap-3">
+                        <button className="flex items-center gap-2 px-4 py-2 bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-foreground)] hover:bg-[var(--color-background-secondary)] transition-colors">
+                            <Download size={16} />
+                            Export
+                        </button>
+                        <button className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
+                            Add Student
+                        </button>
                     </div>
+                </div>
 
                     {/* Filters and Search — Using shared components */}
                     <FilterBar className="mb-6">

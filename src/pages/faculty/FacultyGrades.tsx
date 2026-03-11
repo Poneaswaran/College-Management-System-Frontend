@@ -17,6 +17,7 @@ import {
     Loader2,
 } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
+import { Header } from '../../components/layout/Header';
 import { useFacultyGrades } from '../../features/faculty/hooks/grades';
 import type { GradeStatus, GradeCourseSection, ExamType } from '../../features/faculty/types/grades';
 
@@ -167,13 +168,10 @@ export default function FacultyGrades() {
 
     return (
         <PageLayout>
+            <Header title="Grade Submission" />
             <main className="p-4 md:p-6 lg:p-8">
-                {/* Page Header */}
+                {/* Page Action Header */}
                 <div className="mb-6 md:mb-8">
-                    <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)] mb-1 flex items-center gap-3">
-                        <GraduationCap className="text-[var(--color-primary)]" size={32} />
-                        Grade Submission
-                    </h1>
                     <p className="text-[var(--color-foreground-secondary)]">
                         Enter, save, and submit student marks for your assigned courses
                         {summary ? ` · ${summary.currentSemesterLabel}` : ''}

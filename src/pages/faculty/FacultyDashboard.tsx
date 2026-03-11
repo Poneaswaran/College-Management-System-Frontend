@@ -1,12 +1,8 @@
 import {
     FileText,
-    Mail,
-    ChevronDown,
     Users,
     BookOpen,
     ClipboardCheck,
-    Sun,
-    Moon,
     Clock,
     MapPin,
     RefreshCw,
@@ -14,15 +10,13 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import PageLayout from '../../components/layout/PageLayout';
-import NotificationBell from '../../components/notifications/NotificationBell';
-import { useTheme } from '../../theme';
+import { Header } from '../../components/layout/Header';
 import { client } from '../../lib/graphql';
 import { getErrorMessage } from '../../lib/errorHandling';
 import { FACULTY_DASHBOARD_QUERY } from '../../features/faculty/graphql/dashboard';
 import type { FacultyDashboardData, FacultyDashboardResponse } from '../../features/faculty/types/dashboard';
 
 export default function FacultyDashboard() {
-    const { isDark, setMode } = useTheme();
     const [data, setData] = useState<FacultyDashboardData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
@@ -50,10 +44,6 @@ export default function FacultyDashboard() {
     useEffect(() => {
         fetchDashboard();
     }, []);
-
-    const toggleTheme = () => {
-        setMode(isDark ? 'light' : 'dark');
-    };
 
     // Helper to get attendance bar color based on percentage
     const getAttendanceColor = (percentage: number): string => {
@@ -89,33 +79,11 @@ export default function FacultyDashboard() {
         <PageLayout>
             <main className="p-4 md:p-6 lg:p-8">
                 {/* Dashboard Header */}
-                <div className="flex flex-wrap justify-between items-center gap-3 mb-6 md:mb-8">
-                    <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)]">Faculty Dashboard</h1>
-                    <div className="flex items-center gap-3">
-                        {/* Theme Toggle Button */}
-                        <button
-                            onClick={toggleTheme}
-                            className="p-2 rounded-full hover:bg-[var(--color-background-tertiary)] text-[var(--color-foreground-secondary)] hover:text-[var(--color-primary)] transition-all"
-                            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-                        >
-                            {isDark ? <Sun size={20} /> : <Moon size={20} />}
-                        </button>
-                        <button className="p-2 rounded-full hover:bg-[var(--color-background-tertiary)] text-[var(--color-foreground-secondary)] relative">
-                            <Mail size={20} />
-                            <span className="absolute top-1 right-1 w-2 h-2 bg-[var(--color-error)] rounded-full border-2 border-[var(--color-background)]"></span>
-                        </button>
-                        <NotificationBell />
-                        <div className="flex items-center gap-2 cursor-pointer hover:bg-[var(--color-background-tertiary)] px-2 py-1.5 rounded-lg transition-colors">
-                            <div className="w-8 h-8 rounded-full bg-[var(--color-primary-light)] text-white flex items-center justify-center font-bold text-sm shrink-0">
-                                {data ? getInitials(data.facultyName) : 'FN'}
-                            </div>
-                            <span className="hidden sm:block text-sm font-medium text-[var(--color-foreground)] max-w-[120px] truncate">
-                                {data?.facultyName || 'Faculty'}
-                            </span>
-                            <ChevronDown size={16} className="text-[var(--color-foreground-muted)] shrink-0" />
-                        </div>
-                    </div>
-                </div>
+                <Header 
+                    title="Faculty Dashboard" 
+                    userName={data?.facultyName} 
+                    userInitials={data ? getInitials(data.facultyName) : 'FN'}
+                />
 
                 {/* Loading State */}
                 {loading && (

@@ -17,6 +17,7 @@ import {
     Award
 } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
+import { Header } from '../../components/layout/Header';
 
 // Dummy static data until GraphQL is integrated
 const DUMMY_PROFILE = {
@@ -85,14 +86,8 @@ export default function FacultyProfile() {
 
     return (
         <PageLayout>
+            <Header title="Faculty Profile" />
             <div className="p-6 md:p-8 space-y-6">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-slide-in-left">
-                    <div>
-                        <h1 className="text-3xl md:text-4xl font-black text-[var(--color-foreground)] tracking-tight">Faculty Profile</h1>
-                        <p className="text-[var(--color-foreground-secondary)] mt-1">Manage your professional identity and personal information</p>
-                    </div>
-                </div>
 
                 {/* Profile Card */}
                 <div className="bg-[var(--color-card)] rounded-2xl shadow-theme-md border border-[var(--color-border)] overflow-hidden animate-slide-up">

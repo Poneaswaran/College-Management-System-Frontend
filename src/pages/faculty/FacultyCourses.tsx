@@ -19,6 +19,7 @@ import { Select } from '../../components/ui/Select';
 import { FilterBar } from '../../components/ui/FilterBar';
 import { GET_FACULTY_COURSES } from '../../features/faculty/graphql/courses';
 import type { FacultyCourse, FacultyCoursesResponse } from '../../features/faculty/types/courses';
+import { Header } from '../../components/layout/Header';
 
 // We dynamically assign colors to courses
 const COLORS = ['blue', 'green', 'purple', 'orange', 'red'];
@@ -63,10 +64,7 @@ export default function FacultyCourses() {
         <PageLayout>
             <main className="p-4 md:p-6 lg:p-8">
                 {/* Page Header */}
-                <div className="mb-6 md:mb-8">
-                    <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)] mb-2">My Courses</h1>
-                    <p className="text-[var(--color-foreground-secondary)]">Manage your courses, students, and academic activities</p>
-                </div>
+                <Header title="My Courses" />
 
                 {/* Stats Overview */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">

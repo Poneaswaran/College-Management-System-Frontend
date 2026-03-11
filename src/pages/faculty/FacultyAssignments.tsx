@@ -4,8 +4,10 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '../../components/layout/PageLayout';
+import { Header } from '../../components/layout/Header';
 import { useAssignments } from '../../features/assignments/hooks';
 import { AssignmentCard } from '../../features/assignments/components/AssignmentCard';
 import type { Assignment, AssignmentStatus } from '../../features/assignments/types';
@@ -34,19 +36,19 @@ export const FacultyAssignments: React.FC = () => {
 
   return (
     <PageLayout>
+      <Header title="My Assignments" />
       <div className="py-6 px-4 md:py-8 md:px-6">
         <div className="max-w-7xl mx-auto">
-        {/* Header */}
+        {/* Header Action Section */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-[var(--color-foreground)] mb-2">My Assignments</h1>
             <p className="text-[var(--color-muted-foreground)]">Manage your assignments and submissions</p>
           </div>
           <button
             onClick={handleCreateNew}
-            className="px-6 py-3 text-sm font-medium text-white bg-[var(--color-primary)] rounded-md hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-[var(--color-primary)] rounded-md hover:opacity-90 transition-opacity"
           >
-            + Create Assignment
+            <Plus size={16} /> Create Assignment
           </button>
         </div>
 

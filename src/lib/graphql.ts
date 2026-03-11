@@ -29,18 +29,24 @@ const errorLink = onError(({ error }: ErrorLink.ErrorHandlerOptions) => {
             );
 
             // Handle authentication errors
-            if (err.extensions?.code === 'UNAUTHENTICATED' || err.message.includes('Unauthorized')) {
+            const isAuthError = 
+                err.extensions?.code === 'UNAUTHENTICATED' || 
+                err.message.includes('Unauthorized') ||
+                err.message.includes('Authentication required') ||
+                err.message.includes('Please login');
+
+            if (isAuthError) {
                 console.warn('Authentication error detected, clearing token');
                 localStorage.removeItem('token');
-                // Redirect to login if not already there
-                if (!window.location.href.includes('/auth/login')) {
-                    window.location.href = '/#/auth/login';
-                }
-            }
-
-            // Handle forbidden errors
-            if (err.extensions?.code === 'FORBIDDEN') {
-                console.warn('Permission denied');
+                localStorage.removeItem('user');
+                
+                // Use a small delay to allow logs/state to update before redirect
+                setTimeout(() => {
+                    // Redirect to login if not already there
+                    if (!window.location.href.includes('/auth/login')) {
+                        window.location.href = '/#/auth/login';
+                    }
+                }, 100);
             }
         });
     } else {
@@ -52,9 +58,12 @@ const errorLink = onError(({ error }: ErrorLink.ErrorHandlerOptions) => {
             const statusCode = (error as { statusCode?: number }).statusCode;
             if (statusCode === 401) {
                 localStorage.removeItem('token');
-                if (!window.location.href.includes('/auth/login')) {
-                    window.location.href = '/#/auth/login';
-                }
+                localStorage.removeItem('user');
+                setTimeout(() => {
+                    if (!window.location.href.includes('/auth/login')) {
+                        window.location.href = '/#/auth/login';
+                    }
+                }, 100);
             } else if (statusCode === 500) {
                 console.error('Server error occurred');
             }

@@ -21,6 +21,7 @@ import {
     TrendingUp,
 } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
+import { Header } from '../../components/layout/Header';
 import { useFacultyMaterials } from '../../features/faculty/hooks/studyMaterials';
 import type { UploadMaterialInput, UpdateMaterialInput, StudyMaterial, MaterialType, MaterialStatus } from '../../features/faculty/types/studyMaterials';
 import { MATERIAL_TYPE_LABELS, MATERIAL_STATUS_LABELS, ALLOWED_EXTENSIONS, MAX_FILE_SIZE_MB } from '../../features/faculty/types/studyMaterials';
@@ -568,7 +569,9 @@ export default function StudyMaterials() {
 
     return (
         <PageLayout>
-            {/* Summary Cards */}
+            <Header title="Study Materials" />
+            <div className="p-4 md:p-6 lg:p-8">
+                {/* Summary Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 {[
                     { label: 'Total Uploaded', value: allMaterials.length, icon: <BookOpen size={20} />, color: 'text-[var(--color-primary)]', bg: 'bg-[var(--color-primary)]/10' },
@@ -786,6 +789,7 @@ export default function StudyMaterials() {
                     onClose={closeModals}
                 />
             )}
+            </div>
         </PageLayout>
     );
 }

@@ -13,6 +13,7 @@ import {
     MessageSquare,
 } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
+import { Header } from '../../components/layout/Header';
 import { facultyPunchIn, facultyPunchOut, fetchFacultyAttendanceHistory } from '../../features/attendance/api';
 import { convertToWebP, getBase64Size } from '../../lib/imageCompression';
 import { SERVER_URL } from '../../config/constant';
@@ -216,6 +217,7 @@ export default function MarkAttendance() {
 
     return (
         <PageLayout>
+            <Header title="Mark Attendance" />
             <main className="p-4 md:p-6 lg:p-8">
                 {/* Back Button */}
                 <button
@@ -227,11 +229,8 @@ export default function MarkAttendance() {
                 </button>
 
                 <div className="max-w-2xl mx-auto">
-                    {/* Header */}
+                    {/* Header Info */}
                     <div className="text-center mb-8">
-                        <h1 className="text-3xl font-bold text-[var(--color-foreground)] mb-2">
-                             Faculty Attendance
-                        </h1>
                         <p className="text-[var(--color-foreground-secondary)]">
                             Mark your daily work attendance
                         </p>

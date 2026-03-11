@@ -4,12 +4,13 @@ import type { AuthState, User } from './types';
 
 // Don't restore user from localStorage - let AuthInitializer fetch fresh data
 const storedToken = localStorage.getItem('token');
+const storedUser = localStorage.getItem('user');
 
 const initialState: AuthState = {
-    user: null,
+    user: storedUser ? JSON.parse(storedUser) : null,
     token: storedToken,
-    isAuthenticated: false,
-    isLoading: !!storedToken,
+    isAuthenticated: !!storedToken,
+    isLoading: !!storedToken && !storedUser,
     error: null,
 };
 
@@ -27,6 +28,7 @@ const authSlice = createSlice({
             state.token = action.payload.token;
             state.isAuthenticated = true;
             localStorage.setItem('token', action.payload.token);
+            localStorage.setItem('user', JSON.stringify(action.payload.user));
         },
         loginFailure: (state, action: PayloadAction<string>) => {
             state.isLoading = false;
@@ -37,6 +39,7 @@ const authSlice = createSlice({
             state.token = null;
             state.isAuthenticated = false;
             localStorage.removeItem('token');
+            localStorage.removeItem('user');
         },
     },
 });

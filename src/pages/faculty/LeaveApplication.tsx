@@ -12,6 +12,7 @@ import {
     AlertCircle
 } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
+import { Header } from '../../components/layout/Header';
 import { FormInput } from '../../components/ui/FormInput';
 import { Select } from '../../components/ui/Select';
 import { DataTable, type Column } from '../../components/ui/DataTable';
@@ -178,12 +179,12 @@ export default function LeaveApplication() {
 
     return (
         <PageLayout>
+            <Header title="Leave Application" />
             <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-slide-in-left">
                     <div>
-                        <h1 className="text-2xl md:text-3xl lg:text-4xl font-black text-[var(--color-foreground)] tracking-tight">Leave Application</h1>
-                        <p className="text-[var(--color-foreground-secondary)] mt-2 text-base md:text-lg">Manage your leave requests and view remaining balances</p>
+                        <p className="text-[var(--color-foreground-secondary)] text-base md:text-lg">Manage your leave requests and view remaining balances</p>
                     </div>
                     <button
                         onClick={() => setIsApplyModalOpen(true)}

@@ -19,6 +19,7 @@ import {
     X,
 } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
+import { Header } from '../../components/layout/Header';
 import { SERVER_URL } from '../../config/constant';
 import { Select } from '../../components/ui/Select';
 import {
@@ -286,14 +287,12 @@ export default function AttendanceManagement() {
 
     return (
         <PageLayout>
+            <Header title="Attendance Management" />
             <main className="p-4 md:p-6 lg:p-8">
-                {/* Page Header */}
-                <div className="flex flex-wrap items-start justify-between gap-3 mb-6 md:mb-8">
+                {/* Page Action Header */}
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-6 md:mb-8">
                     <div>
-                        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)]">
-                            Attendance Management
-                        </h1>
-                        <p className="text-[var(--color-foreground-muted)] mt-1">
+                        <p className="text-[var(--color-foreground-muted)]">
                             Manage attendance sessions for today's classes
                         </p>
                     </div>
