@@ -157,10 +157,7 @@ const hodSidebarItems: SidebarItem[] = [
         label: 'Approvals',
         isDropdown: true,
         children: [
-            { icon: FileCheck, label: 'Faculty Leave Approval', path: '/hod/faculty-leave-approval' },
-            { icon: FileCheck, label: 'Event Approval', path: '/hod/event-approval' },
-            { icon: FileCheck, label: 'Project Approval', path: '/hod/project-approval' },
-            { icon: FileCheck, label: 'Timetable Approval', path: '/hod/timetable-approval-review' },
+            { icon: FileCheck, label: 'Faculty Leave Approval', path: '/hod/faculty-leave-approval' }
         ]
     },
     {

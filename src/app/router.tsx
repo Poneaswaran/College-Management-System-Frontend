@@ -54,6 +54,7 @@ const HODCourses = lazy(() => import('../pages/hod/HODCourses'));
 
 // HOD Faculty Leave Approval
 const HODFacultyLeaveApproval = lazy(() => import('../pages/hod/HODFacultyLeaveApproval'));
+const HODTimetableApprovalReview = lazy(() => import('../pages/hod/HODTimetableApprovalReview'));
 
 // HOD Profile
 const HODProfile = lazy(() => import('../pages/hod/HODProfile'));
@@ -127,6 +128,7 @@ export function AppRouter() {
           <Route path="/hod/attendance-reports" element={<HODAttendanceReports />} />
           <Route path="/hod/attendance-reports/:type/:id" element={<HODAttendanceReportDetail />} />
           <Route path="/hod/faculty-leave-approval" element={<HODFacultyLeaveApproval />} />
+          <Route path="/hod/timetable-approval-review" element={<HODTimetableApprovalReview />} />
           <Route path="/hod/profile" element={<HODProfile />} />
           <Route path="/hod/study-materials" element={<HODStudyMaterials />} />
           <Route path="/settings/notifications" element={<NotificationSettingsPage />} />

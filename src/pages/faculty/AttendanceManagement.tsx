@@ -86,6 +86,15 @@ const getAttendanceStatusIcon = (status: AttendanceStatus) => {
     }
 };
 
+const parseCoordinate = (value: unknown): number | null => {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string') {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+};
+
 // ============================================
 // MAIN COMPONENT
 // ============================================
@@ -112,6 +121,10 @@ export default function AttendanceManagement() {
     const [studentDetail, setStudentDetail] = useState<StudentAttendanceDetail | null>(null);
     const [studentDetailLoading, setStudentDetailLoading] = useState(false);
     const [studentDetailError, setStudentDetailError] = useState<string | null>(null);
+
+    const latitude = parseCoordinate(studentDetail?.latitude);
+    const longitude = parseCoordinate(studentDetail?.longitude);
+    const hasCoordinatePair = latitude != null && longitude != null;
 
     // ============================================
     // DATA FETCHING
@@ -954,11 +967,11 @@ export default function AttendanceManagement() {
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-xs text-[var(--color-foreground-muted)] mb-0.5">Location</p>
                                                         <p className="text-sm font-medium text-[var(--color-foreground)] font-mono">
-                                                            {studentDetail.latitude?.toFixed(6)}, {studentDetail.longitude?.toFixed(6)}
+                                                            {latitude != null ? latitude.toFixed(6) : 'N/A'}, {longitude != null ? longitude.toFixed(6) : 'N/A'}
                                                         </p>
-                                                        {studentDetail.latitude && studentDetail.longitude && (
+                                                        {hasCoordinatePair && (
                                                             <a
-                                                                href={`https://www.google.com/maps?q=${studentDetail.latitude},${studentDetail.longitude}`}
+                                                                href={`https://www.google.com/maps?q=${latitude},${longitude}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="text-xs text-[var(--color-primary)] hover:underline mt-1 inline-block"
