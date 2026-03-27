@@ -8,3 +8,4 @@ trigger: always_on
 4.always clear all the lint errors
 5.always use skills folder and use the skill.md
 6.update the skills folder whenever needed
+7.always add test-ids to all CSS

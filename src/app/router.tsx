@@ -13,6 +13,12 @@ const NotFound = lazy(() => import('../pages/not-found/NotFound'));
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'));
 const StudentOnboarding = lazy(() => import('../pages/admin/StudentOnboarding'));
 const FacultyOnboarding = lazy(() => import('../pages/admin/FacultyOnboarding'));
+const VenueManagement = lazy(() => import('../pages/admin/VenueManagement'));
+const BuildingManagement = lazy(() => import('../pages/admin/BuildingManagement'));
+const AssignedClassrooms = lazy(() => import('../pages/admin/AssignedClassrooms'));
+const DepartmentManagement = lazy(() => import('../pages/admin/DepartmentManagement'));
+const CourseManagement = lazy(() => import('../pages/admin/CourseManagement'));
+const SectionManagement = lazy(() => import('../pages/admin/SectionManagement'));
 const StudentDashboard = lazy(() => import('../pages/student/StudentDashboard'));
 const StudentAttendance = lazy(() => import('../pages/student/StudentAttendance'));
 const MarkAttendance = lazy(() => import('../pages/student/MarkAttendance'));
@@ -161,6 +167,59 @@ export function AppRouter() {
             element={
               <ProtectedRoute requiredRole="ADMIN">
                 <FacultyOnboarding />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/admin/venue-management"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <VenueManagement />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/admin/buildings"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <BuildingManagement />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/admin/venue-assignment"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AssignedClassrooms />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Academic Management Routes */}
+          <Route
+            path="/admin/academic/departments"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <DepartmentManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/academic/courses"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <CourseManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/academic/sections"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <SectionManagement />
               </ProtectedRoute>
             }
           />

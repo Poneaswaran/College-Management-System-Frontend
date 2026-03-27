@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import AdminLayout from '../../components/layout/AdminLayout';
+import PageLayout from '../../components/layout/PageLayout';
 import { Upload, Users, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 interface FacultyApproval {
@@ -62,7 +62,7 @@ export default function FacultyOnboarding() {
   };
 
   return (
-    <AdminLayout>
+    <PageLayout>
       <div>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
@@ -212,6 +212,6 @@ export default function FacultyOnboarding() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </PageLayout>
   );
 }

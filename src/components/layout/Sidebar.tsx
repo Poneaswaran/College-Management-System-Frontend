@@ -21,6 +21,9 @@ import {
     Menu,
     X,
     UserCheck,
+    Building2,
+    MapPin,
+    Hash,
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -171,6 +174,39 @@ const hodSidebarItems: SidebarItem[] = [
     },
 ];
 
+const adminSidebarItems: SidebarItem[] = [
+    { icon: LayoutDashboard, label: 'Admin Dashboard', path: '/admin/dashboard' },
+    {
+        icon: Users,
+        label: 'Onboarding',
+        isDropdown: true,
+        children: [
+            { icon: Users, label: 'Student Onboarding', path: '/admin/onboarding/students' },
+            { icon: UserCheck, label: 'Faculty Onboarding', path: '/admin/onboarding/faculty' },
+        ]
+    },
+    {
+        icon: BookOpen,
+        label: 'Academic Management',
+        isDropdown: true,
+        children: [
+            { icon: MapPin, label: 'Departments', path: '/admin/academic/departments' },
+            { icon: BookOpen, label: 'Courses', path: '/admin/academic/courses' },
+            { icon: Hash, label: 'Sections', path: '/admin/academic/sections' },
+        ]
+    },
+    {
+        icon: Building2,
+        label: 'Venue Management',
+        isDropdown: true,
+        children: [
+            { icon: Building2, label: 'Buildings', path: '/admin/buildings' },
+            { icon: MapPin, label: 'Venue', path: '/admin/venue-management' },
+            { icon: ClipboardCheck, label: 'Assign Classrooms', path: '/admin/venue-assignment' },
+        ]
+    },
+];
+
 export default function Sidebar() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -190,6 +226,8 @@ export default function Sidebar() {
         sidebarItems = facultySidebarItems;
     } else if (user?.role?.code === 'HOD') {
         sidebarItems = hodSidebarItems;
+    } else if (user?.role?.code === 'ADMIN') {
+        sidebarItems = adminSidebarItems;
     }
 
     const toggleDropdown = (label: string) => {

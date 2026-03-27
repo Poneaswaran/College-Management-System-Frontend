@@ -1,4 +1,4 @@
-import { Users } from 'lucide-react';
+import { Users, Building2, BookOpen } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 /**
@@ -36,6 +36,50 @@ export const ADMIN_SIDEBAR_CONFIG: AdminSidebarSection[] = [
         key: 'faculty-onboarding',
         label: 'Faculty Onboarding',
         path: '/admin/onboarding/faculty'
+      }
+    ]
+  },
+  {
+    key: 'academic-management',
+    label: 'Academic Management',
+    icon: BookOpen,
+    children: [
+      {
+        key: 'departments',
+        label: 'Departments',
+        path: '/admin/academic/departments'
+      },
+      {
+        key: 'courses',
+        label: 'Courses',
+        path: '/admin/academic/courses'
+      },
+      {
+        key: 'sections',
+        label: 'Sections',
+        path: '/admin/academic/sections'
+      }
+    ]
+  },
+  {
+    key: 'venue-management',
+    label: 'Venue Management',
+    icon: Building2,
+    children: [
+      {
+        key: 'buildings',
+        label: 'Buildings',
+        path: '/admin/buildings'
+      },
+      {
+        key: 'venue',
+        label: 'Venue',
+        path: '/admin/venue-management'
+      },
+      {
+        key: 'venue-assignment',
+        label: 'Assign Classrooms',
+        path: '/admin/venue-assignment'
       }
     ]
   }

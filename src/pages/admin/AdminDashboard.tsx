@@ -1,5 +1,5 @@
 import React from 'react';
-import AdminLayout from '../../components/layout/AdminLayout';
+import PageLayout from '../../components/layout/PageLayout';
 import { BarChart3, Users, GraduationCap } from 'lucide-react';
 
 interface StatCard {
@@ -32,7 +32,7 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <AdminLayout>
+    <PageLayout>
       <div>
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
@@ -90,6 +90,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </PageLayout>
   );
 }
