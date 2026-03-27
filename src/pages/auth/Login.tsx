@@ -25,7 +25,9 @@ export default function Login() {
         try {
             const user = await login(formData);
 
-            if (user?.role?.code === 'STUDENT') {
+            if (user?.role?.code === 'ADMIN') {
+                navigate('/admin/dashboard');
+            } else if (user?.role?.code === 'STUDENT') {
                 navigate('/student/dashboard');
             } else if (user?.role?.code === 'FACULTY') {
                 navigate('/faculty/dashboard');

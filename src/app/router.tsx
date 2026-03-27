@@ -1,12 +1,18 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from '../components/common/ErrorBoundary';
+import { ProtectedRoute } from '../components/common/ProtectedRoute';
 
 // Lazy load route components for code splitting
 const Login = lazy(() => import('../pages/auth/Login'));
 const Register = lazy(() => import('../pages/auth/Register'));
 const Dashboard = lazy(() => import('../pages/dashboard/Dashboard'));
 const NotFound = lazy(() => import('../pages/not-found/NotFound'));
+
+// Admin Pages
+const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'));
+const StudentOnboarding = lazy(() => import('../pages/admin/StudentOnboarding'));
+const FacultyOnboarding = lazy(() => import('../pages/admin/FacultyOnboarding'));
 const StudentDashboard = lazy(() => import('../pages/student/StudentDashboard'));
 const StudentAttendance = lazy(() => import('../pages/student/StudentAttendance'));
 const MarkAttendance = lazy(() => import('../pages/student/MarkAttendance'));
@@ -132,6 +138,33 @@ export function AppRouter() {
           <Route path="/hod/profile" element={<HODProfile />} />
           <Route path="/hod/study-materials" element={<HODStudyMaterials />} />
           <Route path="/settings/notifications" element={<NotificationSettingsPage />} />
+          
+          {/* Admin Routes - Protected by ADMIN role */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/onboarding/students"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <StudentOnboarding />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/onboarding/faculty"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <FacultyOnboarding />
+              </ProtectedRoute>
+            }
+          />
+          
           <Route path="/" element={<Navigate to="/auth/login" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
