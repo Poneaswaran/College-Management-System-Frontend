@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { StudyMaterial, TeachingAssignment, MaterialStats, UploadMaterialInput, UpdateMaterialInput } from '../types/studyMaterials';
+import type { AiTutorResponse, StudyMaterial, TeachingAssignment, MaterialStats, UploadMaterialInput, UpdateMaterialInput } from '../types/studyMaterials';
 import {
+    askAiTutor,
     fetchMyMaterials,
     fetchTeachingAssignments,
     fetchMaterialStats,
@@ -38,26 +39,74 @@ export function useFacultyMaterials() {
     const [typeFilter, setTypeFilter] = useState<string>('');
     const [searchQuery, setSearchQuery] = useState<string>('');
 
+    const hydrateMaterialRefs = useCallback((items: StudyMaterial[], teachingAssignments: TeachingAssignment[]): StudyMaterial[] => {
+        return items.map((material) => {
+            if (material.subject.name && material.subject.code && material.section.name) {
+                return material;
+            }
+
+            const matchedAssignment = teachingAssignments.find(
+                (assignment) => assignment.subjectId === material.subject.id && assignment.sectionId === material.section.id,
+            );
+
+            if (!matchedAssignment) {
+                return material;
+            }
+
+            return {
+                ...material,
+                subject: {
+                    id: material.subject.id,
+                    name: material.subject.name || matchedAssignment.subjectName,
+                    code: material.subject.code || matchedAssignment.subjectCode,
+                },
+                section: {
+                    id: material.section.id,
+                    name: material.section.name || matchedAssignment.sectionName,
+                },
+            };
+        });
+    }, []);
+
     const loadData = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
             const [materialsData, assignmentsData] = await Promise.all([
-                fetchMyMaterials(),
+                fetchMyMaterials(statusFilter || undefined),
                 fetchTeachingAssignments(),
             ]);
-            setMaterials(materialsData);
+            setMaterials(hydrateMaterialRefs(materialsData, assignmentsData));
             setAssignments(assignmentsData);
-        } catch {
-            setError('Failed to load study materials. Please try again.');
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Failed to load study materials. Please try again.';
+            setError(message);
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [hydrateMaterialRefs, statusFilter]);
 
     useEffect(() => {
         void loadData();
     }, [loadData]);
+
+    useEffect(() => {
+        const shouldPollIndexing = materials.some(
+            (material) => material.vectorizationStatus === 'PENDING' || material.vectorizationStatus === 'PROCESSING',
+        );
+
+        if (!shouldPollIndexing) {
+            return;
+        }
+
+        const intervalId = window.setInterval(() => {
+            void loadData();
+        }, 8000);
+
+        return () => {
+            window.clearInterval(intervalId);
+        };
+    }, [materials, loadData]);
 
     const filteredMaterials = materials.filter((m) => {
         if (statusFilter && m.status !== statusFilter) return false;
@@ -77,8 +126,45 @@ export function useFacultyMaterials() {
     const handleUpload = async (input: UploadMaterialInput): Promise<boolean> => {
         const result = await uploadMaterial(input);
         if (result.success) {
-            await loadData();
+            const assignment = assignments.find(
+                (item) => item.subjectId === input.subjectId && item.sectionId === input.sectionId,
+            );
+            const fileName = input.file?.name ?? input.fileName ?? '';
+            const extensionPart = fileName.includes('.') ? fileName.split('.').pop() : '';
+            const fileExtension = extensionPart ? `.${extensionPart.toLowerCase()}` : '';
+
+            const optimisticMaterial: StudyMaterial = {
+                id: result.material.id,
+                title: result.material.title,
+                description: input.description,
+                materialType: input.materialType,
+                status: input.status,
+                subject: {
+                    id: input.subjectId,
+                    name: assignment?.subjectName ?? '',
+                    code: assignment?.subjectCode ?? '',
+                },
+                section: {
+                    id: input.sectionId,
+                    name: assignment?.sectionName ?? '',
+                },
+                fileUrl: result.material.fileUrl,
+                fileSizeMb: input.file ? Number((input.file.size / (1024 * 1024)).toFixed(2)) : 0,
+                fileExtension,
+                viewCount: 0,
+                downloadCount: 0,
+                uploadedAt: result.material.uploadedAt,
+                publishedAt: input.status === 'PUBLISHED' ? result.material.uploadedAt : null,
+                updatedAt: result.material.uploadedAt,
+                vectorizationStatus: result.material.vectorizationStatus ?? 'PENDING',
+                vectorDocumentId: null,
+                lastIndexedAt: null,
+                vectorErrorMessage: null,
+            };
+
+            setMaterials((current) => [optimisticMaterial, ...current.filter((item) => item.id !== optimisticMaterial.id)]);
             setShowUploadModal(false);
+            void loadData();
         }
         return result.success;
     };
@@ -219,6 +305,10 @@ export function useStudentMaterials() {
         }
     };
 
+    const askMaterialQuestion = async (materialId: number, message: string): Promise<AiTutorResponse> => {
+        return askAiTutor(materialId, message);
+    };
+
     // Build unique subjects list for filter dropdown
     const uniqueSubjects = materials
         .map((m) => m.subject)
@@ -240,6 +330,7 @@ export function useStudentMaterials() {
         uniqueSubjects,
         handleViewMaterial,
         handleDownload,
+        askMaterialQuestion,
     };
 }
 

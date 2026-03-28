@@ -1,4 +1,5 @@
 import {
+    Bot,
     BookOpen,
     Download,
     Eye,
@@ -15,12 +16,14 @@ import {
     Layers,
     User,
     Calendar,
+    Send,
 } from 'lucide-react';
 import React from 'react';
 import PageLayout from '../../components/layout/PageLayout';
 import { useStudentMaterials } from '../../features/faculty/hooks/studyMaterials';
 import type { StudyMaterial, MaterialType } from '../../features/faculty/types/studyMaterials';
 import { MATERIAL_TYPE_LABELS } from '../../features/faculty/types/studyMaterials';
+import { useToast } from '../../components/ui/Toast';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -76,13 +79,50 @@ interface DetailPanelProps {
     material: StudyMaterial;
     onClose: () => void;
     onDownload: (m: StudyMaterial) => void;
+    onAskAi: (m: StudyMaterial, message: string) => Promise<{ answer: string; sources: string[] }>;
 }
 
-function DetailPanel({ material, onClose, onDownload }: DetailPanelProps) {
+function DetailPanel({ material, onClose, onDownload, onAskAi }: DetailPanelProps) {
     const tc = TYPE_COLORS[material.materialType];
+    const [question, setQuestion] = React.useState('');
+    const [asking, setAsking] = React.useState(false);
+    const [answer, setAnswer] = React.useState<string | null>(null);
+    const [sources, setSources] = React.useState<string[]>([]);
+    const [aiError, setAiError] = React.useState<string | null>(null);
+
+    const aiStatus = material.vectorizationStatus;
+    const isAiReady = !aiStatus || aiStatus === 'INDEXED';
+    const aiUnavailableMessage = aiStatus === 'PROCESSING'
+        ? 'Document is being indexed. Try again shortly.'
+        : aiStatus === 'FAILED'
+            ? (material.vectorErrorMessage || 'Document indexing failed. Please contact faculty for a refreshed upload.')
+            : aiStatus === 'PENDING'
+                ? 'Document is queued for indexing. Try again shortly.'
+                : null;
+
+    const handleAskAi = async () => {
+        const trimmed = question.trim();
+        if (!trimmed || !isAiReady) {
+            return;
+        }
+
+        setAsking(true);
+        setAiError(null);
+
+        try {
+            const result = await onAskAi(material, trimmed);
+            setAnswer(result.answer);
+            setSources(result.sources);
+        } catch (error) {
+            setAiError(error instanceof Error ? error.message : 'Unable to fetch AI response.');
+        } finally {
+            setAsking(false);
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-theme-xl w-full max-w-lg animate-scale-in">
+            <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-theme-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scale-in">
                 <div className="flex items-start justify-between p-5 border-b border-[var(--color-border)]">
                     <div className="flex items-start gap-4">
                         <div className={`p-3 rounded-lg ${tc.bg} ${tc.text} border ${tc.border}`}>
@@ -99,7 +139,7 @@ function DetailPanel({ material, onClose, onDownload }: DetailPanelProps) {
                         <X size={18} />
                     </button>
                 </div>
-                <div className="p-5 space-y-4">
+                <div className="p-5 space-y-5">
                     {material.description && (
                         <p className="text-sm text-[var(--color-foreground)] leading-relaxed">{material.description}</p>
                     )}
@@ -128,7 +168,63 @@ function DetailPanel({ material, onClose, onDownload }: DetailPanelProps) {
                     <div className="flex items-center gap-4 text-xs text-[var(--color-muted)]">
                         <span className="flex items-center gap-1"><Eye size={12} /> {material.viewCount} views</span>
                         <span className="flex items-center gap-1"><Download size={12} /> {material.downloadCount} downloads</span>
+                        {material.vectorizationStatus && (
+                            <span className="px-2 py-0.5 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-elevated)] text-[var(--color-muted)] font-semibold">
+                                AI: {material.vectorizationStatus}
+                            </span>
+                        )}
                     </div>
+
+                    <div className="border border-[var(--color-border)] rounded-lg p-4 bg-[var(--color-surface-elevated)] space-y-3">
+                        <div className="flex items-center gap-2">
+                            <Bot size={16} className="text-[var(--color-primary)]" />
+                            <h3 className="text-sm font-semibold text-[var(--color-foreground)]">AI Tutor</h3>
+                        </div>
+                        {aiUnavailableMessage && (
+                            <p className="text-xs text-[var(--color-warning)]">{aiUnavailableMessage}</p>
+                        )}
+                        <div className="flex items-start gap-2">
+                            <textarea
+                                className="input w-full min-h-20 resize-none"
+                                placeholder="Ask a question about this material"
+                                value={question}
+                                onChange={(event) => setQuestion(event.target.value)}
+                                disabled={!isAiReady || asking}
+                            />
+                            <button
+                                onClick={() => void handleAskAi()}
+                                disabled={!isAiReady || asking || !question.trim()}
+                                className="btn btn-primary btn-md h-10 px-3 flex items-center justify-center"
+                                title="Ask AI Tutor"
+                            >
+                                <Send size={14} />
+                            </button>
+                        </div>
+                        {asking && <p className="text-xs text-[var(--color-muted)]">Generating answer...</p>}
+                        {aiError && <p className="text-xs text-[var(--color-error)]">{aiError}</p>}
+                        {answer && (
+                            <div className="space-y-2">
+                                <p className="text-xs text-[var(--color-muted)] uppercase tracking-wider font-semibold">Answer</p>
+                                <p className="text-sm text-[var(--color-foreground)] leading-relaxed">{answer}</p>
+                                {sources.length > 0 && (
+                                    <div>
+                                        <p className="text-xs text-[var(--color-muted)] uppercase tracking-wider font-semibold mb-1">Sources</p>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {sources.map((source, index) => (
+                                                <span
+                                                    key={`${index}-${String(source)}`}
+                                                    className="px-2 py-0.5 rounded bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-xs font-medium"
+                                                >
+                                                    {String(source)}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
                     <div className="flex gap-3 pt-2">
                         <button onClick={onClose} className="btn btn-outline btn-md flex-1">Close</button>
                         <button
@@ -216,6 +312,7 @@ function MaterialCard({ material, onView, onDownload }: MaterialCardProps) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function StudentMaterials() {
+    const { addToast } = useToast();
     const {
         materials,
         loading,
@@ -232,7 +329,18 @@ export default function StudentMaterials() {
         uniqueSubjects,
         handleViewMaterial,
         handleDownload,
+        askMaterialQuestion,
     } = useStudentMaterials();
+
+    const handleAskAi = async (material: StudyMaterial, message: string) => {
+        try {
+            return await askMaterialQuestion(material.id, message);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'AI tutor is currently unavailable.';
+            addToast({ type: 'error', title: 'AI Tutor Error', message: errorMessage });
+            throw error;
+        }
+    };
 
     return (
         <PageLayout>
@@ -337,6 +445,7 @@ export default function StudentMaterials() {
                     material={selectedMaterial}
                     onClose={() => setSelectedMaterial(null)}
                     onDownload={(m) => void handleDownload(m)}
+                    onAskAi={(m, message) => handleAskAi(m, message)}
                 />
             )}
         </PageLayout>

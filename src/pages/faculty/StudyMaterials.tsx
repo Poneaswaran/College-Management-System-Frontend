@@ -87,6 +87,24 @@ function TypeBadge({ type }: { type: MaterialType }) {
     );
 }
 
+function AiIndexBadge({ status }: { status?: StudyMaterial['vectorizationStatus'] }) {
+    if (!status) {
+        return <span className="text-xs text-[var(--color-muted)]">-</span>;
+    }
+
+    const palette = status === 'INDEXED'
+        ? 'bg-[var(--color-success-light)] text-[var(--color-success)] border-[var(--color-success)]/30'
+        : status === 'FAILED'
+            ? 'bg-[var(--color-error-light)] text-[var(--color-error)] border-[var(--color-error)]/30'
+            : 'bg-[var(--color-warning-light)] text-[var(--color-warning)] border-[var(--color-warning)]/30';
+
+    return (
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${palette}`}>
+            {status}
+        </span>
+    );
+}
+
 // ─── File Drop Zone ───────────────────────────────────────────────────────────
 
 interface FileZoneProps {
@@ -485,7 +503,7 @@ interface DeleteConfirmProps {
 
 function DeleteConfirmBar({ onConfirm, onCancel }: DeleteConfirmProps) {
     return (
-        <td colSpan={8} className="px-4 py-3 bg-[var(--color-error-light)] border-t border-b border-[var(--color-error)]/30">
+        <td colSpan={9} className="px-4 py-3 bg-[var(--color-error-light)] border-t border-b border-[var(--color-error)]/30">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-[var(--color-error)] font-medium">
                     <AlertTriangle size={14} />
@@ -679,7 +697,7 @@ export default function StudyMaterials() {
                         <table className="w-full text-sm">
                             <thead className="bg-[var(--color-surface-elevated)] border-b border-[var(--color-border)]">
                                 <tr>
-                                    {['Title', 'Subject & Section', 'Type', 'Status', 'Size', 'Downloads / Views', 'Uploaded', 'Actions'].map((h) => (
+                                    {['Title', 'Subject & Section', 'Type', 'Status', 'AI Index', 'Size', 'Downloads / Views', 'Uploaded', 'Actions'].map((h) => (
                                         <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wider whitespace-nowrap">{h}</th>
                                     ))}
                                 </tr>
@@ -703,6 +721,9 @@ export default function StudyMaterials() {
                                             </td>
                                             <td className="px-4 py-3 whitespace-nowrap">
                                                 <StatusBadge status={mat.status} />
+                                            </td>
+                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                <AiIndexBadge status={mat.vectorizationStatus} />
                                             </td>
                                             <td className="px-4 py-3 whitespace-nowrap text-[var(--color-muted)]">
                                                 <span className="font-mono text-xs">{formatSize(mat.fileSizeMb)}</span>

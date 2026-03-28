@@ -4,6 +4,7 @@
 
 export type MaterialType = 'NOTES' | 'REFERENCE' | 'SLIDES' | 'BOOK' | 'PAPER' | 'TUTORIAL' | 'OTHER';
 export type MaterialStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type VectorizationStatus = 'PENDING' | 'PROCESSING' | 'INDEXED' | 'FAILED';
 
 export const MATERIAL_TYPE_LABELS: Record<MaterialType, string> = {
     NOTES: 'Lecture Notes',
@@ -67,6 +68,10 @@ export interface StudyMaterial {
     uploadedAt: string;            // ISO datetime
     publishedAt: string | null;
     updatedAt: string;
+    vectorizationStatus?: VectorizationStatus;
+    vectorDocumentId?: string | null;
+    lastIndexedAt?: string | null;
+    vectorErrorMessage?: string | null;
 }
 
 export interface TeachingAssignment {
@@ -127,5 +132,10 @@ export interface MutationResult {
 }
 
 export interface UploadMaterialResult extends MutationResult {
-    material: { id: number; title: string; fileUrl: string; uploadedAt: string };
+    material: { id: number; title: string; fileUrl: string; uploadedAt: string; vectorizationStatus?: VectorizationStatus };
+}
+
+export interface AiTutorResponse {
+    answer: string;
+    sources: string[];
 }

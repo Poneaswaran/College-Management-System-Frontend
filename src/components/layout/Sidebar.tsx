@@ -54,6 +54,7 @@ const studentSidebarItems: MenuItem[] = [
     { icon: GraduationCap, label: 'Grades', path: '/student/grades' },
     { icon: Calendar, label: 'Timetable', path: '/student/timetable' },
     { icon: FileText, label: 'Assignments', path: '/student/assignments' },
+    { icon: Upload, label: 'Study Materials', path: '/student/materials' },
     { icon: ClipboardCheck, label: 'Attendance', path: '/student/attendance' },
     { icon: FileCheck, label: 'Exams & Results', path: '/student/exams' },
     { icon: User, label: 'Profile', path: '/student/profile' },
