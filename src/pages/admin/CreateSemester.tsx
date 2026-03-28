@@ -9,6 +9,7 @@ import { Dropdown } from '../../components/ui/Dropdown';
 import FormInput from '../../components/ui/FormInput';
 import { Modal } from '../../components/ui/Modal';
 import { useToast } from '../../components/ui/Toast';
+import CustomCalendar from '../../components/ui/CustomCalendar';
 import api from '../../services/api';
 
 interface Semester {
@@ -157,11 +158,11 @@ const parseApiErrorMessage = (error: unknown, fallbackMessage: string): string =
     return fallbackMessage;
 };
 
-const parseBooleanLike = (value: string): boolean | null => {
-    const normalized = value.trim().toLowerCase();
-    if (['true', '1', 'yes'].includes(normalized)) return true;
-    if (['false', '0', 'no'].includes(normalized)) return false;
-    return null;
+const toApiDateString = (dateValue: Date): string => {
+    const year = dateValue.getFullYear();
+    const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+    const day = String(dateValue.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 };
 
 const toComparableDate = (dateValue: string): Date => new Date(`${dateValue}T00:00:00`);
@@ -360,11 +361,7 @@ export default function CreateSemester() {
             return null;
         }
 
-        const isCurrentBoolean = parseBooleanLike(academicYearFormState.isCurrent);
-        if (isCurrentBoolean === null) {
-            addToast({ type: 'error', title: 'Is Current must be a boolean-like value.' });
-            return null;
-        }
+        const isCurrentBoolean = toBoolean(academicYearFormState.isCurrent);
 
         const startDate = toComparableDate(academicYearFormState.startDate);
         const endDate = toComparableDate(academicYearFormState.endDate);
@@ -392,7 +389,14 @@ export default function CreateSemester() {
 
         try {
             setIsAcademicYearSubmitting(true);
-            const response = await api.post('/api/core/admin/academic-years/create/', payload);
+            const requestBody: CreateAcademicYearPayload = {
+                year_code: payload.year_code,
+                start_date: payload.start_date,
+                end_date: payload.end_date,
+                is_current: Boolean(payload.is_current),
+            };
+
+            const response = await api.post('/api/core/admin/academic-years/create/', requestBody);
 
             if (response.status === 201) {
                 addToast({ type: 'success', title: 'Academic year created successfully.' });
@@ -465,6 +469,23 @@ export default function CreateSemester() {
         ],
         []
     );
+
+    const academicYearCodeOptions = useMemo(() => {
+        const currentYear = new Date().getFullYear();
+        const startYear = currentYear - 1;
+        const endYear = currentYear + 10;
+
+        return Array.from({ length: endYear - startYear + 1 }, (_, index) => {
+            const year = startYear + index;
+            const nextYearShort = String((year + 1) % 100).padStart(2, '0');
+            const yearCode = `${year}-${nextYearShort}`;
+
+            return {
+                label: yearCode,
+                value: yearCode,
+            };
+        });
+    }, []);
 
     const academicYearFilterOptions = useMemo(
         () => [
@@ -721,14 +742,13 @@ export default function CreateSemester() {
                             <h2 className="text-base font-semibold">New Academic Year</h2>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormInput
-                                id="create-academic-year-code"
-                                type="text"
-                                required
+                            <Dropdown
                                 label="Year Code"
+                                options={academicYearCodeOptions}
                                 value={academicYearFormState.yearCode}
-                                onChange={(event) => onChangeAcademicYearFormState('yearCode', event.target.value)}
-                                placeholder="e.g. 2026-27"
+                                onChange={(value) => onChangeAcademicYearFormState('yearCode', String(value))}
+                                placeholder="Select year code"
+                                dataTestId="create-academic-year-code"
                             />
                             <Dropdown
                                 label="Is Current"
@@ -738,22 +758,36 @@ export default function CreateSemester() {
                                 placeholder="Select one"
                                 dataTestId="create-academic-year-current"
                             />
-                            <FormInput
-                                id="create-academic-year-start-date"
-                                type="date"
-                                required
-                                label="Start Date"
-                                value={academicYearFormState.startDate}
-                                onChange={(event) => onChangeAcademicYearFormState('startDate', event.target.value)}
-                            />
-                            <FormInput
-                                id="create-academic-year-end-date"
-                                type="date"
-                                required
-                                label="End Date"
-                                value={academicYearFormState.endDate}
-                                onChange={(event) => onChangeAcademicYearFormState('endDate', event.target.value)}
-                            />
+                            <div>
+                                <label className="block text-sm font-medium text-[var(--color-foreground)] mb-2">
+                                    Start Date
+                                    <span className="text-[var(--color-error)] ml-0.5">*</span>
+                                </label>
+                                <CustomCalendar
+                                    value={DATE_REGEX.test(academicYearFormState.startDate) ? toComparableDate(academicYearFormState.startDate) : undefined}
+                                    onChange={(selectedDate) => onChangeAcademicYearFormState('startDate', toApiDateString(selectedDate))}
+                                    className="w-full"
+                                    placeholder="Select start date"
+                                />
+                                <p className="text-xs text-[var(--color-foreground-muted)] mt-1">
+                                    {academicYearFormState.startDate || 'Select start date'}
+                                </p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-[var(--color-foreground)] mb-2">
+                                    End Date
+                                    <span className="text-[var(--color-error)] ml-0.5">*</span>
+                                </label>
+                                <CustomCalendar
+                                    value={DATE_REGEX.test(academicYearFormState.endDate) ? toComparableDate(academicYearFormState.endDate) : undefined}
+                                    onChange={(selectedDate) => onChangeAcademicYearFormState('endDate', toApiDateString(selectedDate))}
+                                    className="w-full"
+                                    placeholder="Select end date"
+                                />
+                                <p className="text-xs text-[var(--color-foreground-muted)] mt-1">
+                                    {academicYearFormState.endDate || 'Select end date'}
+                                </p>
+                            </div>
                         </div>
                         <div className="flex justify-end">
                             <Button
