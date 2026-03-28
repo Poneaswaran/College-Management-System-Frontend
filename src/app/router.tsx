@@ -19,6 +19,11 @@ const AssignedClassrooms = lazy(() => import('../pages/admin/AssignedClassrooms'
 const DepartmentManagement = lazy(() => import('../pages/admin/DepartmentManagement'));
 const CourseManagement = lazy(() => import('../pages/admin/CourseManagement'));
 const SectionManagement = lazy(() => import('../pages/admin/SectionManagement'));
+const CreateSemester = lazy(() => import('../pages/admin/CreateSemester'));
+const ViewSectionTimetable = lazy(() => import('../pages/admin/timetable/view-section'));
+const ViewFacultyTimetable = lazy(() => import('../pages/admin/timetable/view-faculty'));
+const CreateTimetable = lazy(() => import('../pages/admin/timetable/create'));
+const ManageTimetable = lazy(() => import('../pages/admin/timetable/manage'));
 const StudentDashboard = lazy(() => import('../pages/student/StudentDashboard'));
 const StudentAttendance = lazy(() => import('../pages/student/StudentAttendance'));
 const MarkAttendance = lazy(() => import('../pages/student/MarkAttendance'));
@@ -220,6 +225,46 @@ export function AppRouter() {
             element={
               <ProtectedRoute requiredRole="ADMIN">
                 <SectionManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/academic/semesters/create"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <CreateSemester />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/timetable/section"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <ViewSectionTimetable />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/timetable/faculty"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <ViewFacultyTimetable />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/timetable/create"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <CreateTimetable />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/timetable/manage"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <ManageTimetable />
               </ProtectedRoute>
             }
           />

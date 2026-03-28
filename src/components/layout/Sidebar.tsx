@@ -193,6 +193,7 @@ const adminSidebarItems: SidebarItem[] = [
             { icon: MapPin, label: 'Departments', path: '/admin/academic/departments' },
             { icon: BookOpen, label: 'Courses', path: '/admin/academic/courses' },
             { icon: Hash, label: 'Sections', path: '/admin/academic/sections' },
+            { icon: Calendar, label: 'Create Semester', path: '/admin/academic/semesters/create' },
         ]
     },
     {
@@ -203,6 +204,17 @@ const adminSidebarItems: SidebarItem[] = [
             { icon: Building2, label: 'Buildings', path: '/admin/buildings' },
             { icon: MapPin, label: 'Venue', path: '/admin/venue-management' },
             { icon: ClipboardCheck, label: 'Assign Classrooms', path: '/admin/venue-assignment' },
+        ]
+    },
+    {
+        icon: Calendar,
+        label: 'Timetable Management',
+        isDropdown: true,
+        children: [
+            { icon: Calendar, label: 'View Section Timetable', path: '/admin/timetable/section' },
+            { icon: Users, label: 'View Faculty Timetable', path: '/admin/timetable/faculty' },
+            { icon: FileText, label: 'Create Timetable', path: '/admin/timetable/create' },
+            { icon: Settings, label: 'Manage Entries', path: '/admin/timetable/manage' },
         ]
     },
 ];

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { 
     Mail, 
     Sun, 
@@ -13,12 +14,18 @@ interface HeaderProps {
     title: string;
     userName?: string;
     userInitials?: string;
+    titleIcon?: ReactNode;
+    actions?: ReactNode;
+    className?: string;
 }
 
 export function Header({ 
     title, 
     userName: propUserName, 
-    userInitials: propUserInitials
+    userInitials: propUserInitials,
+    titleIcon,
+    actions,
+    className
 }: HeaderProps) {
     const { isDark, setMode } = useTheme();
     const { user } = useAuth();
@@ -39,18 +46,20 @@ export function Header({
     };
 
     return (
-        <header className="flex flex-wrap justify-between items-center gap-4 mb-8">
+        <header className={`px-4 md:px-6 lg:px-8 pt-6 flex flex-wrap justify-between items-center gap-4 mb-8 ${className ?? ''}`.trim()}>
             <div className="flex items-center gap-4">
                 {/* Mobile Menu Toggle - can be used to open Sidebar */}
                 <button className="lg:hidden p-2 hover:bg-[var(--color-background-tertiary)] rounded-lg text-[var(--color-foreground-secondary)]">
                     <Menu size={20} />
                 </button>
-                <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)]">{title}</h1>
+                <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)] flex items-center gap-3">
+                    {titleIcon}
+                    <span>{title}</span>
+                </h1>
             </div>
 
             <div className="flex items-center gap-3 md:gap-4 flex-1 justify-end max-w-4xl">
-
-
+                {actions}
                 <div className="flex items-center gap-2 md:gap-3">
                     {/* Theme Toggle */}
                     <button

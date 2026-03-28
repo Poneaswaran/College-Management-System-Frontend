@@ -1,4 +1,4 @@
-import { Users, Building2, BookOpen } from 'lucide-react';
+import { Users, Building2, BookOpen, CalendarDays } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 /**
@@ -58,6 +58,11 @@ export const ADMIN_SIDEBAR_CONFIG: AdminSidebarSection[] = [
         key: 'sections',
         label: 'Sections',
         path: '/admin/academic/sections'
+      },
+      {
+        key: 'create-semester',
+        label: 'Create Semester',
+        path: '/admin/academic/semesters/create'
       }
     ]
   },
@@ -80,6 +85,33 @@ export const ADMIN_SIDEBAR_CONFIG: AdminSidebarSection[] = [
         key: 'venue-assignment',
         label: 'Assign Classrooms',
         path: '/admin/venue-assignment'
+      }
+    ]
+  },
+  {
+    key: 'timetable-management',
+    label: 'Timetable Management',
+    icon: CalendarDays,
+    children: [
+      {
+        key: 'timetable-view-section',
+        label: 'View Section Timetable',
+        path: '/admin/timetable/section'
+      },
+      {
+        key: 'timetable-view-faculty',
+        label: 'View Faculty Timetable',
+        path: '/admin/timetable/faculty'
+      },
+      {
+        key: 'timetable-create',
+        label: 'Create Timetable',
+        path: '/admin/timetable/create'
+      },
+      {
+        key: 'timetable-manage',
+        label: 'Manage Entries',
+        path: '/admin/timetable/manage'
       }
     ]
   }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Building2, Hash, Plus, Settings2, Trash2, Edit, AlertTriangle } from 'lucide-react';
+import { Building2, Plus, Trash2, Edit, AlertTriangle } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
+import { Header } from '../../components/layout/Header';
 import { Button } from '../../components/ui/Button';
 import { DataTable, type Column } from '../../components/ui/DataTable';
 import api from '../../services/api';
@@ -149,10 +150,19 @@ export default function DepartmentManagement() {
     return (
         <PageLayout>
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[var(--color-border)]">
+                <Header
+                    title="Departments"
+                    className="mb-4"
+                    titleIcon={
+                        <span className="w-10 h-10 rounded-xl bg-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 flex items-center justify-center">
+                            <Building2 size={20} className="text-[var(--color-primary)]" />
+                        </span>
+                    }
+                />
+
+                <div className="px-4 md:px-6 lg:px-8 flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-[var(--color-border)]">
                     <div>
-                        <h1 className="text-4xl font-black text-[var(--color-text-primary)] tracking-tight">Departments</h1>
-                        <p className="text-[var(--color-text-secondary)] mt-2 text-lg font-medium">
+                        <p className="text-[var(--color-text-secondary)] text-lg font-medium">
                             Manage institutional academic departments and structures
                         </p>
                     </div>
