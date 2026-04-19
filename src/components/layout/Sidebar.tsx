@@ -97,7 +97,7 @@ const hodSidebarItems: SidebarItem[] = [
             { icon: Briefcase, label: 'Subject Allocation', path: '/hod/subject-allocation' },
             { icon: Users, label: 'Faculty Workload', path: '/hod/faculty-workload' },
             { icon: FileText, label: 'Curriculum Overview', path: '/hod/curriculum' },
-            { icon: Calendar, label: 'Timetable Approval', path: '/hod/timetable-approval' },
+            { icon: Calendar, label: 'Timetable Approval', path: '/hod/timetable-approval-review' },
         ]
     },
     {

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
     CalendarDays,
     CheckCircle2,
@@ -8,126 +8,13 @@ import {
     XCircle,
 } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
-
-type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
-
-interface TimetableSlot {
-    day: string;
-    period: string;
-    courseCode: string;
-    courseTitle: string;
-    facultyName: string;
-    section: string;
-    room: string;
-}
-
-interface TimetableApprovalRequest {
-    id: string;
-    submittedAt: string;
-    submittedBy: string;
-    semester: string;
-    academicYear: string;
-    changeSummary: string;
-    status: ApprovalStatus;
-    note: string;
-    slots: TimetableSlot[];
-}
-
-const MOCK_REQUESTS: TimetableApprovalRequest[] = [
-    {
-        id: 'TT-2026-041',
-        submittedAt: '2026-03-12T10:20:00Z',
-        submittedBy: 'Dr. Kavitha Raman',
-        semester: 'Sem 6',
-        academicYear: '2025-26',
-        changeSummary: 'Swap Tuesday and Thursday labs for CS602 due to lab maintenance.',
-        status: 'PENDING',
-        note: 'Lab-2 unavailable on Thursday morning for maintenance.',
-        slots: [
-            {
-                day: 'Tuesday',
-                period: 'P5-P6',
-                courseCode: 'CS602',
-                courseTitle: 'Machine Learning Lab',
-                facultyName: 'Dr. Kavitha Raman',
-                section: 'CSE-A',
-                room: 'Lab-4',
-            },
-            {
-                day: 'Thursday',
-                period: 'P2-P3',
-                courseCode: 'CS602',
-                courseTitle: 'Machine Learning Lab',
-                facultyName: 'Dr. Kavitha Raman',
-                section: 'CSE-A',
-                room: 'Lab-2',
-            },
-        ],
-    },
-    {
-        id: 'TT-2026-038',
-        submittedAt: '2026-03-11T07:50:00Z',
-        submittedBy: 'Prof. Arjun Menon',
-        semester: 'Sem 4',
-        academicYear: '2025-26',
-        changeSummary: 'Merge two tutorial batches for CS401 to free one slot for remedial class.',
-        status: 'PENDING',
-        note: 'Batch strength dropped after elective migration.',
-        slots: [
-            {
-                day: 'Monday',
-                period: 'P3',
-                courseCode: 'CS401',
-                courseTitle: 'Design and Analysis of Algorithms',
-                facultyName: 'Prof. Arjun Menon',
-                section: 'CSE-B',
-                room: 'CR-204',
-            },
-        ],
-    },
-    {
-        id: 'TT-2026-032',
-        submittedAt: '2026-03-09T13:10:00Z',
-        submittedBy: 'Dr. Preethi Nair',
-        semester: 'Sem 2',
-        academicYear: '2025-26',
-        changeSummary: 'Shift Friday CS201 lecture from P1 to P2 due to orientation event.',
-        status: 'APPROVED',
-        note: 'Approved after confirming no overlap with Physics lab.',
-        slots: [
-            {
-                day: 'Friday',
-                period: 'P2',
-                courseCode: 'CS201',
-                courseTitle: 'Discrete Mathematics',
-                facultyName: 'Dr. Preethi Nair',
-                section: 'CSE-C',
-                room: 'CR-112',
-            },
-        ],
-    },
-    {
-        id: 'TT-2026-027',
-        submittedAt: '2026-03-07T11:35:00Z',
-        submittedBy: 'Prof. Vivek Sharma',
-        semester: 'Sem 8',
-        academicYear: '2025-26',
-        changeSummary: 'Requested additional weekend project studio slot for final year teams.',
-        status: 'REJECTED',
-        note: 'Weekend slot denied due to maintenance shutdown schedule.',
-        slots: [
-            {
-                day: 'Saturday',
-                period: 'P2-P4',
-                courseCode: 'CS890',
-                courseTitle: 'Capstone Project Studio',
-                facultyName: 'Prof. Vivek Sharma',
-                section: 'CSE-A+B',
-                room: 'Innovation Lab',
-            },
-        ],
-    },
-];
+import { useToast } from '../../components/ui/Toast';
+import {
+    type ApprovalStatus,
+    type HODTimetableApprovalRequest,
+    getHODTimetableApprovalRequests,
+    updateHODTimetableApprovalStatus,
+} from '../../features/hod/timetable/services/hodTimetableApprovalService';
 
 const STATUS_LABELS: Record<ApprovalStatus, string> = {
     PENDING: 'Pending',
@@ -142,6 +29,10 @@ const STATUS_CLASSNAMES: Record<ApprovalStatus, string> = {
 };
 
 function formatDateTime(value: string): string {
+    if (!value) {
+        return 'N/A';
+    }
+
     return new Date(value).toLocaleString('en-IN', {
         day: '2-digit',
         month: 'short',
@@ -162,10 +53,45 @@ function StatusBadge({ status }: { status: ApprovalStatus }) {
 }
 
 export default function HODTimetableApprovalReview() {
-    const [requests, setRequests] = useState<TimetableApprovalRequest[]>(MOCK_REQUESTS);
+    const { addToast } = useToast();
+
+    const [requests, setRequests] = useState<HODTimetableApprovalRequest[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [updatingId, setUpdatingId] = useState<number | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState<ApprovalStatus | 'ALL'>('ALL');
     const [semesterFilter, setSemesterFilter] = useState<string>('ALL');
+
+    useEffect(() => {
+        let cancelled = false;
+
+        const loadRequests = async () => {
+            setLoading(true);
+            try {
+                const data = await getHODTimetableApprovalRequests();
+                if (!cancelled) {
+                    setRequests(data);
+                }
+            } catch {
+                if (!cancelled) {
+                    addToast({
+                        type: 'error',
+                        title: 'Failed to load timetable approval requests.',
+                    });
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
+                }
+            }
+        };
+
+        loadRequests();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [addToast]);
 
     const semesters = useMemo(() => {
         const values = Array.from(new Set(requests.map((request) => request.semester)));
@@ -178,7 +104,7 @@ export default function HODTimetableApprovalReview() {
         return requests.filter((request) => {
             const matchesQuery =
                 query.length === 0 ||
-                request.id.toLowerCase().includes(query) ||
+                String(request.id).toLowerCase().includes(query) ||
                 request.submittedBy.toLowerCase().includes(query) ||
                 request.changeSummary.toLowerCase().includes(query) ||
                 request.slots.some(
@@ -198,11 +124,28 @@ export default function HODTimetableApprovalReview() {
     const approvedCount = requests.filter((request) => request.status === 'APPROVED').length;
     const rejectedCount = requests.filter((request) => request.status === 'REJECTED').length;
 
-    const updateStatus = (id: string, status: ApprovalStatus) => {
-        setRequests((current) =>
-            current.map((request) => (request.id === id ? { ...request, status } : request)),
-        );
+    const updateStatus = async (id: number, status: ApprovalStatus) => {
+        setUpdatingId(id);
+        try {
+            const updated = await updateHODTimetableApprovalStatus(id, status);
+            setRequests((current) =>
+                current.map((request) => (request.id === id ? updated : request)),
+            );
+            addToast({
+                type: 'success',
+                title: `Request marked as ${STATUS_LABELS[status]}.`,
+            });
+        } catch {
+            addToast({
+                type: 'error',
+                title: 'Failed to update request status.',
+            });
+        } finally {
+            setUpdatingId(null);
+        }
     };
+
+    const displayAcademicYear = requests[0]?.academicYear ?? 'N/A';
 
     return (
         <PageLayout>
@@ -220,7 +163,7 @@ export default function HODTimetableApprovalReview() {
                         </div>
                         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-background-secondary)] px-4 py-2">
                             <CalendarDays size={16} className="text-[var(--color-primary)]" />
-                            <span className="text-sm font-medium text-[var(--color-foreground)]">Academic Year {MOCK_REQUESTS[0].academicYear}</span>
+                            <span className="text-sm font-medium text-[var(--color-foreground)]">Academic Year {displayAcademicYear}</span>
                         </div>
                     </div>
                 </section>
@@ -288,7 +231,13 @@ export default function HODTimetableApprovalReview() {
                 </section>
 
                 <section className="space-y-4">
-                    {filteredRequests.length === 0 && (
+                    {loading && (
+                        <div className="rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-card)] p-8 text-center">
+                            <p className="text-lg font-semibold text-[var(--color-foreground)]">Loading requests...</p>
+                        </div>
+                    )}
+
+                    {!loading && filteredRequests.length === 0 && (
                         <div className="rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-card)] p-8 text-center">
                             <p className="text-lg font-semibold text-[var(--color-foreground)]">No matching requests</p>
                             <p className="mt-1 text-sm text-[var(--color-foreground-secondary)]">Try adjusting your search or filter selection.</p>
@@ -304,7 +253,7 @@ export default function HODTimetableApprovalReview() {
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                     <div>
                                         <div className="flex flex-wrap items-center gap-2">
-                                            <h2 className="text-lg font-semibold text-[var(--color-foreground)]">{request.id}</h2>
+                                            <h2 className="text-lg font-semibold text-[var(--color-foreground)]">TT-{request.id}</h2>
                                             <StatusBadge status={request.status} />
                                         </div>
                                         <p className="mt-1 text-sm text-[var(--color-foreground-secondary)]">
@@ -317,6 +266,9 @@ export default function HODTimetableApprovalReview() {
                                 </div>
                                 <p className="mt-3 text-sm text-[var(--color-foreground)]">{request.changeSummary}</p>
                                 <p className="mt-2 text-xs text-[var(--color-foreground-muted)]">Note: {request.note}</p>
+                                {request.reviewNote && (
+                                    <p className="mt-1 text-xs text-[var(--color-foreground-muted)]">Review: {request.reviewNote}</p>
+                                )}
                             </div>
 
                             <div className="overflow-x-auto">
@@ -334,7 +286,7 @@ export default function HODTimetableApprovalReview() {
                                     <tbody>
                                         {request.slots.map((slot, index) => (
                                             <tr
-                                                key={`${request.id}-${slot.courseCode}-${index}`}
+                                                key={`${request.id}-${index}`}
                                                 className="border-t border-[var(--color-border)] text-[var(--color-foreground)]"
                                             >
                                                 <td className="px-4 py-2">{slot.day}</td>
@@ -355,7 +307,7 @@ export default function HODTimetableApprovalReview() {
                             <div className="flex flex-wrap items-center justify-end gap-2 border-t border-[var(--color-border)] p-4">
                                 <button
                                     onClick={() => updateStatus(request.id, 'APPROVED')}
-                                    disabled={request.status === 'APPROVED'}
+                                    disabled={request.status === 'APPROVED' || updatingId === request.id}
                                     className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-success)] px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     <CheckCircle2 size={16} />
@@ -363,7 +315,7 @@ export default function HODTimetableApprovalReview() {
                                 </button>
                                 <button
                                     onClick={() => updateStatus(request.id, 'REJECTED')}
-                                    disabled={request.status === 'REJECTED'}
+                                    disabled={request.status === 'REJECTED' || updatingId === request.id}
                                     className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-error)] px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     <XCircle size={16} />
@@ -371,7 +323,7 @@ export default function HODTimetableApprovalReview() {
                                 </button>
                                 <button
                                     onClick={() => updateStatus(request.id, 'PENDING')}
-                                    disabled={request.status === 'PENDING'}
+                                    disabled={request.status === 'PENDING' || updatingId === request.id}
                                     className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-sm font-medium text-[var(--color-foreground)] disabled:cursor-not-allowed disabled:opacity-60"
                                 >
                                     <FileCheck size={16} />
