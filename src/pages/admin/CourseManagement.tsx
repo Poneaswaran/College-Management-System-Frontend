@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { BookOpen, Calendar, Plus, Settings2, Clock, MapPin, Trash2, Edit, AlertCircle } from 'lucide-react';
+import { Plus, Clock, Trash2, Edit, AlertCircle } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
 import { Button } from '../../components/ui/Button';
 import { DataTable, type Column } from '../../components/ui/DataTable';
@@ -20,6 +20,11 @@ interface Course {
 interface Department {
     id: number;
     name: string;
+}
+
+interface CourseUpdatePayload {
+    name: string;
+    duration_years: number;
 }
 
 export default function CourseManagement() {
@@ -88,7 +93,7 @@ export default function CourseManagement() {
         try {
             setIsSubmitting(true);
             if (selectedCourse) {
-                const patchData: any = { name: formData.name, duration_years: Number(formData.duration_years) };
+                const patchData: CourseUpdatePayload = { name: formData.name, duration_years: Number(formData.duration_years) };
                 await api.patch(`/api/core/admin/courses/${selectedCourse.id}/`, patchData);
                 addToast({ type: 'success', title: 'Course updated successfully' });
             } else {

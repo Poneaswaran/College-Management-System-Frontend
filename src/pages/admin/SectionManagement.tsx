@@ -22,6 +22,17 @@ interface Course {
     name: string;
 }
 
+interface SectionUpdatePayload {
+    name: string;
+    code: string;
+}
+
+interface SectionCreatePayload {
+    name: string;
+    code: string;
+    course_id: number;
+}
+
 export default function SectionManagement() {
     const { addToast } = useToast();
     const [sections, setSections] = useState<Section[]>([]);
@@ -91,11 +102,11 @@ export default function SectionManagement() {
         try {
             setIsSubmitting(true);
             if (selectedSection) {
-                const patchData: any = { name: formData.name, code: formData.code };
+                const patchData: SectionUpdatePayload = { name: formData.name, code: formData.code };
                 await api.patch(`/api/core/admin/sections/${selectedSection.id}/`, patchData);
                 addToast({ type: 'success', title: 'Section updated successfully' });
             } else {
-                const postData: any = {
+                const postData: SectionCreatePayload = {
                     name: formData.name,
                     code: formData.code,
                     course_id: Number(formData.course_id)

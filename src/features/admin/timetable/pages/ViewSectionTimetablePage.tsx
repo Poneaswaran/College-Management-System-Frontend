@@ -32,14 +32,16 @@ export default function ViewSectionTimetablePage() {
     }, [filtersError, addToast]);
 
     useEffect(() => {
-        if (!semesterId && (filters?.semesters?.length ?? 0) > 0) {
-            setSemesterId(String(filters.semesters[0].id));
+        const firstSemester = filters?.semesters?.[0];
+        if (!semesterId && firstSemester) {
+            setSemesterId(String(firstSemester.id));
         }
     }, [filters, semesterId]);
 
     useEffect(() => {
-        if (!sectionId && (filters?.sections?.length ?? 0) > 0) {
-            setSectionId(String(filters.sections[0].id));
+        const firstSection = filters?.sections?.[0];
+        if (!sectionId && firstSection) {
+            setSectionId(String(firstSection.id));
         }
     }, [filters, sectionId]);
 

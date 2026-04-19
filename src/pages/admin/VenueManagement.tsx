@@ -69,7 +69,6 @@ export default function VenueManagement() {
         capacity: 60,
     });
     const [buildingSuggestions, setBuildingSuggestions] = useState<BuildingFilter[]>([]);
-    const [isFetchingBuildings, setIsFetchingBuildings] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [showFloorSuggestions, setShowFloorSuggestions] = useState(false);
 
@@ -135,13 +134,10 @@ export default function VenueManagement() {
 
     const fetchBuildingFilters = useCallback(async () => {
         try {
-            setIsFetchingBuildings(true);
             const response = await api.get<{ filters: BuildingFilter[] }>('/api/core/filters/?type=room');
             setBuildingSuggestions(response.data.filters);
         } catch (error) {
             console.error('Error fetching building filters:', error);
-        } finally {
-            setIsFetchingBuildings(false);
         }
     }, []);
 
@@ -163,15 +159,12 @@ export default function VenueManagement() {
                 // If we already have suggestions, we can filter them or re-fetch for more specific results
                 // Re-fetching as per user request to call api
                 try {
-                    setIsFetchingBuildings(true);
                     const response = await api.get<{ filters: BuildingFilter[] }>(
                         `/api/core/filters/?type=room&building_name=${formData.building_name}`
                     );
                     setBuildingSuggestions(response.data.filters);
                 } catch (error) {
                     console.error('Error fetching building filters:', error);
-                } finally {
-                    setIsFetchingBuildings(false);
                 }
             } else if (!formData.building_name) {
                 // Fetch default list when empty
@@ -203,10 +196,6 @@ export default function VenueManagement() {
                 floor_number: building.floors?.[0] ? Number(building.floors[0]) : 1
             }));
         }
-    };
-
-    const handleFloorChange = (value: string | number) => {
-        setFormData(prev => ({ ...prev, floor_number: Number(value) }));
     };
 
     const handleTypeChange = (value: string | number) => {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Building2, MapPin, Calendar, Clock, BookOpen, AlertCircle, Users, CheckCircle, HelpCircle, ChevronRight, Hash, X } from 'lucide-react';
+import { Building2, MapPin, Clock, AlertCircle, Users, CheckCircle, HelpCircle, ChevronRight } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
 import { DataTable, type Column } from '../../components/ui/DataTable';
 import api from '../../services/api';
