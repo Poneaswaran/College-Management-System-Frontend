@@ -2,8 +2,17 @@ import axios from 'axios';
 
 import { API_URL } from '../config/constant';
 
+const getApiBaseUrl = () => {
+    if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+    
+    // Dynamically match the backend subdomain to the current frontend subdomain
+    const hostname = window.location.hostname; // e.g., "vels.localhost"
+    const protocol = window.location.protocol; // e.g., "http:"
+    return `${protocol}//${hostname}:8000/api`;
+};
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || API_URL,
+    baseURL: getApiBaseUrl(),
     headers: {
         'Content-Type': 'application/json',
     },
