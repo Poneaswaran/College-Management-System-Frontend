@@ -24,6 +24,8 @@ import {
     Building2,
     MapPin,
     Hash,
+    Sparkles,
+    ShieldCheck,
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -99,6 +101,8 @@ const hodSidebarItems: SidebarItem[] = [
             { icon: Users, label: 'Faculty Workload', path: '/hod/faculty-workload' },
             { icon: FileText, label: 'Curriculum Overview', path: '/hod/curriculum' },
             { icon: Calendar, label: 'Timetable Approval', path: '/hod/timetable-approval-review' },
+            { icon: Sparkles, label: 'AI Copilot', path: '/hod/academic/ai-copilot' },
+            { icon: ShieldCheck, label: 'Schedule Audit', path: '/hod/academic/schedule-audit' },
         ]
     },
     {

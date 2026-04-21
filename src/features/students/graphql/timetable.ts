@@ -13,6 +13,9 @@ export const TIMETABLE_PAGE_QUERY = gql`
     
     myTimetable(registerNumber: $registerNumber) {
       id
+      section {
+        id
+      }
       subject {
         code
         name

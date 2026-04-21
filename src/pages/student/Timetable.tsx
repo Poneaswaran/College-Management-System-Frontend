@@ -1,6 +1,7 @@
-import { Calendar, Clock, MapPin, User } from 'lucide-react';
+import { Calendar, Clock, MapPin, User, Download, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { SERVER_URL } from '../../config/constant';
 import PageLayout from '../../components/layout/PageLayout';
 import { client } from '../../lib/graphql';
 import { getErrorMessage } from '../../lib/errorHandling';
@@ -14,6 +15,7 @@ export default function Timetable() {
     const user = useSelector((state: RootState) => state.auth.user);
     const [data, setData] = useState<TimetablePageResponse | null>(null);
     const [loading, setLoading] = useState(true);
+    const [exporting, setExporting] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
     useEffect(() => {
@@ -47,6 +49,40 @@ export default function Timetable() {
 
         fetchTimetable();
     }, [user?.username, user?.registerNumber]);
+
+    const handleExportPDF = async () => {
+        if (!data || !data.myTimetable.length) return;
+        
+        try {
+            setExporting(true);
+            const sectionId = data.myTimetable[0].section.id;
+            const semesterId = data.currentSemester.id;
+            const token = localStorage.getItem('token');
+
+            const response = await fetch(`${SERVER_URL}/api/timetable/export/?section_id=${sectionId}&semester_id=${semesterId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Failed to export PDF');
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `timetable_section_${sectionId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } catch (err) {
+            console.error('PDF Export error:', err);
+            alert('Failed to export timetable as PDF');
+        } finally {
+            setExporting(false);
+        }
+    };
 
     const getClassForSlot = (dayName: string, periodNumber: number): TimetableEntry | undefined => {
         return data?.myTimetable.find(
@@ -107,17 +143,31 @@ export default function Timetable() {
                 {/* Header */}
                 <div className="mb-6 md:mb-8">
                     <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                        <div>
+                        <div className="flex-1">
                             <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-foreground)]">Weekly Timetable</h1>
                             <p className="text-[var(--color-foreground-secondary)] mt-2">
                                 Your class schedule for the current semester
                             </p>
                         </div>
-                        <div className="flex items-center gap-2 px-4 py-2 bg-[var(--color-card)] rounded-lg border border-[var(--color-border)]">
-                            <Calendar size={20} className="text-[var(--color-primary)]" />
-                            <span className="text-sm font-medium text-[var(--color-foreground)]">
-                                {data.currentSemester.displayName} - {data.currentSemester.year}
-                            </span>
+                        <div className="flex flex-wrap items-center gap-3">
+                            <button
+                                onClick={handleExportPDF}
+                                disabled={exporting}
+                                className="flex items-center gap-2 px-4 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-hover)] transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                            >
+                                {exporting ? (
+                                    <Loader2 size={18} className="animate-spin" />
+                                ) : (
+                                    <Download size={18} />
+                                )}
+                                {exporting ? 'Generating PDF...' : 'Export to PDF'}
+                            </button>
+                            <div className="flex items-center gap-2 px-4 py-2 bg-[var(--color-card)] rounded-lg border border-[var(--color-border)]">
+                                <Calendar size={20} className="text-[var(--color-primary)]" />
+                                <span className="text-sm font-medium text-[var(--color-foreground)]">
+                                    {data.currentSemester.displayName} - {data.currentSemester.year}
+                                </span>
+                            </div>
                         </div>
                     </div>
 

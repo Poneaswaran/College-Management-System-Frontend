@@ -70,6 +70,8 @@ const HODAttendanceReportDetail = lazy(() => import('../pages/hod/HODAttendanceR
 const HODCourses = lazy(() => import('../pages/hod/HODCourses'));
 const HODFacultyList = lazy(() => import('../pages/hod/HODFacultyList'));
 const HODTimetableAssignment = lazy(() => import('../pages/hod/AcademicManagement/TimetableAssignment'));
+const HODTimeTableAICopilot = lazy(() => import('../pages/hod/AcademicManagement/AICopilot'));
+const HODTimeTableScheduleAudit = lazy(() => import('../pages/hod/AcademicManagement/ScheduleAudit'));
 
 // HOD Faculty Leave Approval
 const HODFacultyLeaveApproval = lazy(() => import('../pages/hod/HODFacultyLeaveApproval'));
@@ -141,6 +143,8 @@ export function AppRouter() {
           <Route path="/hod/dashboard" element={<HODDashboard />} />
           <Route path="/hod/courses" element={<HODCourses />} />
           <Route path="/hod/academic-management/timetable-assignment" element={<HODTimetableAssignment />} />
+          <Route path="/hod/academic/ai-copilot" element={<HODTimeTableAICopilot />} />
+          <Route path="/hod/academic/schedule-audit" element={<HODTimeTableScheduleAudit />} />
           <Route path="/hod/faculty-list" element={<HODFacultyList />} />
           <Route path="/hod/assignments" element={<HODAssignments />} />
           <Route path="/hod/exams" element={<HODExams />} />

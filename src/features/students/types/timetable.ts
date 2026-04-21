@@ -24,6 +24,9 @@ export interface PeriodDefinition {
 
 export interface TimetableEntry {
   id: string;
+  section: {
+    id: string;
+  };
   subject: Subject;
   faculty: Faculty;
   room: Room;
