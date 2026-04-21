@@ -33,6 +33,7 @@ import { selectCurrentUser } from '../../store/auth.store';
 import { useAuth } from '../../features/auth/hooks';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { useTenantBranding } from '../../hooks/useTenantBranding';
+import { useFeatureFlags } from "../../hooks/useFeatureFlags";
 import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -83,102 +84,6 @@ const facultySidebarItems: SidebarItem[] = [
     { icon: Bell, label: 'Announcements', path: '/faculty/announcements' },
     { icon: Calendar, label: 'Leave Application', path: '/faculty/leave' },
     { icon: User, label: 'Profile', path: '/faculty/profile' },
-];
-
-const hodSidebarItems: SidebarItem[] = [
-    {
-        icon: LayoutDashboard,
-        label: 'Dashboard',
-        path: '/hod/dashboard'
-    },
-    {
-        icon: BookOpen,
-        label: 'Academic Management',
-        isDropdown: true,
-        children: [
-            { icon: BookOpen, label: 'Department Courses', path: '/hod/courses' },
-            { icon: Briefcase, label: 'Subject Allocation', path: '/hod/subject-allocation' },
-            { icon: Calendar, label: 'Timetable Assignment', path: '/hod/academic-management/timetable-assignment' },
-            { icon: Users, label: 'Faculty Workload', path: '/hod/faculty-workload' },
-            { icon: FileText, label: 'Curriculum Overview', path: '/hod/curriculum' },
-            { icon: Calendar, label: 'Timetable Approval', path: '/hod/timetable-approval-review' },
-            { icon: Sparkles, label: 'AI Copilot', path: '/hod/academic/ai-copilot' },
-            { icon: ShieldCheck, label: 'Schedule Audit', path: '/hod/academic/schedule-audit' },
-        ]
-    },
-    {
-        icon: Users,
-        label: 'Faculty Management',
-        isDropdown: true,
-        children: [
-            { icon: Users, label: 'Faculty List', path: '/hod/faculty-list' },
-            { icon: TrendingUp, label: 'Performance Reports', path: '/hod/faculty-performance' },
-            { icon: FileCheck, label: 'Leave Approvals', path: '/hod/leave-approvals' },
-            { icon: BarChart3, label: 'Workload Distribution', path: '/hod/workload-distribution' },
-        ]
-    },
-    {
-        icon: GraduationCap,
-        label: 'Student Management',
-        isDropdown: true,
-        children: [
-            { icon: Users, label: 'Student List', path: '/hod/students' },
-            { icon: ClipboardCheck, label: 'Attendance Reports', path: '/hod/attendance-reports' },
-            { icon: TrendingUp, label: 'Performance Analytics', path: '/hod/student-performance' },
-            { icon: FileText, label: 'Backlog / Arrear List', path: '/hod/arrears' },
-            { icon: FileCheck, label: 'Student Grievances', path: '/hod/grievances' },
-        ]
-    },
-    {
-        icon: FileCheck,
-        label: 'Examination Management',
-        isDropdown: true,
-        children: [
-            { icon: LayoutDashboard, label: 'Exam Dashboard', path: '/hod/exams' },
-            { icon: Calendar, label: 'Exam Schedule Approval', path: '/hod/exam-schedule' },
-            { icon: BarChart3, label: 'Result Analysis', path: '/hod/result-analysis' },
-            { icon: TrendingUp, label: 'Pass/Fail Reports', path: '/hod/pass-fail-reports' },
-            { icon: GraduationCap, label: 'Department Rank List', path: '/hod/rank-list' },
-        ]
-    },
-    {
-        icon: BarChart3,
-        label: 'Reports & Analytics',
-        isDropdown: true,
-        children: [
-            { icon: ClipboardCheck, label: 'Attendance Trends', path: '/hod/attendance-trends' },
-            { icon: TrendingUp, label: 'Result Trends', path: '/hod/result-trends' },
-            { icon: FileText, label: 'Subject Performance', path: '/hod/subject-performance' },
-            { icon: Users, label: 'Faculty Performance', path: '/hod/faculty-performance-analytics' },
-            { icon: BarChart3, label: 'Department Comparison', path: '/hod/department-comparison' },
-        ]
-    },
-    {
-        icon: Bell,
-        label: 'Announcements',
-        isDropdown: true,
-        children: [
-            { icon: Bell, label: 'Post Department Notices', path: '/hod/post-notices' },
-            { icon: Bell, label: 'View College Notices', path: '/hod/view-notices' },
-        ]
-    },
-    {
-        icon: FolderCheck,
-        label: 'Approvals',
-        isDropdown: true,
-        children: [
-            { icon: FileCheck, label: 'Faculty Leave Approval', path: '/hod/faculty-leave-approval' }
-        ]
-    },
-    {
-        icon: Settings,
-        label: 'Settings',
-        isDropdown: true,
-        children: [
-            { icon: User, label: 'Profile', path: '/hod/profile' },
-            { icon: Settings, label: 'Department Settings', path: '/hod/department-settings' },
-        ]
-    },
 ];
 
 const adminSidebarItems: SidebarItem[] = [
@@ -275,6 +180,115 @@ export default function Sidebar() {
     const { logout } = useAuth();
     const { isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen } = useSidebar();
     const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
+    const flags = useFeatureFlags();
+
+    const hodSidebarItems: SidebarItem[] = [
+        {
+            icon: LayoutDashboard,
+            label: 'Dashboard',
+            path: '/hod/dashboard'
+        },
+        {
+            icon: BookOpen,
+            label: 'Academic Management',
+            isDropdown: true,
+            children: [
+                { icon: BookOpen, label: 'Department Courses', path: '/hod/courses' },
+                { icon: Briefcase, label: 'Subject Allocation', path: '/hod/subject-allocation' },
+                ...(flags.timetable_assignment ? [{
+                    icon: Calendar,
+                    label: 'Timetable Assignment',
+                    path: '/hod/academic-management/timetable-assignment'
+                }] : []),
+                ...(flags.ai_copilot ? [{
+                    icon: Sparkles,
+                    label: 'AI Copilot',
+                    path: '/hod/academic/ai-copilot'
+                }] : []),
+                ...(flags.schedule_audit ? [{
+                    icon: ShieldCheck,
+                    label: 'Schedule Audit',
+                    path: '/hod/academic/schedule-audit'
+                }] : []),
+                { icon: Users, label: 'Faculty Workload', path: '/hod/faculty-workload' },
+                { icon: FileText, label: 'Curriculum Overview', path: '/hod/curriculum' },
+                { icon: Calendar, label: 'Timetable Approval', path: '/hod/timetable-approval-review' },
+            ]
+        },
+        {
+            icon: Users,
+            label: 'Faculty Management',
+            isDropdown: true,
+            children: [
+                { icon: Users, label: 'Faculty List', path: '/hod/faculty-list' },
+                { icon: TrendingUp, label: 'Performance Reports', path: '/hod/faculty-performance' },
+                { icon: FileCheck, label: 'Leave Approvals', path: '/hod/leave-approvals' },
+                { icon: BarChart3, label: 'Workload Distribution', path: '/hod/workload-distribution' },
+            ]
+        },
+        {
+            icon: GraduationCap,
+            label: 'Student Management',
+            isDropdown: true,
+            children: [
+                { icon: Users, label: 'Student List', path: '/hod/students' },
+                { icon: ClipboardCheck, label: 'Attendance Reports', path: '/hod/attendance-reports' },
+                { icon: TrendingUp, label: 'Performance Analytics', path: '/hod/student-performance' },
+                { icon: FileText, label: 'Backlog / Arrear List', path: '/hod/arrears' },
+                { icon: FileCheck, label: 'Student Grievances', path: '/hod/grievances' },
+            ]
+        },
+        {
+            icon: FileCheck,
+            label: 'Examination Management',
+            isDropdown: true,
+            children: [
+                { icon: LayoutDashboard, label: 'Exam Dashboard', path: '/hod/exams' },
+                { icon: Calendar, label: 'Exam Schedule Approval', path: '/hod/exam-schedule' },
+                { icon: BarChart3, label: 'Result Analysis', path: '/hod/result-analysis' },
+                { icon: TrendingUp, label: 'Pass/Fail Reports', path: '/hod/pass-fail-reports' },
+                { icon: GraduationCap, label: 'Department Rank List', path: '/hod/rank-list' },
+            ]
+        },
+        {
+            icon: BarChart3,
+            label: 'Reports & Analytics',
+            isDropdown: true,
+            children: [
+                { icon: ClipboardCheck, label: 'Attendance Trends', path: '/hod/attendance-trends' },
+                { icon: TrendingUp, label: 'Result Trends', path: '/hod/result-trends' },
+                { icon: FileText, label: 'Subject Performance', path: '/hod/subject-performance' },
+                { icon: Users, label: 'Faculty Performance', path: '/hod/faculty-performance-analytics' },
+                { icon: BarChart3, label: 'Department Comparison', path: '/hod/department-comparison' },
+            ]
+        },
+        {
+            icon: Bell,
+            label: 'Announcements',
+            isDropdown: true,
+            children: [
+                { icon: Bell, label: 'Post Department Notices', path: '/hod/post-notices' },
+                { icon: Bell, label: 'View College Notices', path: '/hod/view-notices' },
+            ]
+        },
+        {
+            icon: FolderCheck,
+            label: 'Approvals',
+            isDropdown: true,
+            children: [
+                { icon: FileCheck, label: 'Faculty Leave Approval', path: '/hod/faculty-leave-approval' }
+            ]
+        },
+        {
+            icon: Settings,
+            label: 'Settings',
+            isDropdown: true,
+            children: [
+                { icon: User, label: 'Profile', path: '/hod/profile' },
+                { icon: Settings, label: 'Department Settings', path: '/hod/department-settings' },
+            ]
+        },
+    ];
 
     const handleLogout = async () => {
         await logout();
