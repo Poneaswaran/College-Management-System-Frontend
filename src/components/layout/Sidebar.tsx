@@ -95,6 +95,7 @@ const hodSidebarItems: SidebarItem[] = [
         children: [
             { icon: BookOpen, label: 'Department Courses', path: '/hod/courses' },
             { icon: Briefcase, label: 'Subject Allocation', path: '/hod/subject-allocation' },
+            { icon: Calendar, label: 'Timetable Assignment', path: '/hod/academic-management/timetable-assignment' },
             { icon: Users, label: 'Faculty Workload', path: '/hod/faculty-workload' },
             { icon: FileText, label: 'Curriculum Overview', path: '/hod/curriculum' },
             { icon: Calendar, label: 'Timetable Approval', path: '/hod/timetable-approval-review' },
