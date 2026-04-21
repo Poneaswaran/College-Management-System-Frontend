@@ -32,6 +32,7 @@ import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '../../store/auth.store';
 import { useAuth } from '../../features/auth/hooks';
 import { useSidebar } from '../../contexts/SidebarContext';
+import { useTenantBranding } from '../../hooks/useTenantBranding';
 import { useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -225,6 +226,48 @@ const adminSidebarItems: SidebarItem[] = [
     },
 ];
 
+/**
+ * Sidebar branding text — fetches institution name from the tenant API.
+ * Shows skeleton shimmer lines while loading.
+ */
+function SidebarBrandingText() {
+    const { branding, loading } = useTenantBranding();
+
+    if (loading) {
+        return (
+            <div className="flex flex-col min-w-0 gap-1">
+                <span
+                    className="h-3.5 w-24 rounded bg-[var(--color-border)] animate-pulse"
+                    aria-hidden="true"
+                />
+                <span
+                    className="h-3.5 w-16 rounded bg-[var(--color-border)] animate-pulse"
+                    aria-hidden="true"
+                />
+            </div>
+        );
+    }
+
+    // Split short_name into two lines if it has multiple words, otherwise show full name
+    const displayName = branding?.short_name || 'CMS';
+    const words = displayName.split(' ');
+    const line1 = words.length > 1 ? words.slice(0, Math.ceil(words.length / 2)).join(' ') : displayName;
+    const line2 = words.length > 1 ? words.slice(Math.ceil(words.length / 2)).join(' ') : '';
+
+    return (
+        <div className="flex flex-col min-w-0">
+            <span className="font-bold text-sm leading-tight text-[var(--color-foreground)] truncate">
+                {line1}
+            </span>
+            {line2 && (
+                <span className="font-bold text-sm leading-tight text-[var(--color-foreground)] truncate">
+                    {line2}
+                </span>
+            )}
+        </div>
+    );
+}
+
 export default function Sidebar() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -289,10 +332,7 @@ export default function Sidebar() {
                         <BookOpen size={20} />
                     </div>
                     {(!isCollapsed || isMobileOpen) && (
-                        <div className="flex flex-col min-w-0">
-                            <span className="font-bold text-sm leading-tight text-[var(--color-foreground)] truncate">UNIVERSITY OF</span>
-                            <span className="font-bold text-sm leading-tight text-[var(--color-foreground)] truncate">KNOWLEDGE</span>
-                        </div>
+                        <SidebarBrandingText />
                     )}
                 </div>
                 {/* Desktop collapse toggle */}
