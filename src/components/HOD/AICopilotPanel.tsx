@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { Bot, Send, Sparkles, AlertCircle, CheckCircle2, RefreshCw, Layers, Layout, ChevronRight, MessageSquare, X, MinusSquare, Maximize2, Minimize2 } from 'lucide-react';
+import { Bot, Send, Sparkles, CheckCircle2, RefreshCw, Layers, MessageSquare, X, Maximize2, Minimize2 } from 'lucide-react';
 import { useToast } from '../../components/ui/Toast';
 import { 
     HODTimeTableService, 
@@ -107,11 +107,12 @@ export default function AICopilotPanel({ selectedClass, semesterId, onProposalAp
             } else {
                 throw new Error(res.detail);
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const error = err as { message?: string };
             addToast({
                 type: 'error',
                 title: 'Application Failed',
-                message: err.message || 'Failed to apply the proposed change.'
+                message: error.message || 'Failed to apply the proposed change.'
             });
         } finally {
             setProcessingProposal(null);

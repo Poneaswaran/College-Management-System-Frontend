@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { Bot, Send, Sparkles, AlertCircle, CheckCircle2, RefreshCw, Layers, Layout, ChevronRight, MessageSquare, Plus } from 'lucide-react';
+import { Bot, Send, Sparkles, CheckCircle2, RefreshCw, Layers, MessageSquare } from 'lucide-react';
 import PageLayout from '../../../components/layout/PageLayout';
 import { Header } from '../../../components/layout/Header';
 import { useToast } from '../../../components/ui/Toast';
@@ -30,6 +30,7 @@ export default function AICopilot() {
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [selectedClass, setSelectedClass] = useState<HODClass | null>(null);
+    const [semesterId, setSemesterId] = useState<number | null>(null);
     const [classes, setClasses] = useState<HODClass[]>([]);
     const [appliedProposals, setAppliedProposals] = useState<Set<number>>(new Set());
     const [processingProposal, setProcessingProposal] = useState<number | null>(null);
@@ -43,6 +44,9 @@ export default function AICopilot() {
             try {
                 const data = await HODTimeTableService.fetchClasses('', undefined);
                 setClasses(data.results);
+                if (data.current_semester_id) {
+                    setSemesterId(data.current_semester_id);
+                }
             } catch (err) {
                 console.error('Failed to load classes:', err);
             }
@@ -73,7 +77,7 @@ export default function AICopilot() {
         setIsLoading(true);
 
         try {
-            const data = await HODTimeTableService.sendCopilotMessage(userMsg.content, selectedClass?.id || null);
+            const data = await HODTimeTableService.sendCopilotMessage(userMsg.content, semesterId, selectedClass?.id || null);
             
             const aiMsg: ChatMessage = {
                 id: (Date.now() + 1).toString(),
@@ -115,12 +119,13 @@ export default function AICopilot() {
             } else {
                 throw new Error(res.detail);
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Proposal failed:', err);
+            const error = err as { message?: string };
             addToast({
                 type: 'error',
                 title: 'Application Failed',
-                message: err.message || 'Failed to apply the proposed change.'
+                message: error.message || 'Failed to apply the proposed change.'
             });
         } finally {
             setProcessingProposal(null);
@@ -140,8 +145,7 @@ export default function AICopilot() {
             <div className="flex-1 flex flex-col h-[calc(100vh-12rem)] min-h-[600px] gap-6">
                 <Header 
                     title="AI Timetable Copilot" 
-                    icon={<Bot className="h-6 w-6 text-[var(--color-primary)]" />}
-                    description="Your intelligent scheduling partner"
+                    titleIcon={<Bot className="h-6 w-6 text-[var(--color-primary)]" />}
                 />
 
                 <div className="flex-1 flex flex-col lg:flex-row gap-6 h-full overflow-hidden">

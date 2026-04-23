@@ -3,29 +3,12 @@ import { Plus, Clock, Trash2, Edit, AlertCircle } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
 import { Button } from '../../components/ui/Button';
 import { DataTable, type Column } from '../../components/ui/DataTable';
-import api from '../../services/api';
+import { courseService } from '../../services/course.service';
+import type { Course, Department, CourseUpdatePayload } from '../../services/course.service';
 import { useToast } from '../../components/ui/Toast';
 import { Modal } from '../../components/ui/Modal';
 import { Dropdown } from '../../components/ui/Dropdown';
 import axios from 'axios';
-
-interface Course {
-    id: number;
-    name: string;
-    code: string;
-    department_name: string;
-    duration_years: number;
-}
-
-interface Department {
-    id: number;
-    name: string;
-}
-
-interface CourseUpdatePayload {
-    name: string;
-    duration_years: number;
-}
 
 export default function CourseManagement() {
     const { addToast } = useToast();
@@ -42,8 +25,8 @@ export default function CourseManagement() {
     const fetchCourses = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await api.get<{ courses: Course[] }>('/api/core/courses/');
-            setCourses(response.data.courses);
+            const data = await courseService.getCourses();
+            setCourses(data.courses);
         } catch (error) {
             console.error('Error fetching courses:', error);
             addToast({ type: 'error', title: 'Failed to fetch courses' });
@@ -54,8 +37,8 @@ export default function CourseManagement() {
 
     const fetchDepartments = useCallback(async () => {
         try {
-            const response = await api.get<{ departments: Department[] }>('/api/core/departments/');
-            setDepartments(response.data.departments);
+            const data = await courseService.getDepartments();
+            setDepartments(data.departments);
         } catch (error) {
             console.error('Error fetching departments:', error);
         }
@@ -76,7 +59,7 @@ export default function CourseManagement() {
         setFormData({ 
             name: course.name, 
             code: course.code, 
-            department_id: '', // Not provided in list API but we'll show it updateable
+            department_id: '',
             duration_years: String(course.duration_years) 
         });
         setIsModalOpen(true);
@@ -94,10 +77,10 @@ export default function CourseManagement() {
             setIsSubmitting(true);
             if (selectedCourse) {
                 const patchData: CourseUpdatePayload = { name: formData.name, duration_years: Number(formData.duration_years) };
-                await api.patch(`/api/core/admin/courses/${selectedCourse.id}/`, patchData);
+                await courseService.updateCourse(selectedCourse.id, patchData);
                 addToast({ type: 'success', title: 'Course updated successfully' });
             } else {
-                await api.post('/api/core/admin/courses/create/', {
+                await courseService.createCourse({
                     ...formData,
                     duration_years: Number(formData.duration_years),
                     department_id: Number(formData.department_id)
@@ -122,7 +105,7 @@ export default function CourseManagement() {
         if (!selectedCourse || confirmText !== 'CONFIRM') return;
         try {
             setIsSubmitting(true);
-            await api.delete(`/api/core/admin/courses/${selectedCourse.id}/`);
+            await courseService.deleteCourse(selectedCourse.id);
             addToast({ type: 'success', title: 'Course deleted successfully' });
             setIsDeleteModalOpen(false);
             fetchCourses();
@@ -169,10 +152,10 @@ export default function CourseManagement() {
             header: 'Actions',
             render: (row) => (
                 <div className="flex items-center justify-end gap-2">
-                    <button onClick={() => handleEditClick(row)} className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 rounded-lg transition-colors">
+                    <button onClick={() => handleEditClick(row as unknown as Course)} className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 rounded-lg transition-colors">
                         <Edit size={18} />
                     </button>
-                    <button onClick={() => { setSelectedCourse(row); setConfirmText(''); setIsDeleteModalOpen(true); }} className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-error)] hover:bg-[var(--color-error)]/10 rounded-lg transition-colors">
+                    <button onClick={() => { setSelectedCourse(row as unknown as Course); setConfirmText(''); setIsDeleteModalOpen(true); }} className="p-2 text-[var(--color-text-secondary)] hover:text-[var(--color-error)] hover:bg-[var(--color-error)]/10 rounded-lg transition-colors">
                         <Trash2 size={18} />
                     </button>
                 </div>

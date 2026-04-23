@@ -31,12 +31,6 @@ export function useTenantBranding() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        // If already cached, use it immediately
-        if (cachedBranding) {
-            setBranding(cachedBranding);
-            setLoading(false);
-            return;
-        }
 
         // If a fetch is already in flight, wait for it
         if (fetchPromise) {
@@ -45,8 +39,9 @@ export function useTenantBranding() {
                     setBranding(data);
                     setLoading(false);
                 })
-                .catch((err) => {
-                    setError(err.message || 'Failed to load branding');
+                .catch((err: unknown) => {
+                    const e = err as { message?: string };
+                    setError(e.message || 'Failed to load branding');
                     setLoading(false);
                 });
             return;
@@ -54,7 +49,7 @@ export function useTenantBranding() {
 
         // Start a new fetch
         fetchPromise = api
-            .get<TenantBranding>('/api/tenant/branding/')
+            .get<TenantBranding>('/tenant/branding/')
             .then((res) => {
                 const data = res.data;
                 cachedBranding = data;
@@ -67,9 +62,10 @@ export function useTenantBranding() {
                 setBranding(data);
                 setLoading(false);
             })
-            .catch((err) => {
+            .catch((err: unknown) => {
                 fetchPromise = null;
-                setError(err.message || 'Failed to load branding');
+                const e = err as { message?: string };
+                setError(e.message || 'Failed to load branding');
                 setLoading(false);
             });
     }, []);

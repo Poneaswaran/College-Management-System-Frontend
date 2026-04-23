@@ -4,16 +4,11 @@ import PageLayout from '../../components/layout/PageLayout';
 import { Header } from '../../components/layout/Header';
 import { Button } from '../../components/ui/Button';
 import { DataTable, type Column } from '../../components/ui/DataTable';
-import api from '../../services/api';
+import { departmentService } from '../../services/department.service';
+import type { Department } from '../../services/department.service';
 import { useToast } from '../../components/ui/Toast';
 import { Modal } from '../../components/ui/Modal';
 import axios from 'axios';
-
-interface Department {
-    id: number;
-    name: string;
-    code: string;
-}
 
 export default function DepartmentManagement() {
     const { addToast } = useToast();
@@ -29,8 +24,8 @@ export default function DepartmentManagement() {
     const fetchDepartments = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await api.get<{ departments: Department[] }>('/api/core/departments/');
-            setDepartments(response.data.departments);
+            const data = await departmentService.getDepartments();
+            setDepartments(data.departments);
         } catch (error) {
             console.error('Error fetching departments:', error);
             addToast({ type: 'error', title: 'Failed to fetch departments' });
@@ -71,10 +66,10 @@ export default function DepartmentManagement() {
         try {
             setIsSubmitting(true);
             if (selectedDepartment) {
-                await api.patch(`/api/core/admin/departments/${selectedDepartment.id}/`, formData);
+                await departmentService.updateDepartment(selectedDepartment.id, formData);
                 addToast({ type: 'success', title: 'Department updated successfully' });
             } else {
-                await api.post('/api/core/admin/departments/create/', formData);
+                await departmentService.createDepartment(formData);
                 addToast({ type: 'success', title: 'Department created successfully' });
             }
             handleCloseModal();
@@ -95,7 +90,7 @@ export default function DepartmentManagement() {
         if (!selectedDepartment || confirmText !== 'CONFIRM') return;
         try {
             setIsSubmitting(true);
-            await api.delete(`/api/core/admin/departments/${selectedDepartment.id}/`);
+            await departmentService.deleteDepartment(selectedDepartment.id);
             addToast({ type: 'success', title: 'Department deleted successfully' });
             setIsDeleteModalOpen(false);
             setSelectedDepartment(null);

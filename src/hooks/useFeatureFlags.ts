@@ -11,6 +11,7 @@ export interface FeatureFlags {
   leave_approval: boolean;
   grade_submission: boolean;
   study_materials: boolean;
+  grid_configuration: boolean;
 }
 const DEFAULT_FLAGS: FeatureFlags = {
   timetable_assignment: true,
@@ -23,6 +24,7 @@ const DEFAULT_FLAGS: FeatureFlags = {
   leave_approval: true,
   grade_submission: true,
   study_materials: true,
+  grid_configuration: true,
 };
 // In-memory cache — persists for the lifetime of the browser session
 // (localStorage is blocked in sandboxed iframes)
@@ -34,7 +36,7 @@ export function useFeatureFlags(): FeatureFlags {
   useEffect(() => {
     if (flagsCache) return; // already fetched this session
     api
-      .get<FeatureFlags>("/api/config/features/")
+      .get<FeatureFlags>("/config/features/")
       .then((r) => {
         flagsCache = r.data;
         setFlags(r.data);

@@ -99,7 +99,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
     // ------ GraphQL: Unread count (lightweight polling fallback) ------
     const { data: unreadData } = useQuery<UnreadCountCache>(UNREAD_COUNT_QUERY, {
         skip: !isAuthenticated,
-        pollInterval: 60_000, // fallback poll every 60 s
+        pollInterval: isAuthenticated ? 60_000 : 0, // fallback poll every 60 s, only if authenticated
         fetchPolicy: 'cache-and-network',
     });
 

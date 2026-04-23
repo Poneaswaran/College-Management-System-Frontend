@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { ShieldCheck, RefreshCw, AlertCircle, AlertTriangle, Info, ChevronRight, Sparkles, Filter, Activity } from 'lucide-react';
+import { ShieldCheck, RefreshCw, AlertCircle, AlertTriangle, Info, ChevronRight, Sparkles, Activity } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PageLayout from '../../../components/layout/PageLayout';
 import { Header } from '../../../components/layout/Header';
@@ -75,8 +75,7 @@ export default function ScheduleAudit() {
             <div className="space-y-8">
                 <Header 
                     title="Schedule Health Audit" 
-                    icon={<ShieldCheck className="h-6 w-6 text-[var(--color-primary)]" />}
-                    description="AI-powered analysis of soft-preference constraints"
+                    titleIcon={<ShieldCheck className="h-6 w-6 text-[var(--color-primary)]" />}
                 />
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

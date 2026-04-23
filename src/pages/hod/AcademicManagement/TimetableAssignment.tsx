@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { ArrowLeft, Plus, UserCheck, CalendarDays, Loader2, ShieldCheck, AlertCircle, Search, LayoutGrid, List, ChevronRight, Download, FileText } from 'lucide-react';
+import { ArrowLeft, Plus, CalendarDays, Loader2, ShieldCheck, AlertCircle, Search, LayoutGrid, List, ChevronRight, Download } from 'lucide-react';
 import { SERVER_URL } from '../../../config/constant';
 
 import PageLayout from '../../../components/layout/PageLayout';
@@ -8,7 +8,6 @@ import { useToast } from '../../../components/ui/Toast';
 import { 
     HODTimeTableService, 
     type HODClass, 
-    type Period, 
     type Slot, 
     type TimetableResponse, 
     type InchargeAssignment, 
@@ -77,7 +76,7 @@ export default function TimetableAssignment() {
     const [activeSlot, setActiveSlot] = useState<Slot | null>(null);
 
     const [subjectsByClass, setSubjectsByClass] = useState<Record<number, SubjectItem[]>>({});
-    const [facultyBySubject, setFacultyBySubject] = useState<Record<number, FacultyItem[]>>({});
+    const [facultyBySubject] = useState<Record<string, FacultyItem[]>>({});
 
     const [subjectsLoading, setSubjectsLoading] = useState(false);
     const [facultyLoading, setFacultyLoading] = useState(false);
@@ -131,7 +130,7 @@ export default function TimetableAssignment() {
             const url = isNext ? facultyNextUrl : undefined;
             const data = await HODTimeTableService.fetchFaculty(subjectId, classId, search, url || undefined);
             
-            setSubjectFaculty(prev => isNext ? [...prev, ...data.results] : data.results);
+            setDeptFaculty(prev => isNext ? [...prev, ...data.results] : data.results);
             setFacultyNextUrl(data.next);
         } catch (error) {
             console.error('Error fetching faculty:', error);
@@ -461,7 +460,7 @@ export default function TimetableAssignment() {
         const conflict = allIncharges.find(ic => ic.faculty === faculty.id && ic.section !== selectedClass?.id);
 
         if (conflict) {
-            setConflictClass(conflict.section_full_name);
+            setConflictClass(conflict.section_full_name || null);
             setInchargeConfirmModalOpen(true);
         } else {
             void confirmInchargeAssignment(faculty.id);
@@ -485,11 +484,12 @@ export default function TimetableAssignment() {
                 title: 'Class In-Charge updated',
                 message: 'Assignment has been saved for the current semester.'
             });
-        } catch (err: any) {
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { detail?: string } } };
             addToast({
                 type: 'error',
                 title: 'Update failed',
-                message: err.response?.data?.detail || 'Could not reassign class in-charge.'
+                message: error.response?.data?.detail || 'Could not reassign class in-charge.'
             });
         } finally {
             setInchargeLoading(false);
@@ -674,7 +674,7 @@ export default function TimetableAssignment() {
                                 <p className="text-xs text-[var(--color-foreground-muted)] group-hover:text-[var(--color-primary)]">Class In-Charge</p>
                                 <div className="flex items-center gap-2 font-bold text-sm text-[var(--color-foreground)] group-hover:text-[var(--color-primary)] transition-colors">
                                     <div className="h-5 w-5 rounded-full border border-[var(--color-primary)] overflow-hidden">
-                                        <FacultyAvatar name={timetable.incharge.faculty_name} size="sm" />
+                                        <FacultyAvatar name={timetable.incharge.faculty_name || 'Faculty'} size="sm" />
                                     </div>
                                     {timetable.incharge.faculty_name}
                                 </div>
@@ -892,7 +892,7 @@ export default function TimetableAssignment() {
 
                                     {!facultyLoading && subjectFaculty.length > 0 && (
                                         <div className="grid gap-2">
-                                            {subjectFaculty.map((faculty, index) => (
+                                            {subjectFaculty.map((faculty: FacultyItem, index: number) => (
                                                 <div
                                                     key={faculty.id}
                                                     ref={index === subjectFaculty.length - 1 ? (node => lastElementRef(node)) : null}

@@ -86,7 +86,7 @@ const facultySidebarItems: SidebarItem[] = [
     { icon: User, label: 'Profile', path: '/faculty/profile' },
 ];
 
-const adminSidebarItems: SidebarItem[] = [
+const getAdminSidebarItems = (flags: ReturnType<typeof useFeatureFlags>): SidebarItem[] => [
     { icon: LayoutDashboard, label: 'Admin Dashboard', path: '/admin/dashboard' },
     {
         icon: Users,
@@ -127,6 +127,7 @@ const adminSidebarItems: SidebarItem[] = [
             { icon: Users, label: 'View Faculty Timetable', path: '/admin/timetable/faculty' },
             { icon: FileText, label: 'Create Timetable', path: '/admin/timetable/create' },
             { icon: Settings, label: 'Manage Entries', path: '/admin/timetable/manage' },
+            { icon: LayoutDashboard, label: 'Grid Configuration', path: '/admin/timetable/grid' },
         ]
     },
 ];
@@ -302,7 +303,7 @@ export default function Sidebar() {
     } else if (user?.role?.code === 'HOD') {
         sidebarItems = hodSidebarItems;
     } else if (user?.role?.code === 'ADMIN') {
-        sidebarItems = adminSidebarItems;
+        sidebarItems = getAdminSidebarItems(flags);
     }
 
     const toggleDropdown = (label: string) => {

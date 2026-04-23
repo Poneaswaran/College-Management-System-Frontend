@@ -52,7 +52,7 @@ export default function SectionManagement() {
     const fetchSections = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await api.get<{ sections: Section[] }>('/api/core/sections/');
+            const response = await api.get<{ sections: Section[] }>('/core/sections/');
             setSections(response.data.sections);
         } catch (error) {
             console.error('Error fetching sections:', error);
@@ -64,7 +64,7 @@ export default function SectionManagement() {
 
     const fetchCourses = useCallback(async () => {
         try {
-            const response = await api.get<{ courses: Course[] }>('/api/core/courses/');
+            const response = await api.get<{ courses: Course[] }>('/core/courses/');
             setCourses(response.data.courses);
         } catch (error) {
             console.error('Error fetching courses:', error);
@@ -103,7 +103,7 @@ export default function SectionManagement() {
             setIsSubmitting(true);
             if (selectedSection) {
                 const patchData: SectionUpdatePayload = { name: formData.name, code: formData.code };
-                await api.patch(`/api/core/admin/sections/${selectedSection.id}/`, patchData);
+                await api.patch(`/core/admin/sections/${selectedSection.id}/`, patchData);
                 addToast({ type: 'success', title: 'Section updated successfully' });
             } else {
                 const postData: SectionCreatePayload = {
@@ -111,7 +111,7 @@ export default function SectionManagement() {
                     code: formData.code,
                     course_id: Number(formData.course_id)
                 };
-                await api.post('/api/core/admin/sections/create/', postData);
+                await api.post('/core/admin/sections/create/', postData);
                 addToast({ type: 'success', title: 'Section created successfully' });
             }
             handleCloseModal();
@@ -132,7 +132,7 @@ export default function SectionManagement() {
         if (!selectedSection || confirmText !== 'CONFIRM') return;
         try {
             setIsSubmitting(true);
-            await api.delete(`/api/core/admin/sections/${selectedSection.id}/`);
+            await api.delete(`/core/admin/sections/${selectedSection.id}/`);
             addToast({ type: 'success', title: 'Section deleted successfully' });
             setIsDeleteModalOpen(false);
             fetchSections();

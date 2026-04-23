@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-import { API_URL } from '../config/constant';
 
 const getApiBaseUrl = () => {
     if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;

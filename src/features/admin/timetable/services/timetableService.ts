@@ -182,14 +182,14 @@ const resolveTimetableEntries = (payload: TimetableApiPayload): TimetableEntry[]
 };
 
 export const getSectionTimetable = async (section_id: number, semester_id: number): Promise<TimetableEntry[]> => {
-    const response = await api.get<TimetableApiPayload>('/api/timetable/sections/view/', {
+    const response = await api.get<TimetableApiPayload>('/timetable/sections/view/', {
         params: { section_id, semester_id },
     });
     return resolveTimetableEntries(response.data);
 };
 
 export const getFacultyTimetable = async (faculty_id: number, semester_id: number): Promise<TimetableEntry[]> => {
-    const response = await api.get<TimetableApiPayload>('/api/timetable/faculty/view/', {
+    const response = await api.get<TimetableApiPayload>('/timetable/faculty/view/', {
         params: { faculty_id, semester_id },
     });
     return resolveTimetableEntries(response.data);
@@ -205,7 +205,7 @@ export const getFilters = async (query?: TimetableFiltersQuery): Promise<Timetab
     if (query?.semester_id) params.semester_id = query.semester_id;
     if (query?.section_id) params.section_id = query.section_id;
 
-    const response = await api.get<Record<string, unknown>>('/api/core/filters/', {
+    const response = await api.get<Record<string, unknown>>('/core/filters/', {
         params,
     });
 
@@ -256,9 +256,64 @@ export const getFilters = async (query?: TimetableFiltersQuery): Promise<Timetab
 };
 
 export const createBulkTimetable = async (payload: CreateBulkTimetablePayload): Promise<void> => {
-    await api.post('/api/timetable/sections/create-timetable/', payload);
+    await api.post('/timetable/sections/create-timetable/', payload);
 };
 
 export const createSingleEntry = async (payload: CreateSingleEntryPayload): Promise<void> => {
-    await api.post('/api/timetable/sections/create-entry/', payload);
+    await api.post('/timetable/sections/create-entry/', payload);
+};
+
+// --- Timetable Grid Configuration ---
+
+export interface PeriodSlot {
+    slot_number: number;
+    slot_type: 'class' | 'lunch' | 'break' | 'free';
+    start_time: string;
+    end_time: string;
+    label: string;
+}
+
+export interface TimetableGrid {
+    id?: number;
+    department: number;
+    academic_year: string;
+    effective_from: string;
+    is_active?: boolean;
+    slots: PeriodSlot[];
+    day_start?: string;
+    day_end?: string;
+}
+
+export const getTimetableGrids = async (department_id?: number): Promise<TimetableGrid[]> => {
+    const response = await api.get('/timetable/grid/', {
+        params: department_id ? { department: department_id } : undefined
+    });
+    return response.data;
+};
+
+export const createTimetableGrid = async (payload: TimetableGrid): Promise<TimetableGrid> => {
+    const response = await api.post('/timetable/grid/', payload);
+    return response.data;
+};
+
+export const getGridPreview = async (grid_id: number): Promise<any[]> => {
+    const response = await api.get(`/timetable/grid/${grid_id}/preview/`);
+    return response.data;
+};
+
+export interface GridAIChatPayload {
+    session_id: string;
+    message: string;
+    department_id: number;
+}
+
+export interface GridAIChatResponse {
+    reply: string;
+    state: string;
+    resolved_grid: TimetableGrid | null;
+}
+
+export const sendGridAIChat = async (payload: GridAIChatPayload): Promise<GridAIChatResponse> => {
+    const response = await api.post('/timetable/admin/ai-chat/', payload);
+    return response.data;
 };

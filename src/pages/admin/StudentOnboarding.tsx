@@ -1,200 +1,237 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PageLayout from '../../components/layout/PageLayout';
-import { Upload, Users, CheckCircle, XCircle, Clock } from 'lucide-react';
-
-interface StudentApproval {
-  id: number;
-  registrationNumber: string;
-  studentName: string;
-  email: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  submittedAt: string;
-}
+import { Upload, Users, CheckCircle, XCircle } from 'lucide-react';
+import OnboardingService, { OnboardingApproval } from '../../services/onboarding.service';
+import OnboardingApprovalTable from '../../components/admin/OnboardingApprovalTable';
+import { useToast } from '../../components/ui/Toast';
 
 export default function StudentOnboarding() {
   const [activeTab, setActiveTab] = useState<'pending' | 'upload'>('pending');
-  
-  // Mock data for pending approvals
-  const pendingApprovals: StudentApproval[] = [
-    {
-      id: 1,
-      registrationNumber: 'REG20230001',
-      studentName: 'John Doe',
-      email: 'john.doe@college.edu',
-      status: 'PENDING',
-      submittedAt: '2024-03-27T10:30:00Z'
-    },
-    {
-      id: 2,
-      registrationNumber: 'REG20230002',
-      studentName: 'Jane Smith',
-      email: 'jane.smith@college.edu',
-      status: 'PENDING',
-      submittedAt: '2024-03-27T09:15:00Z'
-    }
-  ];
+  const [approvals, setApprovals] = useState<OnboardingApproval[]>([]);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isActionLoading, setIsActionLoading] = useState(false);
+  const { addToast } = useToast();
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'APPROVED':
-        return <CheckCircle size={18} className="text-green-500" />;
-      case 'REJECTED':
-        return <XCircle size={18} className="text-red-500" />;
-      case 'PENDING':
-      default:
-        return <Clock size={18} className="text-yellow-500" />;
+  const fetchPending = async () => {
+    setIsLoading(true);
+    try {
+      const data = await OnboardingService.getPendingStudents();
+      setApprovals(data);
+    } catch (error) {
+      addToast({ type: 'error', title: 'Fetch Error', message: 'Failed to fetch pending student onboarding requests' });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusClasses: Record<string, string> = {
-      PENDING: 'bg-yellow-100 text-yellow-800',
-      APPROVED: 'bg-green-100 text-green-800',
-      REJECTED: 'bg-red-100 text-red-800'
-    };
-    return statusClasses[status] || 'bg-gray-100 text-gray-800';
+  useEffect(() => {
+    if (activeTab === 'pending') {
+      fetchPending();
+    }
+  }, [activeTab]);
+
+  const handleSelect = (id: number) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedIds.length === approvals.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(approvals.map(a => a.id));
+    }
+  };
+
+  const handleApprove = async (id: number) => {
+    const student = approvals.find(a => a.id === id);
+    if (!student?.student_id) return;
+    
+    setIsActionLoading(true);
+    try {
+      await OnboardingService.approveStudent(student.student_id);
+      addToast({ type: 'success', title: 'Approved', message: 'Student onboarding approved' });
+      fetchPending();
+      setSelectedIds(prev => prev.filter(i => i !== id));
+    } catch (error) {
+      addToast({ type: 'error', title: 'Approval Failed', message: 'Failed to approve student' });
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  const handleReject = async (id: number) => {
+    const student = approvals.find(a => a.id === id);
+    if (!student?.student_id) return;
+
+    setIsActionLoading(true);
+    try {
+      await OnboardingService.rejectStudent(student.student_id);
+      addToast({ type: 'success', title: 'Rejected', message: 'Student onboarding rejected' });
+      fetchPending();
+      setSelectedIds(prev => prev.filter(i => i !== id));
+    } catch (error) {
+      addToast({ type: 'error', title: 'Rejection Failed', message: 'Failed to reject student' });
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  const handleBulkApprove = async () => {
+    if (selectedIds.length === 0) return;
+    
+    // We need student_ids for the bulk action service actually
+    // But our service takes 'ids' which currently map to StudentOnboardingApproval.id in backend?
+    // Wait, check service.
+    // backend BulkApproveStudentOnboardingView expects serializer.validated_data["ids"]
+    // which are passed to StudentApprovalService.bulk_approve(student_ids, ...)
+    // So selectedIds should be STUDENT_IDs (profile ids).
+    
+    const profileIds = approvals
+      .filter(a => selectedIds.includes(a.id))
+      .map(a => a.student_id)
+      .filter((id): id is number => !!id);
+
+    setIsActionLoading(true);
+    try {
+      await OnboardingService.bulkApproveStudents(profileIds);
+      addToast({ type: 'success', title: 'Bulk Approved', message: `${profileIds.length} students approved` });
+      fetchPending();
+      setSelectedIds([]);
+    } catch (error) {
+      addToast({ type: 'error', title: 'Bulk Action Failed', message: 'Bulk approval failed' });
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
+
+  const handleBulkReject = async () => {
+    if (selectedIds.length === 0) return;
+    
+    const profileIds = approvals
+      .filter(a => selectedIds.includes(a.id))
+      .map(a => a.student_id)
+      .filter((id): id is number => !!id);
+
+    setIsActionLoading(true);
+    try {
+      await OnboardingService.bulkRejectStudents(profileIds);
+      addToast({ type: 'success', title: 'Bulk Rejected', message: `${profileIds.length} students rejected` });
+      fetchPending();
+      setSelectedIds([]);
+    } catch (error) {
+      addToast({ type: 'error', title: 'Bulk Action Failed', message: 'Bulk rejection failed' });
+    } finally {
+      setIsActionLoading(false);
+    }
   };
 
   return (
     <PageLayout>
-      <div>
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">
-            Student Onboarding
-          </h1>
-          <p className="text-[var(--color-text-secondary)] mt-2">
-            Manage student onboarding requests, bulk uploads, and approvals
-          </p>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-4 mb-6">
-          <button
-            onClick={() => setActiveTab('pending')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'pending'
-                ? 'bg-[var(--color-primary)] text-white'
-                : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)]'
-            }`}
-          >
-            <div className="flex items-center gap-2">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-[var(--color-text-primary)] sm:text-4xl">
+              Student Onboarding
+            </h1>
+            <p className="mt-2 text-lg text-[var(--color-text-secondary)]">
+              Manage student registrations and verify documents for approval.
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+             <button
+              onClick={() => setActiveTab('pending')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                activeTab === 'pending'
+                  ? 'bg-[var(--color-primary)] text-white shadow-lg'
+                  : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-background-hover)]'
+              }`}
+              data-testid="tab-pending"
+            >
               <Users size={18} />
-              Pending Approvals
-            </div>
-          </button>
-          <button
-            onClick={() => setActiveTab('upload')}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === 'upload'
-                ? 'bg-[var(--color-primary)] text-white'
-                : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)]'
-            }`}
-          >
-            <div className="flex items-center gap-2">
+              Pending
+            </button>
+            <button
+              onClick={() => setActiveTab('upload')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                activeTab === 'upload'
+                  ? 'bg-[var(--color-primary)] text-white shadow-lg'
+                  : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-background-hover)]'
+              }`}
+              data-testid="tab-upload"
+            >
               <Upload size={18} />
               Bulk Upload
-            </div>
-          </button>
+            </button>
+          </div>
         </div>
 
-        {/* Pending Approvals Tab */}
         {activeTab === 'pending' && (
-          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-[var(--color-border)] bg-[var(--color-background-hover)]">
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-[var(--color-text-primary)]">
-                    Registration #
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-[var(--color-text-primary)]">
-                    Student Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-[var(--color-text-primary)]">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-[var(--color-text-primary)]">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-[var(--color-text-primary)]">
-                    Submitted
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-[var(--color-text-primary)]">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {pendingApprovals.length > 0 ? (
-                  pendingApprovals.map(approval => (
-                    <tr
-                      key={approval.id}
-                      className="border-b border-[var(--color-border)] hover:bg-[var(--color-background-hover)] transition-colors"
-                    >
-                      <td className="px-6 py-4 text-sm font-medium text-[var(--color-text-primary)]">
-                        {approval.registrationNumber}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[var(--color-text-primary)]">
-                        {approval.studentName}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[var(--color-text-secondary)]">
-                        {approval.email}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(
-                            approval.status
-                          )}`}
-                        >
-                          {getStatusIcon(approval.status)}
-                          {approval.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-[var(--color-text-secondary)]">
-                        {new Date(approval.submittedAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex gap-2">
-                          <button className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition-colors">
-                            Approve
-                          </button>
-                          <button className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors">
-                            Reject
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-6 py-12 text-center text-[var(--color-text-secondary)]"
-                    >
-                      No pending approvals at this time
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+          <div className="space-y-4">
+            {selectedIds.length > 0 && (
+              <div className="flex items-center justify-between bg-[var(--color-primary-faint)] p-4 rounded-lg border border-[var(--color-primary)] animate-in fade-in slide-in-from-top-2">
+                <span className="text-[var(--color-primary)] font-semibold">
+                  {selectedIds.length} students selected
+                </span>
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleBulkApprove}
+                    disabled={isActionLoading}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors shadow-md disabled:opacity-50"
+                    data-testid="bulk-approve-btn"
+                  >
+                    <CheckCircle size={18} />
+                    Approve All
+                  </button>
+                  <button
+                    onClick={handleBulkReject}
+                    disabled={isActionLoading}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-md disabled:opacity-50"
+                    data-testid="bulk-reject-btn"
+                  >
+                    <XCircle size={18} />
+                    Reject All
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <OnboardingApprovalTable
+              approvals={approvals}
+              selectedIds={selectedIds}
+              onSelect={handleSelect}
+              onSelectAll={handleSelectAll}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              type="student"
+              isLoading={isLoading}
+            />
           </div>
         )}
 
-        {/* Bulk Upload Tab */}
         {activeTab === 'upload' && (
-          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg p-6">
-            <div className="border-2 border-dashed border-[var(--color-border)] rounded-lg p-12 text-center">
-              <Upload size={48} className="mx-auto mb-4 text-[var(--color-text-secondary)]" />
-              <h3 className="text-lg font-semibold text-[var(--color-text-primary)] mb-2">
-                Upload Student Data
+          <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-12 shadow-xl">
+             <div className="flex flex-col items-center justify-center border-4 border-dashed border-[var(--color-border)] rounded-2xl p-12 hover:border-[var(--color-primary)] transition-colors group cursor-pointer">
+              <div className="p-6 bg-[var(--color-background-hover)] rounded-full mb-6 group-hover:bg-[var(--color-primary-faint)] transition-colors">
+                <Upload size={64} className="text-[var(--color-text-secondary)] group-hover:text-[var(--color-primary)] transition-colors" />
+              </div>
+              <h3 className="text-2xl font-bold text-[var(--color-text-primary)] mb-3">
+                Bulk Onboard Students
               </h3>
-              <p className="text-sm text-[var(--color-text-secondary)] mb-4">
-                Drag and drop a CSV or XLSX file, or click to browse
+              <p className="text-[var(--color-text-secondary)] text-center max-w-md mb-8">
+                Upload a CSV or Excel file containing student details to onboard multiple students at once.
               </p>
-              <button className="px-6 py-2 bg-[var(--color-primary)] text-white rounded-lg hover:opacity-90 transition-opacity">
-                Select File
+              <button 
+                className="px-8 py-3 bg-[var(--color-primary)] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all active:scale-95"
+                data-testid="select-file-btn"
+              >
+                Choose File
               </button>
-              <p className="text-xs text-[var(--color-text-secondary)] mt-4">
-                Maximum file size: 10 MB
+              <p className="mt-6 text-sm text-[var(--color-text-secondary)]">
+                Supported formats: .csv, .xlsx (Max 10MB)
               </p>
             </div>
           </div>

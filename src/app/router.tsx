@@ -24,6 +24,7 @@ const ViewSectionTimetable = lazy(() => import('../pages/admin/timetable/view-se
 const ViewFacultyTimetable = lazy(() => import('../pages/admin/timetable/view-faculty'));
 const CreateTimetable = lazy(() => import('../pages/admin/timetable/create'));
 const ManageTimetable = lazy(() => import('../pages/admin/timetable/manage'));
+const TimetableGrid = lazy(() => import('../pages/admin/timetable/grid'));
 const StudentDashboard = lazy(() => import('../pages/student/StudentDashboard'));
 const StudentAttendance = lazy(() => import('../pages/student/StudentAttendance'));
 const MarkAttendance = lazy(() => import('../pages/student/MarkAttendance'));
@@ -273,6 +274,14 @@ export function AppRouter() {
             element={
               <ProtectedRoute requiredRole="ADMIN">
                 <ManageTimetable />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/timetable/grid"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <TimetableGrid />
               </ProtectedRoute>
             }
           />
