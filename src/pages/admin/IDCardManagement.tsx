@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import PageLayout from '../../components/layout/PageLayout';
-import { Printer, Grid, List as ListIcon, CheckCircle2, Edit3, Save, X as CloseIcon, Filter, Search } from 'lucide-react';
+import { Printer, Grid, List as ListIcon, CheckCircle2, Edit3, Save, X as CloseIcon, Filter, Search, Palette, RotateCcw } from 'lucide-react';
 import ProfileService, { StudentProfile, FacultyProfile } from '../../services/profile.service';
 import { schoolService, School } from '../../services/school.service';
 import { departmentService, Department } from '../../services/department.service';
-import IDCard from '../../components/admin/IDCard';
+import IDCard, { IDCardColors } from '../../components/admin/IDCard';
 import { useToast } from '../../components/ui/Toast';
 import SearchInput from '../../components/ui/SearchInput';
 import Select from '../../components/ui/Select';
@@ -13,6 +13,7 @@ import Modal from '../../components/ui/Modal';
 import FormInput from '../../components/ui/FormInput';
 import Button from '../../components/ui/Button';
 import { useTenantBranding } from '../../hooks/useTenantBranding';
+import api from '../../lib/axios';
 
 export default function IDCardManagement() {
     const { branding } = useTenantBranding();
@@ -31,6 +32,34 @@ export default function IDCardManagement() {
     const [selectedDeptId, setSelectedDeptId] = useState<string>('');
     
     const [orientation, setOrientation] = useState<'landscape' | 'portrait'>('landscape');
+    const [showCustomizer, setShowCustomizer] = useState(false);
+    
+    // Template colors state
+    interface IDCardTemplate {
+        student_primary_color: string;
+        student_header_text_color: string;
+        student_background_color: string;
+        student_text_color: string;
+        student_label_color: string;
+        faculty_primary_color: string;
+        faculty_header_text_color: string;
+        faculty_background_color: string;
+        faculty_text_color: string;
+        faculty_label_color: string;
+    }
+    const [template, setTemplate] = useState<IDCardTemplate>({
+        student_primary_color: '#2563eb',
+        student_header_text_color: '#ffffff',
+        student_background_color: '#f8fafc',
+        student_text_color: '#111827',
+        student_label_color: '#6b7280',
+        faculty_primary_color: '#059669',
+        faculty_header_text_color: '#ffffff',
+        faculty_background_color: '#f8fafc',
+        faculty_text_color: '#111827',
+        faculty_label_color: '#6b7280',
+    });
+    const [isSavingTemplate, setIsSavingTemplate] = useState(false);
     
     // Edit Modal State
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -38,6 +67,60 @@ export default function IDCardManagement() {
     const [isSaving, setIsSaving] = useState(false);
     
     const { addToast } = useToast();
+
+    // Load template colors from backend
+    useEffect(() => {
+        api.get('/profile/id-card-template/').then(res => {
+            setTemplate(res.data);
+        }).catch(() => {/* use defaults */});
+    }, []);
+
+    const saveTemplate = useCallback(async (updated: IDCardTemplate) => {
+        setIsSavingTemplate(true);
+        try {
+            const res = await api.patch('/profile/id-card-template/', updated);
+            setTemplate(res.data);
+            addToast({ type: 'success', title: 'Template Saved', message: 'ID card colors have been updated.' });
+        } catch {
+            addToast({ type: 'error', title: 'Save Failed', message: 'Could not save template colors.' });
+        } finally {
+            setIsSavingTemplate(false);
+        }
+    }, [addToast]);
+
+    const resetTemplate = async () => {
+        setIsSavingTemplate(true);
+        try {
+            const res = await api.post('/profile/id-card-template/reset/');
+            setTemplate(res.data);
+            addToast({ type: 'success', title: 'Reset', message: 'Colors reset to factory defaults.' });
+        } catch {
+            addToast({ type: 'error', title: 'Reset Failed', message: 'Could not reset template.' });
+        } finally {
+            setIsSavingTemplate(false);
+        }
+    };
+
+    const handleColorChange = (field: keyof IDCardTemplate, value: string) => {
+        setTemplate(prev => ({ ...prev, [field]: value }));
+    };
+
+    // Derived live colors passed to IDCard preview
+    const activeColors: IDCardColors = isStudent
+        ? {
+              primary:    template.student_primary_color,
+              headerText: template.student_header_text_color,
+              background: template.student_background_color,
+              text:       template.student_text_color,
+              label:      template.student_label_color,
+          }
+        : {
+              primary:    template.faculty_primary_color,
+              headerText: template.faculty_header_text_color,
+              background: template.faculty_background_color,
+              text:       template.faculty_text_color,
+              label:      template.faculty_label_color,
+          };
 
     // Fetch schools once
     useEffect(() => {
@@ -255,8 +338,118 @@ export default function IDCardManagement() {
                             <Printer size={18} />
                             Print ({selectedIds.length})
                         </button>
+
+                        <button
+                            onClick={() => setShowCustomizer(v => !v)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium border transition-all ${showCustomizer ? 'bg-violet-600 text-white border-violet-600 shadow-lg' : 'bg-white text-violet-700 border-violet-200 hover:bg-violet-50'}`}
+                        >
+                            <Palette size={16} />
+                            Customize Colors
+                        </button>
                     </div>
                 </div>
+
+                {/* Color Customizer Panel */}
+                {showCustomizer && (
+                    <div className="mb-6 p-6 bg-white border border-violet-100 rounded-2xl shadow-sm">
+                        <div className="flex items-center justify-between mb-5">
+                            <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                <Palette size={20} className="text-violet-600" />
+                                ID Card Color Theme
+                            </h3>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={resetTemplate}
+                                    disabled={isSavingTemplate}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
+                                >
+                                    <RotateCcw size={13} />
+                                    Reset Defaults
+                                </button>
+                                <button
+                                    onClick={() => saveTemplate(template)}
+                                    disabled={isSavingTemplate}
+                                    className="flex items-center gap-1.5 px-4 py-1.5 text-sm bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-all font-medium disabled:opacity-50"
+                                >
+                                    <Save size={13} />
+                                    {isSavingTemplate ? 'Saving…' : 'Save Colors'}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Student Card Colors */}
+                            <div>
+                                <h4 className="text-sm font-semibold text-blue-700 mb-4 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: template.student_primary_color }} />
+                                    Student Card Colors
+                                </h4>
+                                <div className="space-y-3">
+                                    {([
+                                        ['student_primary_color', 'Primary / Header Color'],
+                                        ['student_header_text_color', 'Header Text Color'],
+                                        ['student_background_color', 'Card Background'],
+                                        ['student_text_color', 'Body Text Color'],
+                                        ['student_label_color', 'Label / Caption Color'],
+                                    ] as const).map(([field, label]) => (
+                                        <div key={field} className="flex items-center justify-between gap-4">
+                                            <label className="text-sm text-gray-600 flex-1">{label}</label>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-mono text-gray-400 w-16 text-right">{template[field]}</span>
+                                                <div className="relative">
+                                                    <input
+                                                        type="color"
+                                                        value={template[field]}
+                                                        onChange={e => handleColorChange(field, e.target.value)}
+                                                        className="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer p-0.5 bg-transparent"
+                                                        title={label}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Faculty Card Colors */}
+                            <div>
+                                <h4 className="text-sm font-semibold text-emerald-700 mb-4 flex items-center gap-2">
+                                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: template.faculty_primary_color }} />
+                                    Faculty Card Colors
+                                </h4>
+                                <div className="space-y-3">
+                                    {([
+                                        ['faculty_primary_color', 'Primary / Header Color'],
+                                        ['faculty_header_text_color', 'Header Text Color'],
+                                        ['faculty_background_color', 'Card Background'],
+                                        ['faculty_text_color', 'Body Text Color'],
+                                        ['faculty_label_color', 'Label / Caption Color'],
+                                    ] as const).map(([field, label]) => (
+                                        <div key={field} className="flex items-center justify-between gap-4">
+                                            <label className="text-sm text-gray-600 flex-1">{label}</label>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-mono text-gray-400 w-16 text-right">{template[field]}</span>
+                                                <div className="relative">
+                                                    <input
+                                                        type="color"
+                                                        value={template[field]}
+                                                        onChange={e => handleColorChange(field, e.target.value)}
+                                                        className="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer p-0.5 bg-transparent"
+                                                        title={label}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <p className="mt-4 text-xs text-gray-400">
+                            Color changes are saved to the server and applied to all future PDF exports for this institution.
+                        </p>
+                    </div>
+                )}
 
                 {/* Filters & Controls */}
                 <div className="mb-6 flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
@@ -309,7 +502,9 @@ export default function IDCardManagement() {
                                     type={isStudent ? 'student' : 'faculty'} 
                                     data={item} 
                                     institutionName={branding?.name}
+                                    colors={activeColors}
                                 />
+
                                 
                                 {/* Hover Actions */}
                                 <div className="absolute top-4 left-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20 no-print">

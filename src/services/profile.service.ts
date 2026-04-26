@@ -10,6 +10,7 @@ export interface StudentProfile {
     year: number;
     semester: number;
     profile_photo: string | null;
+    phone?: string | null;
 }
 
 export interface FacultyProfile {
@@ -21,54 +22,83 @@ export interface FacultyProfile {
     profile_photo: string | null;
 }
 
+type ApiParams = Record<string, string | number | boolean | undefined | null>;
+
+type StudentUpdatePayload = Partial<{
+    roll_number: string;
+    year: number;
+    semester: number;
+}>;
+
+type FacultyUpdatePayload = Partial<{
+    designation: string;
+    specialization: string;
+    office_hours: string;
+    user_id: number;
+}>;
+
 class ProfileService {
-    async getStudents(params: any = {}): Promise<{ results: StudentProfile[], count: number }> {
+    async getStudents(params: ApiParams = {}): Promise<{ results: StudentProfile[]; count: number }> {
         const response = await api.get('/profile/students/', { params });
-        // If it's not paginated, response.data might be an array
         if (Array.isArray(response.data)) {
             return { results: response.data, count: response.data.length };
         }
-        return response.data;
+        return response.data as { results: StudentProfile[]; count: number };
     }
 
-    async getFaculties(params: any = {}): Promise<{ results: FacultyProfile[], count: number }> {
+    async getFaculties(params: ApiParams = {}): Promise<{ results: FacultyProfile[]; count: number }> {
         const response = await api.get('/profile/hod/faculty-list/', { params });
-        return response.data;
+        return response.data as { results: FacultyProfile[]; count: number };
     }
 
-    async downloadIDCard(type: 'students' | 'faculty', id: string | number, orientation: 'landscape' | 'portrait' = 'landscape') {
-        const endpoint = type === 'students' 
-            ? `/profile/students/${id}/id-card/` 
-            : `/profile/faculty/${id}/id-card/`;
-        
-        const response = await api.get(endpoint, { 
+    async downloadIDCard(
+        type: 'students' | 'faculty',
+        id: string | number,
+        orientation: 'landscape' | 'portrait' = 'landscape',
+    ) {
+        const endpoint =
+            type === 'students'
+                ? `/profile/students/${id}/id-card/`
+                : `/profile/faculty/${id}/id-card/`;
+
+        const response = await api.get(endpoint, {
             params: { orientation },
-            responseType: 'blob' 
+            responseType: 'blob',
         });
-        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const url = window.URL.createObjectURL(new Blob([response.data as BlobPart]));
         const link = document.createElement('a');
         link.href = url;
         link.setAttribute('download', `id_card_${id}.pdf`);
         document.body.appendChild(link);
         link.click();
+        link.remove();
     }
 
-    async bulkGenerateIDCards(type: 'students' | 'faculty', ids: number[], orientation: 'landscape' | 'portrait' = 'landscape') {
-        const response = await api.post('/profile/id-cards/bulk-generate/', { type, ids, orientation }, { responseType: 'blob' });
-        const url = window.URL.createObjectURL(new Blob([response.data]));
+    async bulkGenerateIDCards(
+        type: 'students' | 'faculty',
+        ids: number[],
+        orientation: 'landscape' | 'portrait' = 'landscape',
+    ) {
+        const response = await api.post(
+            '/profile/id-cards/bulk-generate/',
+            { type, ids, orientation },
+            { responseType: 'blob' },
+        );
+        const url = window.URL.createObjectURL(new Blob([response.data as BlobPart]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `bulk_id_cards.pdf`);
+        link.setAttribute('download', 'bulk_id_cards.pdf');
         document.body.appendChild(link);
         link.click();
+        link.remove();
     }
 
-    async updateStudent(registerNumber: string, data: any) {
+    async updateStudent(registerNumber: string, data: StudentUpdatePayload) {
         const response = await api.patch(`/profile/students/${registerNumber}/admin/`, data);
         return response.data;
     }
 
-    async updateFaculty(userId: number, data: any) {
+    async updateFaculty(userId: number, data: FacultyUpdatePayload) {
         const response = await api.patch('/profile/faculty/me/', { ...data, user_id: userId });
         return response.data;
     }
