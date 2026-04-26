@@ -45,5 +45,9 @@ export const courseService = {
     deleteCourse: async (id: number) => {
         const response = await api.delete(`/core/admin/courses/${id}/`);
         return response.data;
+    },
+    getHODCourses: async () => {
+        const response = await api.get<any[]>('/timetable/hod/courses/');
+        return response.data;
     }
 };

@@ -25,6 +25,7 @@ const ViewFacultyTimetable = lazy(() => import('../pages/admin/timetable/view-fa
 const CreateTimetable = lazy(() => import('../pages/admin/timetable/create'));
 const ManageTimetable = lazy(() => import('../pages/admin/timetable/manage'));
 const TimetableGrid = lazy(() => import('../pages/admin/timetable/grid'));
+const IDCardManagement = lazy(() => import('../pages/admin/IDCardManagement'));
 const StudentDashboard = lazy(() => import('../pages/student/StudentDashboard'));
 const StudentAttendance = lazy(() => import('../pages/student/StudentAttendance'));
 const MarkAttendance = lazy(() => import('../pages/student/MarkAttendance'));
@@ -69,6 +70,7 @@ const HODAttendanceReportDetail = lazy(() => import('../pages/hod/HODAttendanceR
 
 // HOD Courses
 const HODCourses = lazy(() => import('../pages/hod/HODCourses'));
+const HODCurriculum = lazy(() => import('../pages/hod/HODCurriculum'));
 const HODFacultyList = lazy(() => import('../pages/hod/HODFacultyList'));
 const HODTimetableAssignment = lazy(() => import('../pages/hod/AcademicManagement/TimetableAssignment'));
 const HODTimeTableAICopilot = lazy(() => import('../pages/hod/AcademicManagement/AICopilot'));
@@ -76,6 +78,8 @@ const HODTimeTableScheduleAudit = lazy(() => import('../pages/hod/AcademicManage
 
 // HOD Faculty Leave Approval
 const HODFacultyLeaveApproval = lazy(() => import('../pages/hod/HODFacultyLeaveApproval'));
+const LeavePolicyConfig = lazy(() => import('../pages/hod/LeavePolicyConfig'));
+const HODLeaveSettings = lazy(() => import('../pages/hod/LeaveSettings'));
 const HODTimetableApprovalReview = lazy(() => import('../pages/hod/HODTimetableApprovalReview'));
 
 // HOD Profile
@@ -143,6 +147,7 @@ export function AppRouter() {
           <Route path="/faculty/profile" element={<FacultyProfile />} />
           <Route path="/hod/dashboard" element={<HODDashboard />} />
           <Route path="/hod/courses" element={<HODCourses />} />
+          <Route path="/hod/curriculum" element={<HODCurriculum />} />
           <Route path="/hod/academic-management/timetable-assignment" element={<HODTimetableAssignment />} />
           <Route path="/hod/academic/ai-copilot" element={<HODTimeTableAICopilot />} />
           <Route path="/hod/academic/schedule-audit" element={<HODTimeTableScheduleAudit />} />
@@ -154,6 +159,8 @@ export function AppRouter() {
           <Route path="/hod/attendance-reports" element={<HODAttendanceReports />} />
           <Route path="/hod/attendance-reports/:type/:id" element={<HODAttendanceReportDetail />} />
           <Route path="/hod/faculty-leave-approval" element={<HODFacultyLeaveApproval />} />
+          <Route path="/hod/leave-policy-config" element={<LeavePolicyConfig />} />
+          <Route path="/hod/leave-settings" element={<HODLeaveSettings />} />
           <Route path="/hod/timetable-approval-review" element={<HODTimetableApprovalReview />} />
           <Route path="/hod/profile" element={<HODProfile />} />
           <Route path="/hod/study-materials" element={<HODStudyMaterials />} />
@@ -282,6 +289,15 @@ export function AppRouter() {
             element={
               <ProtectedRoute requiredRole="ADMIN">
                 <TimetableGrid />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/admin/id-cards/:type"
+            element={
+              <ProtectedRoute requiredRole="ADMIN">
+                <IDCardManagement />
               </ProtectedRoute>
             }
           />

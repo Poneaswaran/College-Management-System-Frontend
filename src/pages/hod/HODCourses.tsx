@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { courseService } from '../../services/course.service';
+import { Loader2 } from 'lucide-react';
 import {
     BookOpen,
     Users,
@@ -24,7 +26,7 @@ import { Select } from '../../components/ui/Select';
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface DepartmentCourse {
-    id: string;
+    id: string | number;
     subjectCode: string;
     subjectName: string;
     credits: number;
@@ -45,231 +47,6 @@ interface DepartmentCourse {
     room: string;
     status: 'ACTIVE' | 'COMPLETED' | 'UPCOMING';
 }
-
-// ─── Mock Data ─────────────────────────────────────────────────────────────────
-
-const MOCK_COURSES: DepartmentCourse[] = [
-    {
-        id: '1',
-        subjectCode: 'CS301',
-        subjectName: 'Data Structures & Algorithms',
-        credits: 4,
-        type: 'THEORY',
-        semester: 3,
-        semesterLabel: 'Semester 3 — Spring 2026',
-        section: 'CSE-A',
-        facultyName: 'Dr. Ramesh Kumar',
-        facultyId: 'F001',
-        studentsCount: 62,
-        avgAttendance: 88,
-        avgGrade: 7.4,
-        classesCompleted: 38,
-        classesTotal: 60,
-        assignmentsCount: 5,
-        pendingSubmissions: 8,
-        schedule: 'Mon, Wed, Fri — 9:00 AM',
-        room: 'Block A — 301',
-        status: 'ACTIVE',
-    },
-    {
-        id: '2',
-        subjectCode: 'CS302',
-        subjectName: 'Object Oriented Programming',
-        credits: 4,
-        type: 'THEORY',
-        semester: 3,
-        semesterLabel: 'Semester 3 — Spring 2026',
-        section: 'CSE-B',
-        facultyName: 'Ms. Priya Sharma',
-        facultyId: 'F002',
-        studentsCount: 58,
-        avgAttendance: 92,
-        avgGrade: 8.1,
-        classesCompleted: 42,
-        classesTotal: 60,
-        assignmentsCount: 6,
-        pendingSubmissions: 3,
-        schedule: 'Tue, Thu — 10:30 AM',
-        room: 'Block B — 205',
-        status: 'ACTIVE',
-    },
-    {
-        id: '3',
-        subjectCode: 'CS303L',
-        subjectName: 'Data Structures Lab',
-        credits: 2,
-        type: 'LAB',
-        semester: 3,
-        semesterLabel: 'Semester 3 — Spring 2026',
-        section: 'CSE-A',
-        facultyName: 'Mr. Suresh Patel',
-        facultyId: 'F003',
-        studentsCount: 62,
-        avgAttendance: 95,
-        avgGrade: 8.6,
-        classesCompleted: 18,
-        classesTotal: 28,
-        assignmentsCount: 9,
-        pendingSubmissions: 0,
-        schedule: 'Wed — 2:00 PM',
-        room: 'DSA Lab — GF',
-        status: 'ACTIVE',
-    },
-    {
-        id: '4',
-        subjectCode: 'CS401',
-        subjectName: 'Database Management Systems',
-        credits: 4,
-        type: 'THEORY',
-        semester: 5,
-        semesterLabel: 'Semester 5 — Spring 2026',
-        section: 'CSE-A',
-        facultyName: 'Dr. Anita Verma',
-        facultyId: 'F004',
-        studentsCount: 55,
-        avgAttendance: 74,
-        avgGrade: 6.8,
-        classesCompleted: 30,
-        classesTotal: 60,
-        assignmentsCount: 4,
-        pendingSubmissions: 14,
-        schedule: 'Mon, Wed — 11:30 AM',
-        room: 'Block C — 102',
-        status: 'ACTIVE',
-    },
-    {
-        id: '5',
-        subjectCode: 'CS402',
-        subjectName: 'Computer Networks',
-        credits: 4,
-        type: 'THEORY',
-        semester: 5,
-        semesterLabel: 'Semester 5 — Spring 2026',
-        section: 'CSE-B',
-        facultyName: 'Dr. Ramesh Kumar',
-        facultyId: 'F001',
-        studentsCount: 60,
-        avgAttendance: 81,
-        avgGrade: 7.2,
-        classesCompleted: 28,
-        classesTotal: 60,
-        assignmentsCount: 3,
-        pendingSubmissions: 5,
-        schedule: 'Tue, Thu, Fri — 8:00 AM',
-        room: 'Block A — 401',
-        status: 'ACTIVE',
-    },
-    {
-        id: '6',
-        subjectCode: 'CS403L',
-        subjectName: 'DBMS Lab',
-        credits: 2,
-        type: 'LAB',
-        semester: 5,
-        semesterLabel: 'Semester 5 — Spring 2026',
-        section: 'CSE-A',
-        facultyName: 'Ms. Priya Sharma',
-        facultyId: 'F002',
-        studentsCount: 55,
-        avgAttendance: 97,
-        avgGrade: 9.0,
-        classesCompleted: 14,
-        classesTotal: 28,
-        assignmentsCount: 7,
-        pendingSubmissions: 0,
-        schedule: 'Fri — 2:00 PM',
-        room: 'DB Lab — FF',
-        status: 'ACTIVE',
-    },
-    {
-        id: '7',
-        subjectCode: 'CS501',
-        subjectName: 'Machine Learning',
-        credits: 4,
-        type: 'ELECTIVE',
-        semester: 7,
-        semesterLabel: 'Semester 7 — Spring 2026',
-        section: 'CSE-A',
-        facultyName: 'Dr. Anita Verma',
-        facultyId: 'F004',
-        studentsCount: 45,
-        avgAttendance: 86,
-        avgGrade: 7.9,
-        classesCompleted: 22,
-        classesTotal: 45,
-        assignmentsCount: 4,
-        pendingSubmissions: 6,
-        schedule: 'Mon, Wed — 2:00 PM',
-        room: 'Smart Class — 201',
-        status: 'ACTIVE',
-    },
-    {
-        id: '8',
-        subjectCode: 'CS502',
-        subjectName: 'Software Engineering',
-        credits: 4,
-        type: 'THEORY',
-        semester: 7,
-        semesterLabel: 'Semester 7 — Spring 2026',
-        section: 'CSE-B',
-        facultyName: 'Mr. Suresh Patel',
-        facultyId: 'F003',
-        studentsCount: 50,
-        avgAttendance: 78,
-        avgGrade: 7.0,
-        classesCompleted: 20,
-        classesTotal: 45,
-        assignmentsCount: 5,
-        pendingSubmissions: 11,
-        schedule: 'Tue, Thu — 1:00 PM',
-        room: 'Block B — 301',
-        status: 'ACTIVE',
-    },
-    {
-        id: '9',
-        subjectCode: 'CS503',
-        subjectName: 'Major Project',
-        credits: 6,
-        type: 'PROJECT',
-        semester: 7,
-        semesterLabel: 'Semester 7 — Spring 2026',
-        section: 'CSE-A & B',
-        facultyName: 'Dr. Ramesh Kumar',
-        facultyId: 'F001',
-        studentsCount: 110,
-        avgAttendance: 91,
-        avgGrade: 8.3,
-        classesCompleted: 10,
-        classesTotal: 20,
-        assignmentsCount: 2,
-        pendingSubmissions: 20,
-        schedule: 'Fri — 9:00 AM',
-        room: 'Project Lab — SF',
-        status: 'ACTIVE',
-    },
-    {
-        id: '10',
-        subjectCode: 'CS201',
-        subjectName: 'Digital Logic Design',
-        credits: 4,
-        type: 'THEORY',
-        semester: 2,
-        semesterLabel: 'Semester 2 — Fall 2025',
-        section: 'CSE-A',
-        facultyName: 'Ms. Priya Sharma',
-        facultyId: 'F002',
-        studentsCount: 65,
-        avgAttendance: 85,
-        avgGrade: 7.6,
-        classesCompleted: 60,
-        classesTotal: 60,
-        assignmentsCount: 6,
-        pendingSubmissions: 0,
-        schedule: 'Mon, Tue, Thu — 9:00 AM',
-        room: 'Block A — 202',
-        status: 'COMPLETED',
-    },
-];
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -357,8 +134,25 @@ export default function HODCourses() {
     const [selectedStatus, setSelectedStatus] = useState('all');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
     const [showFilters, setShowFilters] = useState(false);
+    const [courses, setCourses] = useState<DepartmentCourse[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const filtered = MOCK_COURSES.filter((c) => {
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                setLoading(true);
+                const data = await courseService.getHODCourses();
+                setCourses(data);
+            } catch (error) {
+                console.error("Failed to fetch courses:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchCourses();
+    }, []);
+
+    const filtered = courses.filter((c) => {
         const matchSearch =
             c.subjectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             c.subjectCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -370,14 +164,14 @@ export default function HODCourses() {
     });
 
     // Summary stats
-    const totalCourses = MOCK_COURSES.length;
-    const activeCourses = MOCK_COURSES.filter((c) => c.status === 'ACTIVE').length;
-    const totalStudents = MOCK_COURSES.filter((c) => c.status === 'ACTIVE').reduce((s, c) => s + c.studentsCount, 0);
+    const totalCourses = courses.length;
+    const activeCourses = courses.filter((c) => c.status === 'ACTIVE').length;
+    const totalStudents = courses.filter((c) => c.status === 'ACTIVE').reduce((s, c) => s + c.studentsCount, 0);
     const avgAttendance = Math.round(
-        MOCK_COURSES.filter((c) => c.status === 'ACTIVE').reduce((s, c) => s + c.avgAttendance, 0) /
-        (MOCK_COURSES.filter((c) => c.status === 'ACTIVE').length || 1),
+        courses.filter((c) => c.status === 'ACTIVE').reduce((s, c) => s + c.avgAttendance, 0) /
+        (courses.filter((c) => c.status === 'ACTIVE').length || 1),
     );
-    const lowAttendanceCourses = MOCK_COURSES.filter((c) => c.status === 'ACTIVE' && c.avgAttendance < 75).length;
+    const lowAttendanceCourses = courses.filter((c) => c.status === 'ACTIVE' && c.avgAttendance < 75).length;
 
     return (
         <PageLayout>
@@ -532,7 +326,12 @@ export default function HODCourses() {
                 </p>
 
                 {/* Courses */}
-                {viewMode === 'grid' ? (
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-24">
+                        <Loader2 className="w-10 h-10 text-[var(--color-primary)] animate-spin mb-4" />
+                        <p className="text-[var(--color-foreground-secondary)] font-medium">Loading department courses...</p>
+                    </div>
+                ) : viewMode === 'grid' ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                         {filtered.map((course, index) => (
                             <CourseCard key={course.id} course={course} colorKey={COLORS[index % COLORS.length]} />

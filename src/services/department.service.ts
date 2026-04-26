@@ -7,8 +7,10 @@ export interface Department {
 }
 
 export const departmentService = {
-    getDepartments: async () => {
-        const response = await api.get<{ departments: Department[] }>('/core/departments/');
+    getDepartments: async (schoolId?: number) => {
+        const response = await api.get<{ departments: Department[] }>('/core/departments/', {
+            params: { school_id: schoolId }
+        });
         return response.data;
     },
     updateDepartment: async (id: number, data: { name: string; code: string }) => {

@@ -44,6 +44,7 @@ export interface FacultyWorkloadData {
     facultyWorkloads: FacultyWorkloadItem[];
     departmentName: string;
     semesterLabel: string;
+    aiInsights?: string | null;
 }
 
 export interface FacultyWorkloadResponse {

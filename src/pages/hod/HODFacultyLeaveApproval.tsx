@@ -357,6 +357,19 @@ function LeaveRequestCard({ request, onApprove, onReject }: LeaveCardProps) {
 
             {expanded && (
                 <div className="px-5 py-4 bg-[var(--color-background-secondary)] border-t border-[var(--color-border)] space-y-3">
+                    {/* AI Summary */}
+                    {request.ai_summary && (
+                        <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1 flex items-center gap-1">
+                                <Activity size={10} />
+                                AI Insight
+                            </p>
+                            <p className="text-sm text-blue-900 italic font-medium leading-relaxed">
+                                "{request.ai_summary}"
+                            </p>
+                        </div>
+                    )}
+
                     {/* Reason */}
                     <div>
                         <p className="text-xs font-semibold text-[var(--color-foreground-muted)] uppercase tracking-wide mb-1">

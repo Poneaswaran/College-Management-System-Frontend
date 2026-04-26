@@ -38,7 +38,7 @@ export default function BuildingManagement() {
     const fetchBuildings = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await api.get<{ buildings: Building[] }>('/api/campus-management/admin/buildings/');
+            const response = await api.get<{ buildings: Building[] }>('/campus-management/admin/buildings/');
             setBuildings(response.data.buildings);
         } catch (error) {
             console.error('Error fetching buildings:', error);
@@ -86,10 +86,10 @@ export default function BuildingManagement() {
         try {
             setIsSubmitting(true);
             if (selectedBuilding) {
-                await api.patch(`/api/campus-management/admin/buildings/${selectedBuilding.id}/`, formData);
+                await api.patch(`/campus-management/admin/buildings/${selectedBuilding.id}/`, formData);
                 addToast({ type: 'success', title: 'Building updated successfully' });
             } else {
-                await api.post('/api/campus-management/admin/buildings/create/', formData);
+                await api.post('/campus-management/admin/buildings/create/', formData);
                 addToast({ type: 'success', title: 'Building created successfully' });
             }
             handleCloseModal();
@@ -111,7 +111,7 @@ export default function BuildingManagement() {
 
         try {
             setIsSubmitting(true);
-            await api.delete(`/api/campus-management/admin/buildings/${selectedBuilding.id}/`);
+            await api.delete(`/campus-management/admin/buildings/${selectedBuilding.id}/`);
             addToast({ type: 'success', title: 'Building and associated resources deleted successfully' });
             setIsDeleteModalOpen(false);
             setSelectedBuilding(null);

@@ -10,6 +10,7 @@ import {
     ChevronRight,
     Clock,
     ClipboardCheck,
+    Sparkles,
 } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
 import { useFacultyWorkload } from '../../features/faculty/hooks/workload';
@@ -371,6 +372,19 @@ export default function HODFacultyWorkload() {
                 {/* Data */}
                 {!loading && workloadData && (
                     <>
+                        {/* AI Insights */}
+                        {workloadData.aiInsights && (
+                            <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 p-5 rounded-xl border border-blue-500/20 shadow-sm flex items-start gap-4 mb-6">
+                                <div className="p-2 bg-blue-500 text-white rounded-lg">
+                                    <Sparkles size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wider">AI Workload Insight</h3>
+                                    <p className="text-[var(--color-foreground)] mt-1">{workloadData.aiInsights}</p>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Summary Stats */}
                         <SummaryStatsBar data={workloadData.summaryStats} />
 

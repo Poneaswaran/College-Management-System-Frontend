@@ -1,3 +1,4 @@
+
 import {
     LayoutDashboard,
     BookOpen,
@@ -128,6 +129,15 @@ const getAdminSidebarItems = (flags: ReturnType<typeof useFeatureFlags>): Sideba
             { icon: FileText, label: 'Create Timetable', path: '/admin/timetable/create' },
             { icon: Settings, label: 'Manage Entries', path: '/admin/timetable/manage' },
             { icon: LayoutDashboard, label: 'Grid Configuration', path: '/admin/timetable/grid' },
+        ]
+    },
+    {
+        icon: Users,
+        label: 'Identity Management',
+        isDropdown: true,
+        children: [
+            { icon: GraduationCap, label: 'Student ID Cards', path: '/admin/id-cards/students' },
+            { icon: Briefcase, label: 'Faculty ID Cards', path: '/admin/id-cards/faculty' },
         ]
     },
 ];
@@ -277,7 +287,9 @@ export default function Sidebar() {
             label: 'Approvals',
             isDropdown: true,
             children: [
-                { icon: FileCheck, label: 'Faculty Leave Approval', path: '/hod/faculty-leave-approval' }
+                { icon: FileCheck, label: 'Faculty Leave Approval', path: '/hod/faculty-leave-approval' },
+                { icon: ShieldCheck, label: 'Leave Policy Config', path: '/hod/leave-policy-config' },
+                { icon: Settings, label: 'Weekend Settings', path: '/hod/leave-settings' }
             ]
         },
         {

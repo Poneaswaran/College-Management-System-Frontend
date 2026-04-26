@@ -16,6 +16,9 @@ import { Header } from '../../components/layout/Header';
 import { FormInput } from '../../components/ui/FormInput';
 import { Select } from '../../components/ui/Select';
 import { DataTable, type Column } from '../../components/ui/DataTable';
+import { getLeaveTypes, getLeaveBalances, getMyLeaveRequests, applyLeave, LeaveType, LeaveBalance, LeaveRequest } from '../../services/leave.service';
+import { useEffect } from 'react';
+import { useToast } from '../../components/ui/Toast';
 
 // Dummy static data until GraphQL is integrated
 const DUMMY_LEAVES = [
@@ -44,17 +47,45 @@ interface LeaveRecord {
 }
 
 export default function LeaveApplication() {
-    const [leaves, setLeaves] = useState<LeaveRecord[]>(DUMMY_LEAVES);
+    const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
+    const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
+    const [balances, setBalances] = useState<LeaveBalance[]>([]);
+    const [loading, setLoading] = useState(true);
     const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { addToast } = useToast();
 
     // Form state
     const [formData, setFormData] = useState({
         leaveType: '',
         startDate: '',
         endDate: '',
-        reason: ''
+        reason: '',
+        duration_type: 'FULL'
     });
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const [typesData, balancesData, requestsData] = await Promise.all([
+                getLeaveTypes(),
+                getLeaveBalances(),
+                getMyLeaveRequests()
+            ]);
+            setLeaveTypes(typesData);
+            setBalances(balancesData);
+            setLeaves(requestsData);
+        } catch (error) {
+            console.error('Error fetching leave data:', error);
+            addToast({ type: 'error', title: 'Error', message: 'Failed to load leave data.' });
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -67,57 +98,57 @@ export default function LeaveApplication() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Add dummy new leave
-        const newLeave: LeaveRecord = {
-            id: Date.now().toString(),
-            type: formData.leaveType,
-            startDate: formData.startDate,
-            endDate: formData.endDate,
-            days: 1, // simplified calculation for dummy
-            status: 'PENDING',
-            reason: formData.reason,
-            appliedOn: new Date().toISOString().split('T')[0]
-        };
-
-        setLeaves([newLeave, ...leaves]);
-        setIsSubmitting(false);
-        setIsApplyModalOpen(false);
-        setFormData({ leaveType: '', startDate: '', endDate: '', reason: '' });
+        try {
+            const payload = {
+                leave_type: parseInt(formData.leaveType),
+                start_date: formData.startDate,
+                end_date: formData.endDate,
+                reason: formData.reason,
+                duration_type: formData.duration_type
+            };
+            await applyLeave(payload);
+            addToast({ type: 'success', title: 'Success', message: 'Leave application submitted successfully.' });
+            setIsApplyModalOpen(false);
+            setFormData({ leaveType: '', startDate: '', endDate: '', reason: '', duration_type: 'FULL' });
+            fetchData();
+        } catch (error: any) {
+            const errorMsg = error.response?.data?.error || 'Failed to submit leave application.';
+            addToast({ type: 'error', title: 'Error', message: errorMsg });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const formatDate = (dateStr: string) => {
         return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     };
 
-    const columns: Column<LeaveRecord>[] = [
+    const columns: Column<LeaveRequest>[] = [
         {
-            key: 'type',
+            key: 'leave_type_name',
             header: 'Leave Type',
             render: (row) => (
                 <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] flex items-center justify-center shrink-0">
-                        {row.type === 'SICK' ? <Activity size={16} /> : <CalendarDays size={16} />}
+                        {row.leave_type_name.toLowerCase().includes('sick') ? <Activity size={16} /> : <CalendarDays size={16} />}
                     </div>
                     <div>
-                        <p className="font-semibold text-[var(--color-foreground)]">{row.type}</p>
-                        <p className="text-xs text-[var(--color-foreground-muted)]">Applied: {formatDate(row.appliedOn)}</p>
+                        <p className="font-semibold text-[var(--color-foreground)]">{row.leave_type_name}</p>
+                        <p className="text-xs text-[var(--color-foreground-muted)]">Applied: {formatDate(row.created_at)}</p>
                     </div>
                 </div>
             )
         },
         {
-            key: 'dates',
+            key: 'start_date',
             header: 'Date Range',
             render: (row) => (
                 <div>
                     <p className="text-[var(--color-foreground)] font-medium">
-                        {formatDate(row.startDate)}
-                        {row.startDate !== row.endDate && ` — ${formatDate(row.endDate)}`}
+                        {formatDate(row.start_date)}
+                        {row.start_date !== row.end_date && ` — ${formatDate(row.end_date)}`}
                     </p>
-                    <p className="text-xs text-[var(--color-foreground-muted)]">{row.days} Day{row.days > 1 ? 's' : ''}</p>
+                    <p className="text-xs text-[var(--color-foreground-muted)]">{row.total_days} Day{row.total_days > 1 ? 's' : ''}</p>
                 </div>
             )
         },
@@ -142,7 +173,7 @@ export default function LeaveApplication() {
                                 APPROVED
                             </span>
                         );
-                    case 'PENDING':
+                    case 'SUBMITTED':
                         return (
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold leading-none bg-[var(--color-warning-light)] text-[var(--color-warning-dark)]">
                                 <Clock size={12} strokeWidth={3} />
@@ -157,16 +188,16 @@ export default function LeaveApplication() {
                             </span>
                         );
                     default:
-                        return <span>{row.status}</span>;
+                        return <span className="text-xs font-bold">{row.status}</span>;
                 }
             }
         },
         {
-            key: 'actions',
+            key: 'id',
             header: 'Actions',
             align: 'right',
             render: (row) => (
-                row.status === 'PENDING' ? (
+                row.status === 'SUBMITTED' ? (
                     <button className="text-xs font-medium text-[var(--color-error)] hover:underline whitespace-nowrap">
                         Withdraw
                     </button>
@@ -197,27 +228,21 @@ export default function LeaveApplication() {
 
                 {/* Balances Section / Stat Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-up delay-100">
-                    <StatCard
-                        title="Casual Leaves (CL)"
-                        used={4}
-                        total={12}
-                        icon={<CalendarDays size={24} />}
-                        color="var(--color-primary)"
-                    />
-                    <StatCard
-                        title="Sick Leaves (SL)"
-                        used={2}
-                        total={8}
-                        icon={<Activity size={24} />}
-                        color="var(--color-secondary)"
-                    />
-                    <StatCard
-                        title="Earned Leaves (EL)"
-                        used={0}
-                        total={15}
-                        icon={<FileText size={24} />}
-                        color="var(--color-success)"
-                    />
+                    {balances.slice(0, 3).map(balance => (
+                        <StatCard
+                            key={balance.id}
+                            title={balance.leave_type_name}
+                            used={parseFloat(balance.used.toString())}
+                            total={parseFloat(balance.total_granted.toString())}
+                            icon={balance.leave_type_name.toLowerCase().includes('sick') ? <Activity size={24} /> : <CalendarDays size={24} />}
+                            color="var(--color-primary)"
+                        />
+                    ))}
+                    {balances.length === 0 && !loading && (
+                        <div className="col-span-3 text-center py-4 text-[var(--color-foreground-muted)]">
+                            No leave balances found. Contact admin to assign quotas.
+                        </div>
+                    )}
                 </div>
 
                 {/* Info Alert */}
@@ -284,8 +309,22 @@ export default function LeaveApplication() {
                                     required
                                     value={formData.leaveType}
                                     onChange={(val) => handleSelectChange('leaveType', val)}
-                                    options={LEAVE_TYPES}
+                                    options={leaveTypes.map(t => ({ value: t.id.toString(), label: t.name }))}
                                     placeholder="Select leave type..."
+                                />
+
+                                <Select
+                                    label="Duration"
+                                    id="duration_type"
+                                    name="duration_type"
+                                    required
+                                    value={formData.duration_type}
+                                    onChange={(val) => handleSelectChange('duration_type', val)}
+                                    options={[
+                                        { value: 'FULL', label: 'Full Day' },
+                                        { value: 'HALF_MORNING', label: 'Half Day (Morning)' },
+                                        { value: 'HALF_AFTERNOON', label: 'Half Day (Afternoon)' },
+                                    ]}
                                 />
 
                                 <div className="grid grid-cols-2 gap-4">
@@ -304,6 +343,7 @@ export default function LeaveApplication() {
                                         required
                                         value={formData.endDate}
                                         onChange={handleInputChange}
+                                        disabled={formData.duration_type !== 'FULL'}
                                         error={
                                             formData.endDate && formData.startDate && new Date(formData.endDate) < new Date(formData.startDate)
                                                 ? "Must be after start"

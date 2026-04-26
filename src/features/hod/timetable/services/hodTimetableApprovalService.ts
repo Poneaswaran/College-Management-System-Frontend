@@ -94,7 +94,7 @@ const mapRequest = (item: TimetableApprovalRequestApi): HODTimetableApprovalRequ
 });
 
 export async function getHODTimetableApprovalRequests(status?: ApprovalStatus): Promise<HODTimetableApprovalRequest[]> {
-    const response = await api.get<TimetableApprovalRequestApi[]>('/api/timetable/hod/approval-requests/', {
+    const response = await api.get<TimetableApprovalRequestApi[]>('/timetable/hod/approval-requests/', {
         params: status ? { status } : undefined,
     });
 
@@ -111,7 +111,7 @@ export async function updateHODTimetableApprovalStatus(
     reviewNote?: string,
 ): Promise<HODTimetableApprovalRequest> {
     const response = await api.patch<TimetableApprovalRequestApi>(
-        `/api/timetable/hod/approval-requests/${requestId}/status/`,
+        `/timetable/hod/approval-requests/${requestId}/status/`,
         {
             status,
             review_note: reviewNote ?? '',

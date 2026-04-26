@@ -1,13 +1,7 @@
-import { client } from '../../../lib/graphql';
-import {
-    GET_FACULTY_LEAVE_REQUESTS,
-    APPROVE_LEAVE_REQUEST,
-    REJECT_LEAVE_REQUEST,
-} from '../graphql/leaveApproval';
+import api from '../../../services/api';
 import { MOCK_FACULTY_LEAVE_APPROVAL_DATA } from '../mockData/leaveApproval';
 import type {
     FacultyLeaveApprovalData,
-    FacultyLeaveApprovalResponse,
     ApproveLeavePayload,
     RejectLeavePayload,
 } from '../types/leaveApproval';
@@ -28,34 +22,36 @@ interface RejectLeaveResult {
     rejectionRemark: string | null;
 }
 
-interface ApproveLeaveResponse {
-    approveLeaveRequest: ApproveLeaveResult;
-}
-
-interface RejectLeaveResponse {
-    rejectLeaveRequest: RejectLeaveResult;
-}
-
 export const fetchFacultyLeaveRequests = async (
     departmentId?: number,
     academicYear?: string,
     status?: string,
 ): Promise<FacultyLeaveApprovalData> => {
     try {
-        const { data } = await client.query<FacultyLeaveApprovalResponse>({
-            query: GET_FACULTY_LEAVE_REQUESTS,
-            variables: {
-                ...(departmentId ? { departmentId } : {}),
-                ...(academicYear ? { academicYear } : {}),
-                ...(status ? { status } : {}),
-            },
-            fetchPolicy: 'network-only',
-        });
-
-        if (!data) throw new Error('No data returned');
-        return data.facultyLeaveRequests;
-    } catch {
-        // Return mock data as fallback while backend endpoint is not yet ready
+        const { data } = await api.get('/leave/approvals/');
+        // Mapping REST response to the frontend types if needed
+        return {
+            ...data,
+            leaveRequests: data.leaveRequests.map((req: any) => ({
+                id: req.id,
+                facultyName: req.faculty_name,
+                designation: 'Faculty', // Add this to serializer if needed
+                employeeId: req.faculty.toString(),
+                leaveType: req.leave_type_code,
+                startDate: req.start_date,
+                endDate: req.end_date,
+                totalDays: req.total_days,
+                appliedOn: req.created_at,
+                status: req.status === 'SUBMITTED' ? 'PENDING' : req.status,
+                reason: req.reason,
+                ai_summary: req.ai_summary,
+                casualLeaveBalance: 0, // Fetch separately if needed
+                sickLeaveBalance: 0,
+                earnedLeaveBalance: 0
+            }))
+        };
+    } catch (err) {
+        console.error('Error fetching leave requests:', err);
         return MOCK_FACULTY_LEAVE_APPROVAL_DATA;
     }
 };
@@ -63,49 +59,33 @@ export const fetchFacultyLeaveRequests = async (
 export const approveLeaveRequest = async (
     payload: ApproveLeavePayload,
 ): Promise<ApproveLeaveResult> => {
-    try {
-        const { data } = await client.mutate<ApproveLeaveResponse>({
-            mutation: APPROVE_LEAVE_REQUEST,
-            variables: {
-                leaveRequestId: payload.leaveRequestId,
-                remark: payload.remark ?? '',
-            },
-        });
-        if (!data) throw new Error('No data returned');
-        return data.approveLeaveRequest;
-    } catch {
-        // Mock optimistic response for development
-        return {
-            id: payload.leaveRequestId,
-            status: 'APPROVED',
-            actionTakenOn: new Date().toISOString().split('T')[0],
-            actionTakenBy: 'HOD',
-            approvalRemark: payload.remark ?? null,
-        };
-    }
+    const { data } = await api.post('/leave/approvals/', {
+        request_id: payload.leaveRequestId,
+        action: 'APPROVE',
+        remarks: payload.remark ?? ''
+    });
+    return {
+        id: data.id,
+        status: 'APPROVED',
+        actionTakenOn: new Date().toISOString().split('T')[0],
+        actionTakenBy: 'HOD',
+        approvalRemark: payload.remark ?? null,
+    };
 };
 
 export const rejectLeaveRequest = async (
     payload: RejectLeavePayload,
 ): Promise<RejectLeaveResult> => {
-    try {
-        const { data } = await client.mutate<RejectLeaveResponse>({
-            mutation: REJECT_LEAVE_REQUEST,
-            variables: {
-                leaveRequestId: payload.leaveRequestId,
-                remark: payload.remark,
-            },
-        });
-        if (!data) throw new Error('No data returned');
-        return data.rejectLeaveRequest;
-    } catch {
-        // Mock optimistic response for development
-        return {
-            id: payload.leaveRequestId,
-            status: 'REJECTED',
-            actionTakenOn: new Date().toISOString().split('T')[0],
-            actionTakenBy: 'HOD',
-            rejectionRemark: payload.remark,
-        };
-    }
+    const { data } = await api.post('/leave/approvals/', {
+        request_id: payload.leaveRequestId,
+        action: 'REJECT',
+        remarks: payload.remark
+    });
+    return {
+        id: data.id,
+        status: 'REJECTED',
+        actionTakenOn: new Date().toISOString().split('T')[0],
+        actionTakenBy: 'HOD',
+        rejectionRemark: payload.remark,
+    };
 };
