@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import PageLayout from '../../components/layout/PageLayout';
-import { Printer, Grid, List as ListIcon, CheckCircle2, Edit3, Save, X as CloseIcon, Filter, Search, Palette, RotateCcw } from 'lucide-react';
-import ProfileService, { StudentProfile, FacultyProfile } from '../../services/profile.service';
-import { schoolService, School } from '../../services/school.service';
-import { departmentService, Department } from '../../services/department.service';
-import IDCard, { IDCardColors } from '../../components/admin/IDCard';
+import { Printer, Grid, List as ListIcon, CheckCircle2, Edit3, Save, Filter, Search, Palette, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
+import ProfileService, { type StudentProfile, type FacultyProfile } from '../../services/profile.service';
+import { schoolService, type School } from '../../services/school.service';
+import { departmentService, type Department } from '../../services/department.service';
+import IDCard, { type IDCardColors } from '../../components/admin/IDCard';
 import { useToast } from '../../components/ui/Toast';
 import SearchInput from '../../components/ui/SearchInput';
 import Select from '../../components/ui/Select';
@@ -24,6 +24,11 @@ export default function IDCardManagement() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    
+    // Pagination states
+    const [page, setPage] = useState(1);
+    const [pageSize] = useState(10);
+    const [totalCount, setTotalCount] = useState(0);
     
     // Filter states
     const [schools, setSchools] = useState<School[]>([]);
@@ -159,15 +164,19 @@ export default function IDCardManagement() {
             const params = { 
                 search: searchTerm,
                 school_id: selectedSchoolId || undefined,
-                department_id: selectedDeptId || undefined
+                department_id: selectedDeptId || undefined,
+                page,
+                page_size: pageSize
             };
             
             if (isStudent) {
                 const response = await ProfileService.getStudents(params);
                 setData(response.results);
+                setTotalCount(response.count);
             } else {
                 const response = await ProfileService.getFaculties(params);
                 setData(response.results);
+                setTotalCount(response.count);
             }
         } catch (error) {
             addToast({ 
@@ -183,6 +192,11 @@ export default function IDCardManagement() {
     useEffect(() => {
         fetchData();
         setSelectedIds([]);
+    }, [type, searchTerm, selectedSchoolId, selectedDeptId, page, pageSize]);
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setPage(1);
     }, [type, searchTerm, selectedSchoolId, selectedDeptId]);
 
     const toggleSelect = (id: number) => {
@@ -455,7 +469,7 @@ export default function IDCardManagement() {
                 <div className="mb-6 flex items-center justify-between p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
                     <div className="flex items-center gap-6">
                         <div className="flex items-center gap-2 text-sm text-gray-500">
-                            <span className="font-bold text-gray-900">{data.length}</span> {isStudent ? 'Students' : 'Faculty'} Found
+                            <span className="font-bold text-gray-900">{totalCount}</span> {isStudent ? 'Students' : 'Faculty'} Found
                         </div>
                     </div>
 
@@ -539,6 +553,62 @@ export default function IDCardManagement() {
                         </div>
                         <h3 className="text-xl font-bold text-gray-800">No {type} found</h3>
                         <p className="text-gray-500 mt-2">Try adjusting your search or filters.</p>
+                    </div>
+                )}
+
+                {/* Pagination Controls */}
+                {!isLoading && totalCount > pageSize && (
+                    <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-6 p-6 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                        <div className="text-sm text-gray-500">
+                            Showing <span className="font-bold text-gray-900">{(page - 1) * pageSize + 1}</span> to{' '}
+                            <span className="font-bold text-gray-900">{Math.min(page * pageSize, totalCount)}</span> of{' '}
+                            <span className="font-bold text-gray-900">{totalCount}</span> results
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setPage(p => Math.max(1, p - 1))}
+                                disabled={page === 1}
+                                className="p-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                            
+                            {Array.from({ length: Math.ceil(totalCount / pageSize) }).map((_, i) => {
+                                const p = i + 1;
+                                // Only show current page, first, last, and pages near current
+                                if (
+                                    p === 1 || 
+                                    p === Math.ceil(totalCount / pageSize) || 
+                                    (p >= page - 1 && p <= page + 1)
+                                ) {
+                                    return (
+                                        <button
+                                            key={p}
+                                            onClick={() => setPage(p)}
+                                            className={`w-10 h-10 rounded-xl font-bold transition-all ${
+                                                page === p 
+                                                ? 'bg-blue-600 text-white shadow-lg' 
+                                                : 'text-gray-600 hover:bg-gray-50'
+                                            }`}
+                                        >
+                                            {p}
+                                        </button>
+                                    );
+                                } else if (p === page - 2 || p === page + 2) {
+                                    return <span key={p} className="text-gray-400">...</span>;
+                                }
+                                return null;
+                            })}
+
+                            <button
+                                onClick={() => setPage(p => Math.min(Math.ceil(totalCount / pageSize), p + 1))}
+                                disabled={page === Math.ceil(totalCount / pageSize)}
+                                className="p-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                            >
+                                <ChevronRight size={20} />
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

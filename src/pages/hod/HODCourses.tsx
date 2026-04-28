@@ -142,7 +142,7 @@ export default function HODCourses() {
             try {
                 setLoading(true);
                 const data = await courseService.getHODCourses();
-                setCourses(data);
+                setCourses(data as DepartmentCourse[]);
             } catch (error) {
                 console.error("Failed to fetch courses:", error);
             } finally {

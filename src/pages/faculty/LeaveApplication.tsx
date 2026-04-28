@@ -16,7 +16,7 @@ import { Header } from '../../components/layout/Header';
 import { FormInput } from '../../components/ui/FormInput';
 import { Select } from '../../components/ui/Select';
 import { DataTable, type Column } from '../../components/ui/DataTable';
-import { getLeaveTypes, getLeaveBalances, getMyLeaveRequests, applyLeave, LeaveType, LeaveBalance, LeaveRequest } from '../../services/leave.service';
+import { getLeaveTypes, getLeaveBalances, getMyLeaveRequests, applyLeave, type LeaveType, type LeaveBalance, type LeaveRequest } from '../../services/leave.service';
 import { useEffect } from 'react';
 import { useToast } from '../../components/ui/Toast';
 

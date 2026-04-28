@@ -7,7 +7,7 @@ const getApiBaseUrl = () => {
     // Dynamically match the backend subdomain to the current frontend subdomain
     const hostname = window.location.hostname; // e.g., "vels.localhost"
     const protocol = window.location.protocol; // e.g., "http:"
-    return `${protocol}//${hostname}:9000/api`;
+    return `${protocol}//${hostname}:8000/api`;
 };
 
 const api = axios.create({

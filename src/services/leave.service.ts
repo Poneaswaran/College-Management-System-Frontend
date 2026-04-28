@@ -56,7 +56,7 @@ export const getMyLeaveRequests = async (): Promise<LeaveRequest[]> => {
     return response.data;
 };
 
-export const applyLeave = async (data: any): Promise<LeaveRequest> => {
+export const applyLeave = async (data: Record<string, unknown>): Promise<LeaveRequest> => {
     const response = await api.post('/leave/requests/', data);
     return response.data;
 };
@@ -71,12 +71,17 @@ export const handleLeaveApproval = async (requestId: number, action: 'APPROVE' |
     return response.data;
 };
 
-export const getWeekendSettings = async (): Promise<any[]> => {
+export interface WeekendSetting {
+    day: number;
+    is_weekend: boolean;
+}
+
+export const getWeekendSettings = async (): Promise<WeekendSetting[]> => {
     const response = await api.get('/leave/settings/weekends/');
     return response.data;
 };
 
-export const updateWeekendSettings = async (weekends: number[]): Promise<any> => {
+export const updateWeekendSettings = async (weekends: number[]): Promise<unknown> => {
     const response = await api.post('/leave/settings/weekends/', { weekends });
     return response.data;
 };

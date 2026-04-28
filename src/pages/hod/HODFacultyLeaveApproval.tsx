@@ -13,6 +13,7 @@ import {
     ChevronRight,
     AlertCircle,
     FileText,
+    Activity,
 } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
 import { useLeaveApproval } from '../../features/faculty/hooks/leaveApproval';

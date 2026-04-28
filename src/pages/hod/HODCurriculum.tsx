@@ -14,7 +14,7 @@ import {
     BookOpen
 } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
-import { getHODCurriculum, HODCurriculumData, CurriculumSubject } from '../../services/curriculum.service';
+import { getHODCurriculum, type HODCurriculumData, type CurriculumSubject } from '../../services/curriculum.service';
 
 const HODCurriculum: React.FC = () => {
     const [data, setData] = useState<HODCurriculumData | null>(null);
@@ -56,7 +56,7 @@ const HODCurriculum: React.FC = () => {
 
     if (loading) {
         return (
-            <PageLayout title="Curriculum Management">
+            <PageLayout>
                 <div className="flex items-center justify-center h-64">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 </div>
@@ -65,10 +65,7 @@ const HODCurriculum: React.FC = () => {
     }
 
     return (
-        <PageLayout 
-            title="Curriculum Management" 
-            subtitle={data?.departmentName ? `${data.departmentName} Department` : "Manage your institution's course structure"}
-        >
+        <PageLayout>
             <div className="space-y-6">
                 {/* AI Insights */}
                 {data?.aiCurriculumInsight && (

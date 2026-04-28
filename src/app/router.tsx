@@ -38,6 +38,7 @@ const FacultyDashboard = lazy(() => import('../pages/faculty/FacultyDashboard'))
 const FacultyCourses = lazy(() => import('../pages/faculty/FacultyCourses'));
 const StudentList = lazy(() => import('../pages/faculty/StudentList'));
 const FacultyProfile = lazy(() => import('../pages/faculty/FacultyProfile'));
+const FacultyAnnouncements = lazy(() => import('../pages/faculty/FacultyAnnouncements'));
 const HODDashboard = lazy(() => import('../pages/hod/HODDashboard'));
 
 // Assignment Management Pages - Faculty
@@ -72,9 +73,13 @@ const HODAttendanceReportDetail = lazy(() => import('../pages/hod/HODAttendanceR
 const HODCourses = lazy(() => import('../pages/hod/HODCourses'));
 const HODCurriculum = lazy(() => import('../pages/hod/HODCurriculum'));
 const HODFacultyList = lazy(() => import('../pages/hod/HODFacultyList'));
+const HODStudentList = lazy(() => import('../pages/hod/HODStudentList'));
+const HODGrievances = lazy(() => import('../pages/hod/HODGrievances'));
 const HODTimetableAssignment = lazy(() => import('../pages/hod/AcademicManagement/TimetableAssignment'));
 const HODTimeTableAICopilot = lazy(() => import('../pages/hod/AcademicManagement/AICopilot'));
 const HODTimeTableScheduleAudit = lazy(() => import('../pages/hod/AcademicManagement/ScheduleAudit'));
+const HODStudentPerformance = lazy(() => import('../pages/hod/HODStudentPerformance'));
+const HODPostNotices = lazy(() => import('../pages/hod/HODPostNotices'));
 
 // HOD Faculty Leave Approval
 const HODFacultyLeaveApproval = lazy(() => import('../pages/hod/HODFacultyLeaveApproval'));
@@ -84,6 +89,7 @@ const HODTimetableApprovalReview = lazy(() => import('../pages/hod/HODTimetableA
 
 // HOD Profile
 const HODProfile = lazy(() => import('../pages/hod/HODProfile'));
+const HODArrears = lazy(() => import('../pages/hod/HODArrears'));
 
 // Study Materials - Student & HOD
 const StudentMaterials = lazy(() => import('../pages/student/StudentMaterials'));
@@ -135,6 +141,7 @@ export function AppRouter() {
           <Route path="/faculty/dashboard" element={<FacultyDashboard />} />
           <Route path="/faculty/courses" element={<FacultyCourses />} />
           <Route path="/faculty/students" element={<StudentList />} />
+          <Route path="/faculty/announcements" element={<FacultyAnnouncements />} />
           <Route path="/faculty/assignments" element={<FacultyAssignments />} />
           <Route path="/faculty/assignments/create" element={<CreateAssignment />} />
           <Route path="/faculty/materials" element={<StudyMaterials />} />
@@ -152,17 +159,22 @@ export function AppRouter() {
           <Route path="/hod/academic/ai-copilot" element={<HODTimeTableAICopilot />} />
           <Route path="/hod/academic/schedule-audit" element={<HODTimeTableScheduleAudit />} />
           <Route path="/hod/faculty-list" element={<HODFacultyList />} />
+          <Route path="/hod/students" element={<HODStudentList />} />
+          <Route path="/hod/grievances" element={<HODGrievances />} />
+          <Route path="/hod/student-performance" element={<HODStudentPerformance />} />
           <Route path="/hod/assignments" element={<HODAssignments />} />
           <Route path="/hod/exams" element={<HODExams />} />
           <Route path="/hod/pass-fail-reports" element={<HODPassFailReports />} />
           <Route path="/hod/faculty-workload" element={<HODFacultyWorkload />} />
           <Route path="/hod/attendance-reports" element={<HODAttendanceReports />} />
+          <Route path="/hod/post-notices" element={<HODPostNotices />} />
           <Route path="/hod/attendance-reports/:type/:id" element={<HODAttendanceReportDetail />} />
           <Route path="/hod/faculty-leave-approval" element={<HODFacultyLeaveApproval />} />
           <Route path="/hod/leave-policy-config" element={<LeavePolicyConfig />} />
           <Route path="/hod/leave-settings" element={<HODLeaveSettings />} />
           <Route path="/hod/timetable-approval-review" element={<HODTimetableApprovalReview />} />
           <Route path="/hod/profile" element={<HODProfile />} />
+          <Route path="/hod/arrears" element={<HODArrears />} />
           <Route path="/hod/study-materials" element={<HODStudyMaterials />} />
           <Route path="/settings/notifications" element={<NotificationSettingsPage />} />
           

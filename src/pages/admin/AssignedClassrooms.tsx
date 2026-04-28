@@ -70,7 +70,7 @@ export default function AssignedClassrooms() {
     const fetchAssignedOverview = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await api.get<{ assigned_venues: AssignedVenue[] }>('/api/campus-management/venues/assigned-overview/');
+            const response = await api.get<{ assigned_venues: AssignedVenue[] }>('/campus-management/venues/assigned-overview/');
             setAssignedVenues(response.data.assigned_venues);
         } catch (error) {
             console.error('Error fetching assigned overview:', error);
@@ -83,7 +83,7 @@ export default function AssignedClassrooms() {
     const fetchSummary = useCallback(async () => {
         try {
             setSummaryLoading(true);
-            const response = await api.get<SummaryData>('/api/campus-management/admin/sections/summary/?unassigned=true&page=1&page_size=5');
+            const response = await api.get<SummaryData>('/campus-management/admin/sections/summary/?unassigned=true&page=1&page_size=5');
             setSummary(response.data);
         } catch (error) {
             console.error('Error fetching summary:', error);
@@ -102,7 +102,7 @@ export default function AssignedClassrooms() {
         setIsAssignModalOpen(true);
         try {
             setIsFiltersLoading(true);
-            const response = await api.get<{ filters: AssignFilters }>('/api/core/filters/?type=assign_room');
+            const response = await api.get<{ filters: AssignFilters }>('/core/filters/?type=assign_room');
             setAssignFilters(response.data.filters);
         } catch (error) {
             console.error('Error fetching assign filters:', error);
@@ -121,7 +121,7 @@ export default function AssignedClassrooms() {
 
         try {
             setIsAssignSubmitting(true);
-            await api.post('/api/campus-management/admin/sections/assign-room/', {
+            await api.post('/campus-management/admin/sections/assign-room/', {
                 section_id: Number(assignFormData.section_id),
                 venue_id: Number(assignFormData.venue_id)
             });

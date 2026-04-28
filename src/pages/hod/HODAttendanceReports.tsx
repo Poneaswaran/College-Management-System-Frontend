@@ -68,12 +68,12 @@ function SummaryBar({ stats }: { stats: { totalStudents: number; overallAvgPerce
         { icon: <BookOpen size={18} />,      label: 'Dept. Avg',         value: `${stats.overallAvgPercentage}%`, cls: 'text-[var(--color-foreground)]'},
     ];
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4" data-testid="attendance-summary-bar">
             {items.map(({ icon, label, value, cls }) => (
-                <div key={label} className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4 flex flex-col items-center text-center gap-1.5 shadow-sm">
-                    <span className={`${cls}`}>{icon}</span>
-                    <p className={`text-2xl font-bold ${cls}`}>{value}</p>
-                    <p className="text-xs text-[var(--color-foreground-muted)]">{label}</p>
+                <div key={label} className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4 flex flex-col items-center text-center gap-1.5 shadow-sm" data-testid={`summary-item-${label.toLowerCase().replace(/\s+/g, '-')}`}>
+                    <span className={`${cls}`} data-testid="summary-icon">{icon}</span>
+                    <p className={`text-2xl font-bold ${cls}`} data-testid="summary-value">{value}</p>
+                    <p className="text-xs text-[var(--color-foreground-muted)]" data-testid="summary-label">{label}</p>
                 </div>
             ))}
         </div>
@@ -94,11 +94,12 @@ function ViewToggle({ current, onChange }: ViewToggleProps) {
         { value: 'DEPARTMENTS', label: 'Departments', icon: <Building2 size={15} />  },
     ];
     return (
-        <div className="flex gap-1 bg-[var(--color-background-secondary)] p-1 rounded-lg">
+        <div className="flex gap-1 bg-[var(--color-background-secondary)] p-1 rounded-lg" data-testid="view-toggle">
             {tabs.map(({ value, label, icon }) => (
                 <button
                     key={value}
                     onClick={() => onChange(value)}
+                    data-testid={`view-toggle-${value.toLowerCase()}`}
                     className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium transition-all ${
                         current === value
                             ? 'bg-[var(--color-primary)] text-white shadow-sm'
@@ -136,7 +137,7 @@ function StudentsTable({ students, searchTerm, riskFilter, onDrillDown }: Studen
 
     if (filtered.length === 0) {
         return (
-            <div className="text-center py-16 bg-[var(--color-card)] rounded-xl border border-[var(--color-border)]">
+            <div className="text-center py-16 bg-[var(--color-card)] rounded-xl border border-[var(--color-border)]" data-testid="no-students-message">
                 <Users size={40} className="mx-auto mb-3 text-[var(--color-foreground-muted)]" />
                 <p className="text-[var(--color-foreground-muted)]">No students match the current filters.</p>
             </div>
@@ -144,9 +145,9 @@ function StudentsTable({ students, searchTerm, riskFilter, onDrillDown }: Studen
     }
 
     return (
-        <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl overflow-hidden shadow-sm" data-testid="students-table-container">
             <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm" data-testid="students-table">
                     <thead>
                         <tr className="bg-[var(--color-background-secondary)] border-b border-[var(--color-border)]">
                             <th className="text-left px-4 py-3 font-semibold text-[var(--color-foreground-secondary)]">Student</th>
@@ -160,24 +161,25 @@ function StudentsTable({ students, searchTerm, riskFilter, onDrillDown }: Studen
                             <th className="px-4 py-3" />
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[var(--color-border)]">
+                    <tbody className="divide-y divide-[var(--color-border)]" data-testid="students-table-body">
                         {filtered.map((s) => (
-                            <tr key={s.studentId} className="hover:bg-[var(--color-background-secondary)] transition-colors">
-                                <td className="px-4 py-3 font-medium text-[var(--color-foreground)]">{s.studentName}</td>
-                                <td className="px-4 py-3 text-[var(--color-foreground-muted)]">{s.registerNumber}</td>
-                                <td className="px-4 py-3 text-[var(--color-foreground-secondary)]">{s.className}</td>
-                                <td className="px-4 py-3 text-center text-[var(--color-foreground-muted)]">{s.totalClasses}</td>
-                                <td className="px-4 py-3 text-center text-[var(--color-success)] font-medium">{s.attended}</td>
-                                <td className="px-4 py-3 text-center text-[var(--color-error)] font-medium">{s.absent}</td>
-                                <td className="px-4 py-3">
+                            <tr key={s.studentId} className="hover:bg-[var(--color-background-secondary)] transition-colors" data-testid={`student-row-${s.studentId}`}>
+                                <td className="px-4 py-3 font-medium text-[var(--color-foreground)]" data-testid="student-name">{s.studentName}</td>
+                                <td className="px-4 py-3 text-[var(--color-foreground-muted)]" data-testid="student-reg-no">{s.registerNumber}</td>
+                                <td className="px-4 py-3 text-[var(--color-foreground-secondary)]" data-testid="student-class">{s.className}</td>
+                                <td className="px-4 py-3 text-center text-[var(--color-foreground-muted)]" data-testid="student-total">{s.totalClasses}</td>
+                                <td className="px-4 py-3 text-center text-[var(--color-success)] font-medium" data-testid="student-attended">{s.attended}</td>
+                                <td className="px-4 py-3 text-center text-[var(--color-error)] font-medium" data-testid="student-absent">{s.absent}</td>
+                                <td className="px-4 py-3" data-testid="student-pct">
                                     <PctBar pct={s.percentage} level={s.riskLevel} />
                                 </td>
-                                <td className="px-4 py-3 text-center">
+                                <td className="px-4 py-3 text-center" data-testid="student-status">
                                     <RiskBadge level={s.riskLevel} />
                                 </td>
                                 <td className="px-4 py-3 text-right">
                                     <button
                                         onClick={() => onDrillDown(s.studentId)}
+                                        data-testid={`drilldown-student-${s.studentId}`}
                                         className="flex items-center gap-1 text-[var(--color-primary)] hover:underline text-xs font-medium ml-auto"
                                     >
                                         Details <ChevronRight size={13} />
@@ -188,7 +190,7 @@ function StudentsTable({ students, searchTerm, riskFilter, onDrillDown }: Studen
                     </tbody>
                 </table>
             </div>
-            <div className="px-4 py-2 bg-[var(--color-background-secondary)] border-t border-[var(--color-border)] text-xs text-[var(--color-foreground-muted)]">
+            <div className="px-4 py-2 bg-[var(--color-background-secondary)] border-t border-[var(--color-border)] text-xs text-[var(--color-foreground-muted)]" data-testid="table-footer">
                 Showing {filtered.length} of {students.length} students
             </div>
         </div>
@@ -210,9 +212,9 @@ function ClassesTable({ classes, searchTerm, onDrillDown }: ClassesTableProps) {
     });
 
     return (
-        <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl overflow-hidden shadow-sm">
+        <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl overflow-hidden shadow-sm" data-testid="classes-table-container">
             <div className="overflow-x-auto">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm" data-testid="classes-table">
                     <thead>
                         <tr className="bg-[var(--color-background-secondary)] border-b border-[var(--color-border)]">
                             <th className="text-left px-4 py-3 font-semibold text-[var(--color-foreground-secondary)]">Class</th>
@@ -225,21 +227,22 @@ function ClassesTable({ classes, searchTerm, onDrillDown }: ClassesTableProps) {
                             <th className="px-4 py-3" />
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-[var(--color-border)]">
+                    <tbody className="divide-y divide-[var(--color-border)]" data-testid="classes-table-body">
                         {filtered.map((c) => (
-                            <tr key={c.sectionId} className="hover:bg-[var(--color-background-secondary)] transition-colors">
-                                <td className="px-4 py-3 font-medium text-[var(--color-foreground)]">{c.className}</td>
-                                <td className="px-4 py-3 text-center text-[var(--color-foreground-muted)]">Sem {c.semester}</td>
-                                <td className="px-4 py-3 text-center text-[var(--color-foreground-muted)]">{c.totalStudents}</td>
-                                <td className="px-4 py-3 text-center text-[var(--color-success)] font-semibold">{c.goodCount}</td>
-                                <td className="px-4 py-3 text-center text-[var(--color-warning)] font-semibold">{c.warningCount}</td>
-                                <td className="px-4 py-3 text-center text-[var(--color-error)] font-semibold">{c.criticalCount}</td>
-                                <td className="px-4 py-3">
+                            <tr key={c.sectionId} className="hover:bg-[var(--color-background-secondary)] transition-colors" data-testid={`class-row-${c.sectionId}`}>
+                                <td className="px-4 py-3 font-medium text-[var(--color-foreground)]" data-testid="class-name">{c.className}</td>
+                                <td className="px-4 py-3 text-center text-[var(--color-foreground-muted)]" data-testid="class-sem">Sem {c.semester}</td>
+                                <td className="px-4 py-3 text-center text-[var(--color-foreground-muted)]" data-testid="class-students">{c.totalStudents}</td>
+                                <td className="px-4 py-3 text-center text-[var(--color-success)] font-semibold" data-testid="class-good">{c.goodCount}</td>
+                                <td className="px-4 py-3 text-center text-[var(--color-warning)] font-semibold" data-testid="class-warning">{c.warningCount}</td>
+                                <td className="px-4 py-3 text-center text-[var(--color-error)] font-semibold" data-testid="class-critical">{c.criticalCount}</td>
+                                <td className="px-4 py-3" data-testid="class-pct">
                                     <PctBar pct={c.avgPercentage} level={c.avgPercentage >= 75 ? 'GOOD' : c.avgPercentage >= 60 ? 'WARNING' : 'CRITICAL'} />
                                 </td>
                                 <td className="px-4 py-3 text-right">
                                     <button
                                         onClick={() => onDrillDown(c.sectionId)}
+                                        data-testid={`drilldown-class-${c.sectionId}`}
                                         className="flex items-center gap-1 text-[var(--color-primary)] hover:underline text-xs font-medium ml-auto"
                                     >
                                         Drill Down <ChevronRight size={13} />
@@ -263,35 +266,36 @@ interface DepartmentsTableProps {
 
 function DepartmentsTable({ departments, onDrillDown }: DepartmentsTableProps) {
     return (
-        <div className="space-y-4">
+        <div className="space-y-4" data-testid="departments-container">
             {departments.map((dept) => (
-                <div key={dept.departmentId} className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl overflow-hidden shadow-sm">
+                <div key={dept.departmentId} className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl overflow-hidden shadow-sm" data-testid={`dept-card-${dept.departmentId}`}>
                     {/* Dept header row */}
-                    <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4 bg-[var(--color-background-secondary)] border-b border-[var(--color-border)]">
+                    <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-4 bg-[var(--color-background-secondary)] border-b border-[var(--color-border)]" data-testid="dept-header">
                         <div>
-                            <h3 className="font-bold text-[var(--color-foreground)]">{dept.departmentName}</h3>
-                            <p className="text-xs text-[var(--color-foreground-muted)]">{dept.departmentCode} · {dept.totalStudents} students</p>
+                            <h3 className="font-bold text-[var(--color-foreground)]" data-testid="dept-name">{dept.departmentName}</h3>
+                            <p className="text-xs text-[var(--color-foreground-muted)]" data-testid="dept-info">{dept.departmentCode} · {dept.totalStudents} students</p>
                         </div>
-                        <div className="flex items-center gap-6 text-sm">
-                            <span className="text-[var(--color-success)] font-semibold">{dept.goodCount} good</span>
-                            <span className="text-[var(--color-warning)] font-semibold">{dept.warningCount} warning</span>
-                            <span className="text-[var(--color-error)] font-semibold">{dept.criticalCount} critical</span>
+                        <div className="flex items-center gap-6 text-sm" data-testid="dept-stats">
+                            <span className="text-[var(--color-success)] font-semibold" data-testid="dept-good">{dept.goodCount} good</span>
+                            <span className="text-[var(--color-warning)] font-semibold" data-testid="dept-warning">{dept.warningCount} warning</span>
+                            <span className="text-[var(--color-error)] font-semibold" data-testid="dept-critical">{dept.criticalCount} critical</span>
                             <PctBar pct={dept.avgPercentage} level={dept.avgPercentage >= 75 ? 'GOOD' : dept.avgPercentage >= 60 ? 'WARNING' : 'CRITICAL'} />
                         </div>
                     </div>
 
                     {/* Class breakdown inside dept */}
-                    <div className="divide-y divide-[var(--color-border)]">
+                    <div className="divide-y divide-[var(--color-border)]" data-testid="dept-classes">
                         {dept.classBreakdown.map((c) => (
                             <div
                                 key={c.sectionId}
                                 className="flex flex-wrap items-center justify-between gap-3 px-5 py-3 hover:bg-[var(--color-background-secondary)] transition-colors cursor-pointer"
                                 onClick={() => onDrillDown(c.sectionId)}
+                                data-testid={`dept-class-row-${c.sectionId}`}
                             >
                                 <div className="flex items-center gap-3">
                                     <LayoutGrid size={14} className="text-[var(--color-foreground-muted)]" />
-                                    <span className="font-medium text-sm text-[var(--color-foreground)]">{c.className} · Sem {c.semester}</span>
-                                    <span className="text-xs text-[var(--color-foreground-muted)]">{c.totalStudents} students</span>
+                                    <span className="font-medium text-sm text-[var(--color-foreground)]" data-testid="class-label">{c.className} · Sem {c.semester}</span>
+                                    <span className="text-xs text-[var(--color-foreground-muted)]" data-testid="class-students-count">{c.totalStudents} students</span>
                                 </div>
                                 <div className="flex items-center gap-4 text-xs">
                                     <span className="text-[var(--color-success)]">{c.goodCount} good</span>
@@ -323,11 +327,12 @@ function RiskFilterTabs({ active, onChange, counts }: {
         { value: 'CRITICAL', label: 'Critical' },
     ];
     return (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2" data-testid="risk-filter-tabs">
             {tabs.map(({ value, label }) => (
                 <button
                     key={value}
                     onClick={() => onChange(value)}
+                    data-testid={`risk-tab-${value.toLowerCase()}`}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
                         active === value
                             ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
@@ -337,7 +342,7 @@ function RiskFilterTabs({ active, onChange, counts }: {
                             : 'text-[var(--color-foreground-secondary)] border-[var(--color-border)] bg-[var(--color-card)]'
                     }`}
                 >
-                    {label} <span className="ml-1 opacity-70">{counts[value]}</span>
+                    {label} <span className="ml-1 opacity-70" data-testid="risk-count">{counts[value]}</span>
                 </button>
             ))}
         </div>
@@ -436,6 +441,7 @@ export default function HODAttendanceReports() {
                                 <select
                                     value={semesterFilter ?? ''}
                                     onChange={(e) => setSemesterFilter(e.target.value ? Number(e.target.value) : null)}
+                                    data-testid="semester-filter"
                                     className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] text-sm focus:outline-none focus:border-[var(--color-primary)]"
                                 >
                                     <option value="">All Semesters</option>
@@ -448,6 +454,7 @@ export default function HODAttendanceReports() {
                                 <select
                                     value={subjectFilter ?? ''}
                                     onChange={(e) => setSubjectFilter(e.target.value ? Number(e.target.value) : null)}
+                                    data-testid="subject-filter"
                                     className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] text-sm focus:outline-none focus:border-[var(--color-primary)]"
                                 >
                                     <option value="">All Subjects</option>
@@ -460,6 +467,7 @@ export default function HODAttendanceReports() {
                                 <select
                                     value={periodFilter ?? ''}
                                     onChange={(e) => setPeriodFilter(e.target.value ? Number(e.target.value) : null)}
+                                    data-testid="period-filter"
                                     className="px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] text-[var(--color-foreground)] text-sm focus:outline-none focus:border-[var(--color-primary)]"
                                 >
                                     <option value="">All Periods</option>

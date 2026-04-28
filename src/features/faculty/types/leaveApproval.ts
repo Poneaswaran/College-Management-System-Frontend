@@ -27,7 +27,7 @@ export interface FacultyLeaveRequest {
     actionTakenBy: string | null;
     rejectionRemark: string | null;
     approvalRemark: string | null;
-    ai_summary: string | null;
+    ai_summary?: string | null;
     // Balance info for context
     casualLeaveBalance: number;
     sickLeaveBalance: number;

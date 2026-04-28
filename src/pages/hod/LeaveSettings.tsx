@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Save, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { Calendar, Save, Clock, AlertCircle } from 'lucide-react';
 import PageLayout from '../../components/layout/PageLayout';
 import { Header } from '../../components/layout/Header';
 import { useToast } from '../../components/ui/Toast';
-import { getWeekendSettings, updateWeekendSettings } from '../../services/leave.service';
+import { getWeekendSettings, updateWeekendSettings, type WeekendSetting } from '../../services/leave.service';
 
 const DAYS = [
     { value: 0, label: 'Monday' },
@@ -29,7 +29,7 @@ export default function LeaveSettings() {
         try {
             setLoading(true);
             const data = await getWeekendSettings();
-            const weekendDays = data.filter((s: any) => s.is_weekend).map((s: any) => s.day);
+            const weekendDays = data.filter((s: WeekendSetting) => s.is_weekend).map((s: WeekendSetting) => s.day);
             setSelectedWeekends(weekendDays);
         } catch (error) {
             console.error('Error fetching settings:', error);
@@ -117,6 +117,7 @@ export default function LeaveSettings() {
                                         onClick={handleSave}
                                         disabled={saving}
                                         className="px-8 py-3 bg-[var(--color-primary)] text-white rounded-xl font-bold hover:bg-[var(--color-primary-hover)] transition-all shadow-theme-md flex items-center gap-2 disabled:opacity-50"
+                                        data-testid="save-weekend-settings-btn"
                                     >
                                         {saving ? (
                                             <>

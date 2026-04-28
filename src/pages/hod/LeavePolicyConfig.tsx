@@ -1,44 +1,75 @@
 import React, { useState, useEffect } from 'react';
 import { 
     Settings, Shield, Building2, School, Landmark, 
-    Plus, Edit2, Trash2, Calendar, Check, X, AlertTriangle, 
-    Info, ChevronRight, Save, Clock, FileText, ArrowRightRight
+    Plus, Edit2, Trash2, Check, X, AlertTriangle, 
+    Info, Save, Clock, FileText, ArrowRight
 } from 'lucide-react';
-import { leavePolicyApi, getLeaveTypes, LeaveType, LeavePolicy } from '../../services/leave.service';
-import { getDepartments } from '../../services/department.service'; // Assuming this exists
+import { leavePolicyApi, getLeaveTypes, type LeaveType, type LeavePolicy } from '../../services/leave.service';
+import { departmentService } from '../../services/department.service';
 import api from '../../services/api';
 
+interface Policy extends LeavePolicy {
+    scope_display: string;
+    leave_type_detail: {
+        id: number;
+        name: string;
+        code: string;
+    };
+    tenant_name?: string;
+    school_name?: string;
+    department_name?: string;
+    school?: number;
+    school_name_info?: string;
+}
+
+interface SchoolInfo {
+    id: number;
+    name: string;
+}
+
+interface TenantInfo {
+    id: number;
+    name: string;
+}
+
+interface DeptInfo {
+    id: number;
+    name: string;
+    school: number;
+    school_name: string;
+}
+
 const LeavePolicyConfig: React.FC = () => {
-    const [policies, setPolicies] = useState<any[]>([]);
+    const [policies, setPolicies] = useState<Policy[]>([]);
     const [leaveTypes, setLeaveTypes] = useState<LeaveType[]>([]);
-    const [departments, setDepartments] = useState<any[]>([]);
-    const [schools, setSchools] = useState<any[]>([]);
-    const [tenants, setTenants] = useState<any[]>([]);
+    const [departments, setDepartments] = useState<DeptInfo[]>([]);
+    const [schools, setSchools] = useState<SchoolInfo[]>([]);
+    const [tenants, setTenants] = useState<TenantInfo[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
-    const [editingPolicy, setEditingPolicy] = useState<any>(null);
+    const [editingPolicy, setEditingPolicy] = useState<Policy | null>(null);
 
     // Form State
-    const [formData, setFormData] = useState<any>({
+    const [formData, setFormData] = useState<Partial<Policy>>({
         scope: 'department',
-        leave_type: '',
-        tenant: '',
-        school: '',
-        department: '',
-        annual_quota: '',
+        leave_type: 0,
+        tenant: undefined,
+        school: undefined,
+        department: undefined,
+        annual_quota: undefined,
         carry_forward: false,
-        max_carry_forward: '',
+        max_carry_forward: undefined,
         allows_half_day: true,
         requires_attachment: false,
         min_notice_days: 0,
-        max_consecutive_days: '',
+        max_consecutive_days: undefined,
         effective_from: new Date().toISOString().split('T')[0],
         effective_to: '',
         is_active: true
     });
 
     useEffect(() => {
-        fetchData();
+        void fetchData();
     }, []);
 
     const fetchData = async () => {
@@ -47,22 +78,20 @@ const LeavePolicyConfig: React.FC = () => {
             const [policiesRes, typesRes, deptsRes] = await Promise.all([
                 leavePolicyApi.list(),
                 getLeaveTypes(),
-                getDepartments()
+                departmentService.getDepartments()
             ]);
             setPolicies(policiesRes.data);
             setLeaveTypes(typesRes);
-            setDepartments(deptsRes);
+            const depts = (deptsRes as any).departments as DeptInfo[];
+            setDepartments(depts);
             
-            // In a real app, fetch schools and tenants from respective services
-            // Mocking for now based on depts
-            const uniqueSchools = Array.from(new Set(deptsRes.map((d: any) => d.school))).map(id => ({
+            const uniqueSchools = Array.from(new Set(depts.map((d: DeptInfo) => d.school))).map(id => ({
                 id,
-                name: deptsRes.find((d: any) => d.school === id)?.school_name || `School ${id}`
+                name: depts.find((d: DeptInfo) => d.school === id)?.school_name || `School ${id}`
             }));
             setSchools(uniqueSchools);
             
-            // Get current tenant from context or API
-            const tenantRes = await api.get('/tenants/current/'); // Hypothetical
+            const tenantRes = await api.get('/tenants/current/');
             setTenants([tenantRes.data]);
 
         } catch (error) {
@@ -74,15 +103,15 @@ const LeavePolicyConfig: React.FC = () => {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
-        const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+        const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : 
+                    type === 'number' ? parseFloat(value) : value;
         setFormData(prev => ({ ...prev, [name]: val }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const payload = { ...formData };
-            // Ensure fields are correctly nulled based on scope
+            const payload = { ...formData } as any;
             if (payload.scope === 'tenant') { payload.school = null; payload.department = null; }
             if (payload.scope === 'school') { payload.tenant = null; payload.department = null; }
             if (payload.scope === 'department') { payload.tenant = null; payload.school = null; }
@@ -94,9 +123,10 @@ const LeavePolicyConfig: React.FC = () => {
             }
             setShowForm(false);
             setEditingPolicy(null);
-            fetchData();
-        } catch (error: any) {
-            alert(error.response?.data?.error || "Error saving policy");
+            void fetchData();
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "Error saving policy";
+            alert(errorMessage);
         }
     };
 
@@ -104,8 +134,8 @@ const LeavePolicyConfig: React.FC = () => {
         if (!window.confirm("Are you sure you want to delete this policy override?")) return;
         try {
             await leavePolicyApi.delete(id);
-            fetchData();
-        } catch (error) {
+            void fetchData();
+        } catch {
             alert("Error deleting policy");
         }
     };
@@ -138,17 +168,17 @@ const LeavePolicyConfig: React.FC = () => {
                         setEditingPolicy(null);
                         setFormData({
                             scope: 'department',
-                            leave_type: '',
-                            tenant: tenants[0]?.id || '',
-                            school: '',
-                            department: '',
-                            annual_quota: '',
+                            leave_type: 0,
+                            tenant: tenants[0]?.id || 0,
+                            school: 0,
+                            department: 0,
+                            annual_quota: 0,
                             carry_forward: false,
-                            max_carry_forward: '',
+                            max_carry_forward: 0,
                             allows_half_day: true,
                             requires_attachment: false,
                             min_notice_days: 0,
-                            max_consecutive_days: '',
+                            max_consecutive_days: 0,
                             effective_from: new Date().toISOString().split('T')[0],
                             effective_to: '',
                             is_active: true
@@ -156,6 +186,7 @@ const LeavePolicyConfig: React.FC = () => {
                         setShowForm(true);
                     }}
                     className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl hover:bg-indigo-700 transition-all shadow-md hover:shadow-indigo-200"
+                    data-testid="add-policy-btn"
                 >
                     <Plus className="w-5 h-5" />
                     Add Policy Override
@@ -182,7 +213,7 @@ const LeavePolicyConfig: React.FC = () => {
                                     <button
                                         key={s}
                                         type="button"
-                                        onClick={() => setFormData({...formData, scope: s})}
+                                        onClick={() => setFormData({...formData, scope: s as any})}
                                         className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium capitalize transition-all ${
                                             formData.scope === s ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                                         }`}
@@ -280,7 +311,7 @@ const LeavePolicyConfig: React.FC = () => {
 
                             <div className="col-span-2 flex justify-end gap-3 pt-4 border-t border-gray-100">
                                 <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2 text-gray-600 hover:bg-gray-100 rounded-xl font-medium">Cancel</button>
-                                <button type="submit" className="flex items-center gap-2 bg-indigo-600 text-white px-8 py-2 rounded-xl hover:bg-indigo-700 font-semibold shadow-lg shadow-indigo-100">
+                                <button type="submit" className="flex items-center gap-2 bg-indigo-600 text-white px-8 py-2 rounded-xl hover:bg-indigo-700 font-semibold shadow-lg shadow-indigo-100" data-testid="save-policy-btn">
                                     <Save className="w-4 h-4" />
                                     {editingPolicy ? 'Update Policy' : 'Create Policy'}
                                 </button>
@@ -364,7 +395,7 @@ const LeavePolicyConfig: React.FC = () => {
                                                 <Clock className="w-3 h-3 text-gray-400" /> {p.min_notice_days ?? 0}d notice
                                             </p>
                                             <p className="text-[10px] text-gray-600 flex items-center gap-1">
-                                                <ArrowRightRight className="w-3 h-3 text-gray-400" /> {p.max_consecutive_days ? `${p.max_consecutive_days}d max` : 'Unlimited'}
+                                                <ArrowRight className="w-3 h-3 text-gray-400" /> {p.max_consecutive_days ? `${p.max_consecutive_days}d max` : 'Unlimited'}
                                             </p>
                                         </div>
                                     </td>
@@ -383,12 +414,14 @@ const LeavePolicyConfig: React.FC = () => {
                                                     setShowForm(true);
                                                 }}
                                                 className="p-1.5 hover:bg-white hover:text-indigo-600 hover:shadow-sm rounded-lg text-gray-400 transition-all"
+                                                data-testid={`edit-policy-btn-${p.id}`}
                                             >
                                                 <Edit2 className="w-4 h-4" />
                                             </button>
                                             <button 
                                                 onClick={() => deletePolicy(p.id)}
                                                 className="p-1.5 hover:bg-rose-50 hover:text-rose-500 rounded-lg text-gray-400 transition-all"
+                                                data-testid={`delete-policy-btn-${p.id}`}
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>

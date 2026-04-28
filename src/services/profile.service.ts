@@ -15,11 +15,27 @@ export interface StudentProfile {
 
 export interface FacultyProfile {
     id: number;
+    user: number;
+    first_name: string;
+    last_name: string;
     full_name: string;
     email: string | null;
+    phone: string | null;
+    address: string | null;
+    date_of_birth: string | null;
+    gender: string | null;
+    department: number;
     department_name: string | null;
     designation: string;
+    qualifications: string;
+    specialization: string;
+    joining_date: string;
+    office_hours: string;
+    teaching_load: number;
     profile_photo: string | null;
+    research_interests: string[];
+    experience: string | null;
+    is_active: boolean;
 }
 
 type ApiParams = Record<string, string | number | boolean | undefined | null>;
@@ -31,9 +47,19 @@ type StudentUpdatePayload = Partial<{
 }>;
 
 type FacultyUpdatePayload = Partial<{
+    first_name: string;
+    last_name: string;
+    phone: string;
+    address: string;
+    date_of_birth: string;
+    gender: string;
     designation: string;
+    qualifications: string;
     specialization: string;
     office_hours: string;
+    teaching_load: number;
+    research_interests: string[];
+    experience: string;
     user_id: number;
 }>;
 
@@ -49,6 +75,11 @@ class ProfileService {
     async getFaculties(params: ApiParams = {}): Promise<{ results: FacultyProfile[]; count: number }> {
         const response = await api.get('/profile/hod/faculty-list/', { params });
         return response.data as { results: FacultyProfile[]; count: number };
+    }
+
+    async getFacultyProfile(): Promise<FacultyProfile> {
+        const response = await api.get('/profile/faculty/me/');
+        return response.data;
     }
 
     async downloadIDCard(
